@@ -65,7 +65,8 @@ The simulation stops when:
   
 ### Implementation
 
-I (YR) started implementing the model in Python. R is also a possibility. Java is out of the question - to much overhead and not as fast. C/C++ is to much overhead. Matlab costs money (won't be able to use the entire computing power at hand) and is not open-source. 
+I (YR) started implementing the model in Python. R is also a possibility. Java is out of the question - to much overhead and not as fast. C/C++ is to much overhead. Matlab costs money (won't be able to use the entire computing power at hand) and is not open-source.
+
 The Python implementation uses Numpy and Scipy for manipulating the population attributes - these can be downloaded and installed from their website or using *pip*, but I recommend to install an [EPD] package, especially for installing on Windows 64-bit. If you want to i (contact me if you want it and can't find it). Other options for Windows 64-bit is [this page][64bit-python]. I believe 64-bit systems will have an advantage here because of the high computational power, but it can still be developed on 32-bit and depolyed on 64-bit, as it is Python...
 
 The results will be saved either using regular CSV files or using MongoDB.
