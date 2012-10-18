@@ -73,11 +73,18 @@ The results will be saved either using regular CSV files or using MongoDB.
 
 The analysis of the results will probably be done in R.
 
+### Other tools
+
+The code is hosted on [github]. 
+
+The README was edited using [prose], an online text editor for github which allows to checkout and commit in a flouent way right from the browser and can be also used to deal with python files, although in a naive way. For markdown it's great as it have a preview and help panes.
 
 [Yoav Ram]: http://www.yoavram.com/
 [Hadany Evolutionary Theory Lab in Tel-Aviv]: http://sites.google.com/site/hadanylab/
 [proevolutionsimulation]: http://proevolutionsimulation.googlecode.com/
 [EPD]: http://www.enthought.com/products/epd.php
 [64bit-python]: http://www.lfd.uci.edu/~gohlke/pythonlibs/
+[prose]: http://prose.io/
+[github]: https://github.com/yoavram/mamba
 
 1: An allele is an instance of a gene. For example, at the homoglobin gene, which codes for the Homoglobin protein, which carries oxygen around the body, one could have a "good" allele that does a good job, and one can have a "bad" allele, that doesn't bind oxygen as good as the "good" allele, and therefore the person might suffer from breathing problems.
