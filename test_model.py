@@ -53,6 +53,22 @@ class TestSequenceFunctions(unittest.TestCase):
         size = sum(pop.counts)
         self.assertEquals(size, pop.size)
 
+    def test_create_new_allele_method(self):
+        new_allele = model.create_new_allele_method(2)
+        sum_of_new_alleles = sum([new_allele(0) for _ in range(1000)])
+        self.assertEquals(sum_of_new_alleles, 1000)
+        sum_of_new_alleles = sum([new_allele(1) for _ in range(1000)])
+        self.assertEquals(sum_of_new_alleles, 0)
+        
+        new_allele = model.create_new_allele_method(3)
+        sum_of_new_alleles = sum([new_allele(0) for _ in range(1000)])
+        self.assertTrue(sum_of_new_alleles > 1000)
+        self.assertTrue(sum_of_new_alleles < 2000)
+        sum_of_new_alleles = sum([new_allele(2) for _ in range(1000)])
+        self.assertTrue(sum_of_new_alleles > 100)
+        self.assertTrue(sum_of_new_alleles < 900)
+        
+        
     def tearDown(self):
         pass
 

@@ -46,7 +46,19 @@ def create_context():
     c.founder = "mutation-free"
     c.mean_fitness = 1
     c.tick = 1
+    c.num_of_alleles = 2
+    c.new_allele = create_new_allele_method(c.num_of_alleles)
     return c
+
+def create_new_allele_method(num_of_alleles):
+    if num_of_alleles == 2:
+        def new_allele(current_allele):
+            return (current_allele + 1) % 2        
+    else:
+        def new_allele(current_allele):
+            i = random_integers(1, num_of_alleles-1)
+            return (current_allele + i) % num_of_alleles
+    return new_allele
 
 def fitness(context, genome):
     return sum(context.optimal_genome==genome)
@@ -84,8 +96,8 @@ def selection(context, population):
     freqs = population.counts*population.fitness
     freqs = freqs/freqs.sum()
     population.counts = multinomial(context.population_size, freqs)
-    return population    
-
+    return population
+    
 def mutation(context, population):
     # first draw number of mutations for each class
     # this is important because each class can have a different mutation rate
@@ -99,9 +111,9 @@ def mutation(context, population):
         for loci in loci_list:
             new_genome = population.genomes[key].copy()
             population.counts[key] -= 1
-            # TODO check it is not < 0 - shouldn't be a problem, as mutation rate << 1
+            assert population.counts[key] >= 0, "count at key %d is negative %d" % (key, population.counts[key])
             for locus in loci:
-                new_genome[locus] = (new_genome[locus]+1) % 2
+                new_genome[locus] = context.new_allele(new_genome[locus])
             new_key = population.revmap.get(new_genome.tostring(), -1)
             if new_key == -1:
                 new_key = len(population.counts)
@@ -115,19 +127,22 @@ def mutation(context, population):
             else:
                 population.counts[new_key] += 1
             # check if class is now empty, if it is replace it with the last class
-            if population.counts[key] == 0:
-                last_key = len(population.counts)-1
-                population.count[key] = population.pop()
-                population.fitness[key] = population.fitness.pop()
-                population.mutation_rates[key] = population.mutation_rates.pop()
-                population.recombination_rates[key] = population.recombination_rates.pop()
-                new_genome = population.genomes[-1]
-                population.genomes[key] = new_genome
-                population.genomes = population.genomes[:-1]
-                populaiton.revmap[new_genome.tostring()] = key
+            if population.counts[key] == 0:# TODO test this
+                remove_empty_class(context, population, key)
             
     return population
-                       
+
+def remove_empty_class(context, population, key):
+    last_key = len(population.counts)-1
+    population.count[key] = population.pop()
+    population.fitness[key] = population.fitness.pop()
+    population.mutation_rates[key] = population.mutation_rates.pop()
+    population.recombination_rates[key] = population.recombination_rates.pop()
+    new_genome = population.genomes[-1]
+    population.genomes[key] = new_genome
+    population.genomes = population.genomes[:-1]
+    populaiton.revmap[new_genome.tostring()] = key
+            
 def recombination(context, population):
     return population
 
