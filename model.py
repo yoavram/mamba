@@ -1,4 +1,5 @@
 import numpy as np
+from numpy.random import random_integers, multinomial, poisson
 import scipy as sp
 from ConfigParser import ConfigParser
 import time
@@ -71,32 +72,32 @@ def create_population(context):
         
         return p
     else:
-        raise ValueError("Unknown founder '%s%" % c.founder)
+        raise ValueError("Unknown founder '%s%" % context.founder)
 
 
 def drift(context, population):
     freqs = population.frequencies()
-    population.counts = np.random.multinomial(context.population_size, freqs)
+    population.counts = multinomial(context.population_size, freqs)
     return population
 
 def selection(context, population):
     freqs = population.counts*population.fitness
     freqs = freqs/freqs.sum()
-    population.counts = np.random.multinomial(context.population_size, freqs)
+    population.counts = multinomial(context.population_size, freqs)
     return population    
 
 def mutation(context, population):
     # first draw number of mutations for each class
     # this is important because each class can have a different mutation rate
     rates = population.mutation_rates * population.counts
-    class_mutations = np.random.poisson([rates]) #???
+    class_mutations = poisson([rates]) #???
     for key in range(len(class_mutations)):
         # draw how the mutations are ditributed in the class
         class_count = population.counts[key]
-        individual_mutations = np.random.multinomial(class_mutations[key], [1./class_count]*class_count)
-        loci_list = [ np.random.random_integers(0, context.num_of_genes, x) for x in individual_mutations if x>0 ]
+        individual_mutations = multinomial(class_mutations[key], [1./class_count]*class_count)
+        loci_list = [ random_integers(0, context.num_of_genes-1, x) for x in individual_mutations if x>0 ]
         for loci in loci_list:
-            new_genome = population.genomes[key]
+            new_genome = population.genomes[key].copy()
             population.counts[key] -= 1
             # TODO check it is not < 0 - shouldn't be a problem, as mutation rate << 1
             for locus in loci:
@@ -104,30 +105,29 @@ def mutation(context, population):
             new_key = population.revmap.get(new_genome.tostring(), -1)
             if new_key == -1:
                 new_key = len(population.counts)
-                np.append(population.counts, 1)
-                np.append(population.fitness, fitness(context, new_genome))
-                np.append(population.mutation_rates, mutation_rate(context, new_genome))
-                np.append(population.recombination_rates, recombination_rate(context, new_genome))
-                population.revmap[new_genome.tostring()] = key # TODO check this
-                add_row(population.genomes, new_genome)
+                population.counts = np.append(population.counts, 1)
+                population.fitness = np.append(population.fitness, fitness(context, new_genome))
+                population.mutation_rates = np.append(population.mutation_rates, mutation_rate(context, new_genome))
+                population.recombination_rates = np.append(population.recombination_rates, recombination_rate(context, new_genome))
+                population.revmap[new_genome.tostring()] = new_key # TODO check this
+                population.genomes = add_row(population.genomes, new_genome)
+                assert (population.genomes[new_key] == new_genome).all()
             else:
                 population.counts[new_key] += 1
-        # check if class is now empty, if it is replace it with the last class
-        if population.counts[key] == 0:
-            last_key = len(population.counts)-1
-            population.count[key] = population.pop()
-            population.fitness[key] = population.fitness.pop()
-            population.mutation_rates[key] = population.mutation_rates.pop()
-            population.recombination_rates[key] = population.recombination_rates.pop()
-            new_genome = population.genomes[-1]
-            population.genomes[key] = new_genome
-            population.genomes = population.genomes[:-1]
-            populaiton.revmap[new_genome.tostring()] = key
+            # check if class is now empty, if it is replace it with the last class
+            if population.counts[key] == 0:
+                last_key = len(population.counts)-1
+                population.count[key] = population.pop()
+                population.fitness[key] = population.fitness.pop()
+                population.mutation_rates[key] = population.mutation_rates.pop()
+                population.recombination_rates[key] = population.recombination_rates.pop()
+                new_genome = population.genomes[-1]
+                population.genomes[key] = new_genome
+                population.genomes = population.genomes[:-1]
+                populaiton.revmap[new_genome.tostring()] = key
             
-    
-    
-    
-            
+    return population
+                       
 def recombination(context, population):
     return population
 

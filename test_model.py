@@ -7,6 +7,7 @@ class TestSequenceFunctions(unittest.TestCase):
 
     def setUp(self):
         self.context = model.create_context()
+        self.population = model.create_population(self.context)
 
     def test_context(self):
         self.assertIsNotNone(self.context)
@@ -14,33 +15,43 @@ class TestSequenceFunctions(unittest.TestCase):
     def test_create_population(self):
         pop = model.create_population(self.context)
         self.assertIsNotNone(pop)
-        self.assertNotEquals(len(pop), 0)
+        self.assertNotEquals(len(pop.counts), 0)
 
-        c = model.Context()
+        c = model.create_context()
         c.founder = "no-founder"
         with self.assertRaises(ValueError):
             model.create_population(c)
-        
 
     def test_mutation(self):
-        pass
-
+        pop = model.mutation(self.context, self.population)
+        self.assertIsNotNone(pop)
+        self.assertNotEquals(len(pop.counts), 0)
+        size = sum(pop.counts)
+        self.assertEquals(size, pop.size)
+        for cnt in pop.counts:
+            self.assertTrue(cnt>=0)
+            
     def test_selection(self):
-        pass
+        pop = model.selection(self.context, self.population)
+        self.assertIsNotNone(pop)
+        self.assertNotEquals(len(pop.counts), 0)
+        size = sum(pop.counts)
+        self.assertEquals(size, pop.size)
+        
 
     def test_drift(self, replicates=1000):
-        pop = model.create_population(self.context)        
-        pop_next = model.drift(self.context, pop) 
-
-        self.assertNotNone(pop2)
-        self.assertEquals(len(pop), len(pop2))
-        self.assertEquals(sum(pop), sum(pop2))
-        for i in pop2:
-            self.assert(i>=0)      
+        pop = model.drift(self.context, self.population)
+        self.assertIsNotNone(pop)
+        self.assertNotEquals(len(pop.counts), 0)
+        size = sum(pop.counts)
+        self.assertEquals(size, pop.size)   
 
     def test_recombination(self):
-        pass
-
+        pop = model.recombination(self.context, self.population)
+        self.assertIsNotNone(pop)
+        self.assertNotEquals(len(pop.counts), 0)
+        size = sum(pop.counts)
+        self.assertEquals(size, pop.size)
 
     def tearDown(self):
         pass
