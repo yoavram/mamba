@@ -23,35 +23,35 @@ class TestSequenceFunctions(unittest.TestCase):
             model.Population(c)
 
     def test_mutation(self):
-        pop = self.context.mutation(self.population)
-        self.assertIsNotNone(pop)
-        self.assertNotEquals(len(pop.counts), 0)
-        size = sum(pop.counts)
-        self.assertEquals(size, pop.size)
-        for cnt in pop.counts:
+        self.context.mutation(self.population)
+        self.assertIsNotNone(self.population)
+        self.assertNotEquals(len(self.population.counts), 0)
+        size = sum(self.population.counts)
+        self.assertEquals(size, self.population.size)
+        for cnt in self.population.counts:
             self.assertTrue(cnt>=0)
             
     def test_selection(self):
-        pop = self.context.selection(self.population)
-        self.assertIsNotNone(pop)
-        self.assertNotEquals(len(pop.counts), 0)
-        size = sum(pop.counts)
-        self.assertEquals(size, pop.size)
+        self.context.selection(self.population)
+        self.assertIsNotNone(self.population)
+        self.assertNotEquals(len(self.population.counts), 0)
+        size = sum(self.population.counts)
+        self.assertEquals(size, self.population.size)
         
 
     def test_drift(self, replicates=1000):
-        pop = self.context.drift(self.population)
-        self.assertIsNotNone(pop)
-        self.assertNotEquals(len(pop.counts), 0)
-        size = sum(pop.counts)
-        self.assertEquals(size, pop.size)   
+        self.context.drift(self.population)
+        self.assertIsNotNone(self.population)
+        self.assertNotEquals(len(self.population.counts), 0)
+        size = sum(self.population.counts)
+        self.assertEquals(size, self.population.size)   
 
     def test_recombination(self):
-        pop = self.context.recombination(self.population)
-        self.assertIsNotNone(pop)
-        self.assertNotEquals(len(pop.counts), 0)
-        size = sum(pop.counts)
-        self.assertEquals(size, pop.size)
+        self.context.recombination(self.population)
+        self.assertIsNotNone(self.population)
+        self.assertNotEquals(len(self.population.counts), 0)
+        size = sum(self.population.counts)
+        self.assertEquals(size, self.population.size)
 
     def test_create_new_allele_method(self):
         new_allele = model.create_new_allele_method(2)
@@ -109,6 +109,10 @@ class TestSequenceFunctions(unittest.TestCase):
         allele = self.context.new_allele_by_recombination(self.population, locus)
         self.assertEquals(allele, 0)
 
+    def test_mean_fitness(self):
+        mf = self.population.mean_fitness()
+        self.assertTrue(mf>0)
+        self.assertTrue(mf<=1)
         
     def tearDown(self):
         pass

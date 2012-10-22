@@ -3,6 +3,7 @@ from numpy import append
 from numpy.random import random_integers, multinomial, poisson
 from ConfigParser import ConfigParser
 import time
+import pickle
 
 DEBUG = True
 
@@ -38,7 +39,7 @@ class Population:
         if context.founder == MUTATION_FREE:
             context.optimal_genome = np.array( [0]*context.num_of_genes, dtype=GENE)
             self.size = context.population_size
-            self.fsize = float(self.size)
+            self.fsize = np.float64(self.size)
             self.genomes = np.zeros( (1, context.num_of_genes), dtype=GENE) # key=row to genome, locus=col to alleles in population
             self.counts = np.array( [self.size], dtype=np.uint64 ) # key=index to count
             self.mutation_rates = np.array([context.mutation_rate(self.genomes[0])], dtype=np.float64) # key=index to mutation rate
@@ -53,15 +54,36 @@ class Population:
         return self.counts/self.fsize
     
     def mean_fitness(self):
-        return self.counts.dot(self.fitness.T)
+        return self.frequencies().dot(self.fitness)
 
+    def num_of_classes(self):
+        return len(self.counts)
+
+    def mutation_counts(self):
+        return self.genomes.sum(1)
+
+    def mutation_histogram(self):
+        counts = mutation_counts
+        hist = dict()
+        for c in counts:
+            hist[c] = hist.get(c, 0) + 1
+        return hist
+
+    def mean_num_of_mutations(self):
+        return self.mutation_counts().dot(self.frequencies())
+
+    def allele_frequency(self, loci, allele=0):
+        return (allele==self.genomes[:,loci]).mean()
+    
 class Context:
     def __init__(self):
+        self.step = 0
         self.basic_mutation_rate = 0.003
         self.basic_recombination_rate = 0.00006
         self.selection_coefficient = 0.1
         self.population_size = 100000.0 # must be float
         self.num_of_genes = 1000
+        self.fnum_of_genes = np.float64(self.num_of_genes)
         self.founder = "mutation-free"
         self.mean_fitness = 1
         self.tick = 1
@@ -69,7 +91,7 @@ class Context:
         self.new_allele_by_mutation = create_new_allele_method(self.num_of_alleles)
 
     def fitness(context, genome):
-        return sum(context.optimal_genome==genome)
+        return (context.optimal_genome==genome).mean()
 
     def mutation_rate(context, genome):
         return context.basic_mutation_rate
@@ -80,26 +102,24 @@ class Context:
     def drift(context, population):
         freqs = population.frequencies()
         population.counts = multinomial(context.population_size, freqs)
-        return population
 
     def selection(context, population):
         freqs = population.counts*population.fitness
         freqs = freqs/freqs.sum()
         population.counts = multinomial(context.population_size, freqs)
-        return population
         
     def mutation(context, population):
         # first draw number of mutations for each class
         # this is important because each class can have a different mutation rate
         rates = population.mutation_rates * population.counts
-        mutations_distribution = poisson(rates, size=1) 
+        mutations_distribution = poisson(rates, size=len(rates)) 
         for key, mutations in enumerate(mutations_distribution):
             context.mutate_class(population, key, mutations)
-        return population
     
     def mutate_class(context, population, key, mutations):
         # draw how the mutations are ditributed in the class
         class_count = population.counts[key]
+        assert class_count>0, "class %d count is %d" % (key,class_count)
         individual_mutations = multinomial(mutations, [1./class_count]*class_count)
         loci_list = [ random_integers(0, context.num_of_genes-1, x) for x in individual_mutations if x>0 ]
         for loci in loci_list:
@@ -108,14 +128,15 @@ class Context:
             assert population.counts[key] >= 0, "count at key %d is negative %d" % (key, population.counts[key])
             for locus in loci:
                 new_genome[locus] = context.new_allele_by_mutation(new_genome[locus])
+            # check if this genome is already in the population
             new_key = population.revmap.get(new_genome.tostring(), -1)
-            if new_key == -1:
+            if new_key == -1: # not in the population
                 context.add_new_class(population, new_genome)
-            else:
+            else: # in the population
                 population.counts[new_key] += 1
             # check if class is now empty, if it is replace it with the last class
-            if population.counts[key] == 0:# TODO test this
-                remove_empty_class(context, population, key)
+            if population.counts[key] == 0:
+                context.remove_empty_class(population, key)
         
     def add_new_class(context, population, new_genome):
         new_key = len(population.counts)
@@ -132,12 +153,12 @@ class Context:
         population.revmap.pop(population.genomes[key].tostring())
         if key != last_key:
             # move last key to key
-            population.count[key] = population.counts[last_key]
+            population.counts[key] = population.counts[last_key]
             population.fitness[key] = population.fitness[last_key]
             population.mutation_rates[key] = population.mutation_rates[last_key]
             population.recombination_rates[key] = population.recombination_rates[last_key]
             population.genomes[key] = population.genomes[last_key]
-            populaiton.revmap[population.genomes[last_key].tostring()] = key
+            population.revmap[population.genomes[last_key].tostring()] = key
         # remove last key
         population.counts = population.counts[:last_key]
         population.fitness = population.fitness[:last_key]
@@ -158,10 +179,10 @@ class Context:
         return allele
                 
     def recombination(context, population):
-        return population
+        pass
 
     def test_termination(context, population):
-        return context.step == 10
+        return context.step == 1
         mean_fitness = population.mean_fitness() 
         dif = np.abs(mean_fitness - context.mean_fitness)
         context.mean_fitness = mean_fitness
@@ -170,18 +191,18 @@ class Context:
             return True
         return False
 
-    def run(self):
+    def run(self, population):
         tick = time.clock()
         print "Starting simulation at time %f" % tick
-        population = Population(self)
-
-        while not self.test_termination( population):
-            if self.step % 100 == 0:
-                print "Step %d" % self.step
-            population = self.drift( population)
-            population = self.selection( population)
-            population = self.mutation( population)
-            population = self.recombination( population)
+        
+        while not self.test_termination( population ):
+            #if self.step % 100 == 0:
+            print "Step %d, # classes %d" % (self.step, len(population.counts))
+            self.drift( population )
+            self.selection( population )
+            self.remove_empty_classes( population )
+            self.mutation( population )
+            self.recombination( population )
             self.step += 1
         print "Saving population to file"
         fout = open("population", "wb")
@@ -192,5 +213,6 @@ class Context:
 
 if __name__ == "__main__":
     c = Context()
-    c.run()
+    p = Population(c)
+    c.run(p)
     
