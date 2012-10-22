@@ -1,7 +1,6 @@
 import numpy as np
 from numpy import append
 from numpy.random import random_integers, multinomial, poisson
-import scipy as sp
 from ConfigParser import ConfigParser
 import time
 
@@ -93,28 +92,31 @@ class Context:
         # first draw number of mutations for each class
         # this is important because each class can have a different mutation rate
         rates = population.mutation_rates * population.counts
-        class_mutations = poisson([rates]) #???
-        for key in range(len(class_mutations)):
-            # draw how the mutations are ditributed in the class
-            class_count = population.counts[key]
-            individual_mutations = multinomial(class_mutations[key], [1./class_count]*class_count)
-            loci_list = [ random_integers(0, context.num_of_genes-1, x) for x in individual_mutations if x>0 ]
-            for loci in loci_list:
-                new_genome = population.genomes[key].copy()
-                population.counts[key] -= 1
-                assert population.counts[key] >= 0, "count at key %d is negative %d" % (key, population.counts[key])
-                for locus in loci:
-                    new_genome[locus] = context.new_allele_by_mutation(new_genome[locus])
-                new_key = population.revmap.get(new_genome.tostring(), -1)
-                if new_key == -1:
-                    context.add_new_class(population, new_genome)
-                else:
-                    population.counts[new_key] += 1
-                # check if class is now empty, if it is replace it with the last class
-                if population.counts[key] == 0:# TODO test this
-                    remove_empty_class(context, population, key)
+        mutations_distribution = poisson(rates, size=1) 
+        for key, mutations in enumerate(mutations_distribution):
+            context.mutate_class(population, key, mutations)
         return population
-
+    
+    def mutate_class(context, population, key, mutations):
+        # draw how the mutations are ditributed in the class
+        class_count = population.counts[key]
+        individual_mutations = multinomial(mutations, [1./class_count]*class_count)
+        loci_list = [ random_integers(0, context.num_of_genes-1, x) for x in individual_mutations if x>0 ]
+        for loci in loci_list:
+            new_genome = population.genomes[key].copy()
+            population.counts[key] -= 1
+            assert population.counts[key] >= 0, "count at key %d is negative %d" % (key, population.counts[key])
+            for locus in loci:
+                new_genome[locus] = context.new_allele_by_mutation(new_genome[locus])
+            new_key = population.revmap.get(new_genome.tostring(), -1)
+            if new_key == -1:
+                context.add_new_class(population, new_genome)
+            else:
+                population.counts[new_key] += 1
+            # check if class is now empty, if it is replace it with the last class
+            if population.counts[key] == 0:# TODO test this
+                remove_empty_class(context, population, key)
+        
     def add_new_class(context, population, new_genome):
         new_key = len(population.counts)
         population.counts = append(population.counts, 1)
@@ -148,7 +150,6 @@ class Context:
         for key in keys:
            context.remove_empty_class(population, key)
 
-
     def new_allele_by_recombination(context, population, locus):
         draw = multinomial(1, population.frequencies())
         assert sum(draw)==1, "multinomial wasn't 1"
@@ -157,26 +158,6 @@ class Context:
         return allele
                 
     def recombination(context, population):
-        rates = population.recombination_rates * population.counts
-        class_recombinations = poisson([rates]) 
-        for key in range(len(class_recombinations)):
-            class_count = population.counts[key]
-            individual_recombinations = multinomial(class_recombinations[key], [1./class_count]*class_count)
-            loci_list = [ random_integers(0, context.num_of_genes-1, x) for x in individual_recombinations if x>0 ]
-            for loci in loci_list:
-                new_genome = population.genomes[key].copy()
-                population.counts[key] -= 1
-                assert population.counts[key] >= 0, "count at key %d is negative %d" % (key, population.counts[key])
-                for locus in loci:
-                    new_genome[locus] = context.new_allele_by_recombination(population, locus)
-                new_key = population.revmap.get(new_genome.tostring(), -1)
-                if new_key == -1:
-                    context.add_new_class(population, new_genome)
-                else:
-                    population.counts[new_key] += 1
-                # check if class is now empty, if it is replace it with the last class
-                if population.counts[key] == 0:
-                    remove_empty_class(context, population, key)
         return population
 
     def test_termination(context, population):
