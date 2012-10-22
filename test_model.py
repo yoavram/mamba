@@ -7,20 +7,20 @@ class TestSequenceFunctions(unittest.TestCase):
 
     def setUp(self):
         self.context = model.Context()
-        self.population = model.create_population(self.context)
+        self.population = model.Population(self.context)
 
     def test_context(self):
         self.assertIsNotNone(self.context)
 
     def test_create_population(self):
-        pop = model.create_population(self.context)
+        pop = model.Population(self.context)
         self.assertIsNotNone(pop)
         self.assertNotEquals(len(pop.counts), 0)
 
         c = model.Context()
         c.founder = "no-founder"
         with self.assertRaises(ValueError):
-            model.create_population(c)
+            model.Population(c)
 
     def test_mutation(self):
         pop = self.context.mutation(self.population)

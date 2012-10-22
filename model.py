@@ -33,26 +33,21 @@ def create_new_allele_method(num_of_alleles):
             return (current_allele + i) % num_of_alleles
     return new_allele
 
-def create_population(context):
-    if context.founder == MUTATION_FREE:
-        context.optimal_genome = np.array( [0]*context.num_of_genes, dtype=GENE)
-        p = Population()
-        p.size = context.population_size
-        p.fsize = float(p.size)
-        p.genomes = np.zeros( (1, context.num_of_genes), dtype=GENE) # key=row to genome, locus=col to alleles in population
-        p.counts = np.array( [p.size], dtype=np.uint64 ) # key=index to count
-        p.mutation_rates = np.array([context.mutation_rate(p.genomes[0])], dtype=np.float64) # key=index to mutation rate
-        p.recombination_rates = np.array([context.recombination_rate(p.genomes[0])], dtype=np.float64) # key=index to recombination rate
-        p.fitness = np.array( [context.fitness(p.genomes[0])], dtype=np.float64) # key=index to fitness
-        p.revmap = { p.genomes[0].tostring() : 0 }
-        
-        return p
-    else:
-        raise ValueError("Unknown founder '%s%" % context.founder)
-
 class Population:
-    def __init__(self):
-        pass
+    def __init__(self, context):
+        if context.founder == MUTATION_FREE:
+            context.optimal_genome = np.array( [0]*context.num_of_genes, dtype=GENE)
+            self.size = context.population_size
+            self.fsize = float(self.size)
+            self.genomes = np.zeros( (1, context.num_of_genes), dtype=GENE) # key=row to genome, locus=col to alleles in population
+            self.counts = np.array( [self.size], dtype=np.uint64 ) # key=index to count
+            self.mutation_rates = np.array([context.mutation_rate(self.genomes[0])], dtype=np.float64) # key=index to mutation rate
+            self.recombination_rates = np.array([context.recombination_rate(self.genomes[0])], dtype=np.float64) # key=index to recombination rate
+            self.fitness = np.array( [context.fitness(self.genomes[0])], dtype=np.float64) # key=index to fitness
+            self.revmap = { self.genomes[0].tostring() : 0 }
+        else:
+            raise ValueError("Unknown founder '%s%" % context.founder)
+
 
     def frequencies(self):
         return self.counts/self.fsize
@@ -154,7 +149,7 @@ class Context:
     def run(self):
         tick = time.clock()
         print "Starting simulation at time %f" % tick
-        population = create_population(context)
+        population = Population(self)
 
         while not self.test_termination( population):
             if self.step % 100 == 0:
@@ -172,5 +167,6 @@ class Context:
         print "Finished simulation at time %f, elapsed time %f" % (tock, (tock-tick))
 
 if __name__ == "__main__":
-    run()
+    c = Context()
+    c.run()
     
