@@ -6,7 +6,7 @@ import scipy
 class TestSequenceFunctions(unittest.TestCase):
 
     def setUp(self):
-        self.context = model.create_context()
+        self.context = model.Context()
         self.population = model.create_population(self.context)
 
     def test_context(self):
@@ -17,13 +17,13 @@ class TestSequenceFunctions(unittest.TestCase):
         self.assertIsNotNone(pop)
         self.assertNotEquals(len(pop.counts), 0)
 
-        c = model.create_context()
+        c = model.Context()
         c.founder = "no-founder"
         with self.assertRaises(ValueError):
             model.create_population(c)
 
     def test_mutation(self):
-        pop = model.mutation(self.context, self.population)
+        pop = self.context.mutation(self.population)
         self.assertIsNotNone(pop)
         self.assertNotEquals(len(pop.counts), 0)
         size = sum(pop.counts)
@@ -32,7 +32,7 @@ class TestSequenceFunctions(unittest.TestCase):
             self.assertTrue(cnt>=0)
             
     def test_selection(self):
-        pop = model.selection(self.context, self.population)
+        pop = self.context.selection(self.population)
         self.assertIsNotNone(pop)
         self.assertNotEquals(len(pop.counts), 0)
         size = sum(pop.counts)
@@ -40,14 +40,14 @@ class TestSequenceFunctions(unittest.TestCase):
         
 
     def test_drift(self, replicates=1000):
-        pop = model.drift(self.context, self.population)
+        pop = self.context.drift(self.population)
         self.assertIsNotNone(pop)
         self.assertNotEquals(len(pop.counts), 0)
         size = sum(pop.counts)
         self.assertEquals(size, pop.size)   
 
     def test_recombination(self):
-        pop = model.recombination(self.context, self.population)
+        pop = self.context.recombination(self.population)
         self.assertIsNotNone(pop)
         self.assertNotEquals(len(pop.counts), 0)
         size = sum(pop.counts)
