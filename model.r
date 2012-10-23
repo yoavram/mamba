@@ -1,6 +1,5 @@
 library(e1071)
-library(ggplot2)
-library(plyr)
+
 
 hamming.fitness <- function(s, genome, target) {
   return((1-s)^hamming.distance(genome, target))
@@ -103,4 +102,7 @@ rec.rates <- rec.rates[strains]
 fitness <- fitness[strains]
 num.strains <- length(population)
 
+df <- data.frame(count=population, fitness=fitness, mutation.load=apply(genomes,1,sum), mu.rates=mu.rate, rec.rates=rec.rates)
+fname <- paste("mamba_",strftime(now(),format="%Y_%b_%d_%H_%M_%s"),".csv")
+write.csv(df, fname)
 
