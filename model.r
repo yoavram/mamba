@@ -11,6 +11,7 @@ random.genome <- function(alleles=2, num.loci=100, prob.zero=0.99) {
   return(draw)
 }
 
+debug <- TRUE
 num.loci <- 3
 pop.size <- 100000
 s <- 0.001
@@ -29,7 +30,9 @@ fitness <- apply(genomes, 1, hamming.fitness, s=s, target=target.genome)
 mf <- weighted.mean(fitness, population)
 tick <- 0
 
-pb <- txtProgressBar(min = 0, max = 1000, style = 3)
+if (debug) {
+  pb <- txtProgressBar(min = 0, max = 1000, style = 3)
+}
 
 while(tick < 1000) {
   # drift
@@ -39,39 +42,41 @@ while(tick < 1000) {
   population <- rmultinom(1, pop.size, population*fitness)
   
   # mutation
-  strain.mutations <- rpois(num.strains, mu.rates*population)
-  for(strain in 1:num.strains) {
-    loci <- sample( num.loci, strain.mutations[strain], T )
-    for(locus in loci){
-      # create mutated genome
-      genome <- genomes[strain,]
-      genome[locus] <- (genome[locus]+1)%%2
-      
-      # find if new genome already exists
-      new_strain <- -1
-      for (i in 1:num.strains) {
-        # this is faster than apply, and not just because there is a stop condition
-        if (all(genomes[i,]==genome)) {
-          new_strain <- i
-          break
-        }
+  mutations <- rpois(num.strains, mu.rates*population)
+  mutations.cum <- cumsum(mutations)
+  loci <- sample( num.loci, sum(mutations), T )
+  #strains <- unlist(Map(function(x) which.max( mutations.cum>=x ), seq_along(loci)))
+  for (i in seq_along(loci)) {
+    locus <- loci[i]
+    strain <- which.max( mutations.cum>=i )
+    # create mutated genome
+    genome <- genomes[strain,]
+    genome[locus] <- (genome[locus]+1)%%2
+    
+    # find if new genome already exists
+    new_strain <- -1
+    for (i in 1:num.strains) {
+      # this is faster than apply, and not just because there is a stop condition
+      if (all(genomes[i,]==genome)) {
+        new_strain <- i
+        break
       }
-      if (new_strain == -1) {
-        # add new strain
-        genomes <- rbind(genomes, genome)
-        num.strains <- num.strains + 1
-        new_strain <- num.strains
-        mu.rates <- c(mu.rates, mu.rate) # TODO
-        rec.rates <- c(mu.rates, rec.rate) # TODO
-        fitness <- c(fitness, hamming.fitness(s, genome, target.genome))
-        population <- c(population, 1)
-      } else {
-        # increment number of individual in new strain
-        population[new_strain] <- population[new_strain] + 1
-      }
-      # decrement number of individuals in mutated strain
-      population[strain] <- population[strain] - 1
     }
+    if (new_strain == -1) {
+      # add new strain
+      genomes <- rbind(genomes, genome)
+      num.strains <- num.strains + 1
+      new_strain <- num.strains
+      mu.rates <- c(mu.rates, mu.rate) # TODO
+      rec.rates <- c(mu.rates, rec.rate) # TODO
+      fitness <- c(fitness, hamming.fitness(s, genome, target.genome))
+      population <- c(population, 1)
+    } else {
+      # increment number of individual in new strain
+      population[new_strain] <- population[new_strain] + 1
+    }
+    # decrement number of individuals in mutated strain
+    population[strain] <- population[strain] - 1
   }
   
   # clear empty strains
@@ -90,15 +95,18 @@ while(tick < 1000) {
   
   # finish step
   tick <- tick+1
-  setTxtProgressBar(pb, tick)
-  
+  if (debug) {
+    setTxtProgressBar(pb, tick)
+  }
   if (tick%%100==0) {
     sprintf("Tick %d mean fitness %f number of strains %d", tick, mf, num.strains)
   }
 }
 
 sprintf("Finished at tick %d with mean fitness %f and number of strains %d", tick, mf, num.strains)
-close(pb)
+if (debug) {
+  close(pb)
+}
 
 # clear empty strains
 strains <- which(population>0)
