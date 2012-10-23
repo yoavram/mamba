@@ -1,6 +1,6 @@
 # Mamba
 
-## Evolutionary simulations in Python and R
+## Evolutionary simulations in R (and maybe Python) 
 
 ### Overview
 
