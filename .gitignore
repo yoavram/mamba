@@ -26,3 +26,13 @@ pip-log.txt
 #Mr Developer
 .mr.developer.cfg
 .Rproj.user
+
+# History files
+.Rhistory
+
+# Example code in package build process
+*-Ex.R
+
+# Output files
+*.csv
+*.csv.gz
