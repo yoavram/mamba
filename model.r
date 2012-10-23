@@ -1,5 +1,5 @@
 library(e1071)
-
+library(lubridate)
 
 hamming.fitness <- function(s, genome, target) {
   return((1-s)^hamming.distance(genome, target))
@@ -11,7 +11,7 @@ random.genome <- function(alleles=2, num.loci=100, prob.zero=0.99) {
   return(draw)
 }
 
-num.loci <- 10
+num.loci <- 3
 pop.size <- 100000
 s <- 0.001
 mu.rate <- 0.003
@@ -28,7 +28,10 @@ fitness <- apply(genomes, 1, hamming.fitness, s=s, target=target.genome)
 
 mf <- weighted.mean(fitness, population)
 tick <- 0
-while(mf > (1-mu.rate)) {
+
+pb <- txtProgressBar(min = 0, max = 1000, style = 3)
+
+while(tick < 1000) {
   # drift
   population <- rmultinom(1, pop.size, population)
   
@@ -87,11 +90,15 @@ while(mf > (1-mu.rate)) {
   
   # finish step
   tick <- tick+1
+  setTxtProgressBar(pb, tick)
+  
   if (tick%%100==0) {
     sprintf("Tick %d mean fitness %f number of strains %d", tick, mf, num.strains)
   }
 }
+
 sprintf("Finished at tick %d with mean fitness %f and number of strains %d", tick, mf, num.strains)
+close(pb)
 
 # clear empty strains
 strains <- which(population>0)
