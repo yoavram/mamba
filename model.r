@@ -1,5 +1,4 @@
 library(e1071)
-library(lubridate)
 
 hamming.fitness <- function(s, genome, target) {
   return((1-s)^hamming.distance(genome, target))
@@ -11,12 +10,17 @@ random.genome <- function(alleles=2, num.loci=100, prob.zero=0.99) {
   return(draw)
 }
 
-debug <- TRUE
-num.loci <- 3
+debug <- FALSE
+num.loci <- 100
 pop.size <- 100000
-s <- 0.001
+s <- 0.01
 mu.rate <- 0.003
 rec.rate <- 0.00006
+max.tick <- 10000
+if (debug) {
+  max.tick <- 5
+  num.loci <- 3
+}
 
 target.genome <- rep(0, num.loci)
 
@@ -34,7 +38,7 @@ if (debug) {
   pb <- txtProgressBar(min = 0, max = 1000, style = 3)
 }
 
-while(tick < 1000) {
+while(tick < max.tick) {
   # drift
   population <- rmultinom(1, pop.size, population)
   
@@ -118,6 +122,6 @@ fitness <- fitness[strains]
 num.strains <- length(population)
 
 df <- data.frame(count=population, fitness=fitness, mutation.load=apply(genomes,1,sum), mu.rates=mu.rate, rec.rates=rec.rates)
-fname <- paste("output/mamba_",strftime(now(),format="%Y_%b_%d_%H_%M_%s"),".csv")
+fname <- paste("output/mamba_",strftime(Sys.time(),format="%Y_%b_%d_%H_%M_%s"),".csv", sep="")
 write.csv(df, fname)
 
