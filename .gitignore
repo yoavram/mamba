@@ -36,3 +36,4 @@ pip-log.txt
 # Output files
 *.csv
 *.csv.gz
+output
