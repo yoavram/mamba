@@ -65,13 +65,13 @@ The simulation stops when:
   
 ### Implementation
 
-I (YR) started implementing the model in Python. R is also a possibility. Java is out of the question - to much overhead and not as fast. C/C++ is to much overhead. Matlab costs money (won't be able to use the entire computing power at hand) and is not open-source.
+I (YR) started implementing the model in R. Java is out of the question - to much overhead and not as fast. C/C++ is to much overhead. Matlab costs money (won't be able to use the entire computing power at hand) and is not open-source. I implemented it in Python (see [python last commit], but it was too much work compared to R, with all those *NumPy* arrays. Also I think it was slower. 
 
-The Python implementation uses Numpy and Scipy for manipulating the population attributes - these can be downloaded and installed from their website or using *pip*, but I recommend to install an [EPD] package, especially for installing on Windows 64-bit. If you want to i (contact me if you want it and can't find it). Other options for Windows 64-bit is [this page][64bit-python]. I believe 64-bit systems will have an advantage here because of the high computational power, but it can still be developed on 32-bit and depolyed on 64-bit, as it is Python...
+The R implementation was coded on R v.2.15. The model uses the [e1071] package, the analysis uses the *ggplot2* and *plyr* packages. 
 
-The results will be saved either using regular CSV files or using MongoDB.
+The results will be saved either using regular CSV files or using MongoDB. Probably CSV with gzip compression.
 
-The analysis of the results will probably be done in R.
+Initial *mutation-selection balance* analysis is written to analyze results of simulations reaching a balance.
 
 ### Other tools
 
@@ -82,9 +82,9 @@ The README was edited using [prose], an online text editor for github which allo
 [Yoav Ram]: http://www.yoavram.com/
 [Hadany Evolutionary Theory Lab in Tel-Aviv]: http://sites.google.com/site/hadanylab/
 [proevolutionsimulation]: http://proevolutionsimulation.googlecode.com/
-[EPD]: http://www.enthought.com/products/epd.php
-[64bit-python]: http://www.lfd.uci.edu/~gohlke/pythonlibs/
+[e1071]: http://cran.r-project.org/web/packages/e1071/index.html
 [prose]: http://prose.io/
 [github]: https://github.com/yoavram/mamba
+[python-last-commit](https://github.com/yoavram/mamba/commit/b9fa9b3b9b30aaa545a7376b54de753cd126dfe5))
 
 1: An allele is an instance of a gene. For example, at the homoglobin gene, which codes for the Homoglobin protein, which carries oxygen around the body, one could have a "good" allele that does a good job, and one can have a "bad" allele, that doesn't bind oxygen as good as the "good" allele, and therefore the person might suffer from breathing problems.
