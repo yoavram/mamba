@@ -118,6 +118,6 @@ fitness <- fitness[strains]
 num.strains <- length(population)
 
 df <- data.frame(count=population, fitness=fitness, mutation.load=apply(genomes,1,sum), mu.rates=mu.rate, rec.rates=rec.rates)
-fname <- paste("mamba_",strftime(now(),format="%Y_%b_%d_%H_%M_%s"),".csv")
+fname <- paste("output/mamba_",strftime(now(),format="%Y_%b_%d_%H_%M_%s"),".csv")
 write.csv(df, fname)
 
