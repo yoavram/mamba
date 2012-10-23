@@ -3,7 +3,9 @@ from numpy import append
 from numpy.random import random_integers, multinomial, poisson
 from ConfigParser import ConfigParser
 import time
-import pickle
+from cPickle import dump
+from gzip import open
+import datetime
 
 DEBUG = True
 
@@ -11,6 +13,9 @@ MUTATION_FREE = "mutation-free"
 
 GENE = np.uint16
 
+def make_id():
+    return datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S_%f")
+    
 def add_row(m, arr):
     arr = arr.reshape( (1,1000) ) 
     return np.append(m, arr, 0)
@@ -77,6 +82,7 @@ class Population:
     
 class Context:
     def __init__(self):
+        self.id = make_id()
         self.step = 0
         self.basic_mutation_rate = 0.003
         self.basic_recombination_rate = 0.00006
@@ -182,7 +188,7 @@ class Context:
         pass
 
     def test_termination(context, population):
-        return context.step == 1
+        return context.step == 3
         mean_fitness = population.mean_fitness() 
         dif = np.abs(mean_fitness - context.mean_fitness)
         context.mean_fitness = mean_fitness
@@ -191,9 +197,17 @@ class Context:
             return True
         return False
 
+    def serialize(self, prefix = "mamba", postfix="gz"):
+        # TODO this doesn't serialize the populations!
+        fname = "%s.%s.%s" % ( prefix, self.id, postfix)
+        fout = open(fname, "wb")
+        dump(self, fout)
+        fout.close()
+        return fname
+        
     def run(self, population):
         tick = time.clock()
-        print "Starting simulation at time %f" % tick
+        print "Starting simulation %s at time %f" % (self.id, tick)
         
         while not self.test_termination( population ):
             #if self.step % 100 == 0:
@@ -204,10 +218,8 @@ class Context:
             self.mutation( population )
             self.recombination( population )
             self.step += 1
-        print "Saving population to file"
-        fout = open("population", "wb")
-        pickle.dump(population, fout)
-        fout.close()
+    
+        print "Saved population to file:", self.serialize()
         tock = time.clock()
         print "Finished simulation at time %f, elapsed time %f" % (tock, (tock-tick))
 
