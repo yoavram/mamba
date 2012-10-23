@@ -1,4 +1,6 @@
 library(e1071)
+library(ggplot2)
+library(plyr)
 
 hamming.fitness <- function(s, genome, target) {
   return((1-s)^hamming.distance(genome, target))
@@ -19,13 +21,10 @@ rec.rate <- 0.00006
 target.genome <- rep(0, num.loci)
 
 genomes <- t(matrix(target.genome))
-#genomes <- rbind(genomes, rep(1, num.loci))
-
 num.strains <- dim(genomes)[1]
 population <- rep(pop.size/num.strains, num.strains)
 mu.rates <- rep(mu.rate, num.strains)
 rec.rates <- c(rec.rate, num.strains)
-
 fitness <- apply(genomes, 1, hamming.fitness, s=s, target=target.genome)
 
 mf <- weighted.mean(fitness, population)
@@ -73,10 +72,35 @@ while(mf > (1-mu.rate)) {
     }
   }
   
+  # clear empty strains
+  strains <- which(population>0)
+  if (length(strains)>(num.strains/10)) {
+    population <- population[strains]
+    genomes <- genomes[strains,]
+    mu.rates <- mu.rates[strains]
+    rec.rates <- rec.rates[strains]
+    fitness <- fitness[strains]
+    num.strains <- length(population)
+  }
+  
   # mean fitness
   mf <- weighted.mean(fitness, population)
   
   # finish step
   tick <- tick+1
+  if (tick%%100==0) {
+    sprintf("Tick %d mean fitness %f number of strains %d", tick, mf, num.strains)
+  }
 }
-sprintf("Finished at tick %d with mean fitness %f and class 0 size %d", tick, mf, population[1])
+sprintf("Finished at tick %d with mean fitness %f and number of strains %d", tick, mf, num.strains)
+
+# clear empty strains
+strains <- which(population>0)
+population <- population[strains]
+genomes <- genomes[strains,]
+mu.rates <- mu.rates[strains]
+rec.rates <- rec.rates[strains]
+fitness <- fitness[strains]
+num.strains <- length(population)
+
+
