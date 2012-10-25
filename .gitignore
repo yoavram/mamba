@@ -37,3 +37,5 @@ pip-log.txt
 *.csv
 *.csv.gz
 output
+*.pdf
+*.png
