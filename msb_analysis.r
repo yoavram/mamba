@@ -1,24 +1,61 @@
 library(ggplot2)
 library(plyr)
+library(RColorBrewer)
 
-# plots
+crunch.data <- function(fname, s=0.01, mu=0.003) {
+  df<-read.csv(fname, header=T)
+  
+  # sf = summarized df
+  sf<-ddply(df,.(mutation.load), summarize, count=sum(count))
+  
+  obs.mean <- weighted.mean(sf$mutation.load, sf$count)
+  expect <- dpois(0:max(sf$mutation.load), lambda=obs.mean)
+  expect <- expect*sum(df$count)
+  
+  theor <- dpois(0:max(sf$mutation.load), lambda=mu/s)
+  theor <- theor*sum(df$count)
+  
+  sf <- cbind(sf, theor, expect)
+  
+  return(sf)
+}
 
-# strains
-qplot(x=1:length(population),y=population,log="y",main="individuals per strain", xlab="strain", ylab="individuals")
-qplot(population, geom=c("histogram","density"))
+plot.summary <- function(sf) {
+  obs.mean <- weighted.mean(sf$mutation.load, sf$count)
+  
+  p <- ggplot(data=sf, mapping=aes(mutation.load))
+  
+  q <- p + ggtitle(label="Mutation load distribution") + 
+    
+    geom_point(mapping=aes(y=count, colour="observed")) +
+    geom_point(mapping=aes(y=expect, colour="expected")) +
+    geom_line(mapping=aes(y=theor, colour="theoretical"), linetype=2) +
+    
+    xlab(label="# of deleterious mutations") +
+    ylab(label="# of individuals") + 
+    scale_colour_manual(values = rev(brewer.pal(3,"Set1")), name="") +
+    geom_vline(xintercept=c(mu/s, obs.mean)) 
+  
+  return(q)
+}
 
-# num of mutations
-mutation.load <- apply(genomes, 1, sum)
-qplot(x=mutation.load, y=population,log="y", geom="point",main="individuals per mutation load", xlab="mutation load", ylab="individuals") + stat_smooth(method=lm)
+test.goodnesoffit.poisson <- function(sf) {
+  # http://www.zoology.ubc.ca/~whitlock/bio300/lecturenotes/gof/gof.html
+  chisquare.statistic <- sum((sf$count-sf$expect)^2/sf$expect)
+  df <- length(sf$count)-1-1
+  pval <- pchisq(q=chisquare.statistic, df=df)
+  return(pval)  
+}
 
-qplot(x=fitness, y=population,log="y", geom="point",main="individuals per fitness", xlab="fitness", ylab="individuals") + stat_smooth(method=lm)
+mu <- 0.003
+s <- 0.01
 
-df <- data.frame(count=population, fitness=fitness, mutation.load=mutation.load)
-fs <- ddply(df, .(mutation.load), summarize, count = sum(count))
-fs <- cbind(fs, expected=dpois(0:max(fs$mutation.load), mu.rate/s)*sum(population))
-
-p <- ggplot(fs, aes(mutation.load, expected)) 
-p + geom_point()
-
-points(fs$expected, col="red")
-plot(fs$count)
+file.list <- list.files(path='~/lecs/workspace/mamba/output/',pattern="mamba_\\w*.csv",full.names=T)
+for (fname in file.list) {
+  sf <- crunch.data(fname=fname)
+  p <- plot.summary(sf=sf)
+  png.name <- gsub(x=fname, pattern=".csv",replacement=".png")
+  if (interactive() ) print(p) 
+  ggsave(filename=png.name, plot=p)
+  print(paste("fname: ",fname,"pvalue: ",test.goodnesoffit.poisson(sf=sf)))
+}
