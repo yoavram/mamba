@@ -1,0 +1,10 @@
+#!/bin/bash
+#$ -V
+#$ -cwd
+#$ -j y
+#$ -N mamba 
+#$ -l lilach,h_rt=48:00:00,mem_free=1G
+
+module load R/R215
+cd ~/workspace/mamba
+R --vanilla --slave -f model.r
