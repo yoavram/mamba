@@ -42,7 +42,10 @@ plot.summary <- function(sf) {
 test.goodnesoffit.poisson <- function(sf) {
   # http://www.zoology.ubc.ca/~whitlock/bio300/lecturenotes/gof/gof.html
   chisquare.statistic <- sum((sf$count-sf$expect)^2/sf$expect)
-  df <- length(sf$count)-1-1
+  df <- length(sf$count)-2 # one parameter for the poisson distribution
+  if (df<=1) {
+    return(NA)
+  }
   pval <- pchisq(q=chisquare.statistic, df=df)
   return(pval)  
 }
@@ -50,7 +53,7 @@ test.goodnesoffit.poisson <- function(sf) {
 mu <- 0.003
 s <- 0.01
 
-file.list <- list.files(path='~/lecs/workspace/mamba/output/',pattern="mamba_\\w*.csv",full.names=T)
+file.list <- list.files(path='output/',pattern="mamba_\\w*.csv",full.names=T)
 for (fname in file.list) {
   sf <- crunch.data(fname=fname)
   p <- plot.summary(sf=sf)

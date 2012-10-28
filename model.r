@@ -10,13 +10,13 @@ random.genome <- function(alleles=2, num.loci=100, prob.zero=0.99) {
   return(draw)
 }
 
-debug <- FALSE
-num.loci <- 100
+debug <- FALSE # | interactive()
+num.loci <- 1000
 pop.size <- 100000
 s <- 0.01
 mu.rate <- 0.003
 rec.rate <- 0.00006
-max.tick <- 10000
+max.tick <- 100000
 if (debug) {
   max.tick <- 5
   num.loci <- 3
@@ -25,10 +25,16 @@ if (debug) {
 target.genome <- rep(0, num.loci)
 
 genomes <- t(matrix(target.genome))
+if (debug) {
+  new.genome <- genomes[1,]
+  new.genome[1] <- 1
+  genomes <- rbind(genomes, new.genome)
+}
+
 num.strains <- dim(genomes)[1]
 population <- rep(pop.size/num.strains, num.strains)
 mu.rates <- rep(mu.rate, num.strains)
-rec.rates <- c(rec.rate, num.strains)
+rec.rates <- rep(rec.rate, num.strains)
 fitness <- apply(genomes, 1, hamming.fitness, s=s, target=target.genome)
 
 mf <- weighted.mean(fitness, population)
@@ -45,39 +51,54 @@ while(tick < max.tick) {
   # selection
   population <- rmultinom(1, pop.size, population*fitness)
   
-  # mutation
-  mutations <- rpois(num.strains, mu.rates*population)
+  # mutation+recombination
+  events <- rpois(num.strains, (rec.rates+mu.rates)*population)
+  events.cum <- cumsum(events)
+  loci <- sample( num.loci, sum(events), T )
+  p.mu <- mu.rates/(mu.rates + rec.rates) # the prob that an event is a mutation and not a recombination
+  mutations <- rbinom(length(events), events, p.mu)
   mutations.cum <- cumsum(mutations)
-  loci <- sample( num.loci, sum(mutations), T )
-  #strains <- unlist(Map(function(x) which.max( mutations.cum>=x ), seq_along(loci)))
+  recombinations <- events-mutations
+  donors <- sample(num.strains, sum(recombinations), replace=T, prob=population)
+  
   for (i in seq_along(loci)) {
-    locus <- loci[i]
-    strain <- which.max( mutations.cum>=i )
-    # create mutated genome
+    sys.timelocus <- loci[i]
+    strain <- which.max( events.cum>=i )
+    # create new genome
     genome <- genomes[strain,]
-    genome[locus] <- (genome[locus]+1)%%2
+    
+    # mutation or recombination?
+    if (i <= mutations.cum[strain]) {
+      # mutation - TODO more alleles
+      genome[locus] <- (genome[locus]+1)%%2
+    } else {
+      # recombination
+      rec.i <- i - mutations.cum[strain]
+      donor <- donors[rec.i]
+      genome[locus] <- genomes[donor, locus]
+    }
     
     # find if new genome already exists
-    new_strain <- -1
+    new.strain <- -1
     for (i in 1:num.strains) {
       # this is faster than apply, and not just because there is a stop condition
       if (all(genomes[i,]==genome)) {
-        new_strain <- i
+        new.strain <- i
         break
       }
     }
-    if (new_strain == -1) {
+    if (new.strain == -1) {
       # add new strain
       genomes <- rbind(genomes, genome)
       num.strains <- num.strains + 1
-      new_strain <- num.strains
+      new.strain <- num.strains
       mu.rates <- c(mu.rates, mu.rate) # TODO
-      rec.rates <- c(mu.rates, rec.rate) # TODO
+      rec.rates <- c(rec.rates, rec.rate) # TODO
       fitness <- c(fitness, hamming.fitness(s, genome, target.genome))
       population <- c(population, 1)
     } else {
       # increment number of individual in new strain
-      population[new_strain] <- population[new_strain] + 1
+      population[new.strain] <- population[new.strain] + 1
     }
     # decrement number of individuals in mutated strain
     population[strain] <- population[strain] - 1
@@ -122,6 +143,7 @@ fitness <- fitness[strains]
 num.strains <- length(population)
 
 df <- data.frame(count=population, fitness=fitness, mutation.load=apply(genomes,1,sum), mu.rates=mu.rate, rec.rates=rec.rates)
-fname <- paste("output/mamba_",strftime(Sys.time(),format="%Y_%b_%d_%H_%M_%s"),".csv", sep="")
-write.csv(df, fname)
+Sys.setlocale("LC_TIME", "English")
+fname <- paste("output/mamba_",strftime(Sys.time(),format="%Y_%b_%d_%H_%M_%S"),".csv", sep="")
+write.csv(df, fname, row.names=F)
 
