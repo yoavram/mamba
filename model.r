@@ -62,7 +62,7 @@ while(tick < max.tick) {
   donors <- sample(num.strains, sum(recombinations), replace=T, prob=population)
   
   for (i in seq_along(loci)) {
-    sys.timelocus <- loci[i]
+    locus <- loci[i]
     strain <- which.max( events.cum>=i )
     # create new genome
     genome <- genomes[strain,]
