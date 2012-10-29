@@ -30,7 +30,7 @@ stats.to.dataframe <- function() {
 }
 
 if (debug) {
-  max.tick <- 500
+  max.tick <- 5
   num.loci <- 3
 }
 
@@ -55,6 +55,8 @@ tick <- 0
 if (debug) {
   pb <- txtProgressBar(min = 0, max = 1000, style = 3)
 }
+
+cat(sprintf("Starting %s simulation\n", job.name))
 
 while(tick < max.tick) {
   # drift
@@ -123,16 +125,16 @@ while(tick < max.tick) {
   mf <- weighted.mean(fitness, population)
   
   # finish step
-  tick <- tick+1
+  tick <- tick + 1
   if (debug) {
     setTxtProgressBar(pb, tick)
   }
   if (tick %% tick.interval==0) {
-    sprintf("Tick %d mean fitness %f number of strains %d", tick, mf, num.strains)
+    cat(sprintf("Tick %d mean fitness %f number of strains %d\n", tick, mf, num.strains))
   }
 }
 
-sprintf("Finished at tick %d with mean fitness %f and number of strains %d", tick, mf, num.strains)
+cat(sprintf("Finished at tick %d with mean fitness %f and number of strains %d\n", tick, mf, num.strains))
 if (debug) {
   close(pb)
 }
@@ -141,5 +143,5 @@ clear.empty.strains(1)
 
 df <- stats.to.dataframe()
 write.csv(df, output.fname, row.names=F)
-sprintf("Output written to %s", output.fname)
+cat(sprintf("Output written to %s\n", output.fname))
 
