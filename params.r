@@ -14,3 +14,10 @@ if (Sys.getenv('OS')=="Windows_NT") {Sys.setlocale("LC_TIME", "English")} # used
 job.id = strftime(Sys.time(), format="%Y_%b_%d_%H_%M_%S")
 file.ext = ".csv"
 output.fname = paste(out.dir,"/",job.name,"_",job.id,file.ext, sep="")
+
+args = commandArgs(T)
+cat("Changing default parameters with command line arguments:\n")
+for (arg in args) {
+  cat(arg,"\n")
+  eval(parse(text=arg))
+}
