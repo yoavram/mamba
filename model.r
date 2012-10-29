@@ -5,12 +5,6 @@ hamming.fitness <- function(genome) {
   return((1-s)^hamming.distance(genome, target.genome))
 }
 
-random.genome <- function(alleles=2, num.loci=100, prob.zero=0.99) {
-  probs <- c(prob_zero, rep( (1-prob.zero)/(alleles-1), (alleles-1) ))  
-  draw <- sample( seq(0,alleles), num.loci, T, probs)
-  return(draw)
-}
-
 stats.to.dataframe <- function() {
   df <- data.frame(count=population, fitness=fitness, mutation.load=apply(genomes, 1, sum), mu.rates=mu.rate, rec.rates=rec.rates)
   return(df)
@@ -34,7 +28,7 @@ num.strains <- dim(genomes)[1]
 population <- rep(pop.size/num.strains, num.strains)
 mu.rates <- rep(mu.rate, num.strains)
 rec.rates <- rep(rec.rate, num.strains)
-fitness <- apply(genomes, 1, hamming.fitness, s=s, target=target.genome)
+fitness <- apply(genomes, 1, hamming.fitness)
 
 mf <- weighted.mean(fitness, population)
 tick <- 0
@@ -71,7 +65,7 @@ while(tick < max.tick) {
     # mutation or recombination?
     if (i <= mutations.cum[strain]) {
       # mutation - TODO more alleles
-      genome[locus] <- (genome[locus]+1)%%2
+      genome[locus] <- (genome[locus]+1)%%num.alleles # TODO do I need to draw or is +1 good enough?
     } else {
       # recombination
       rec.i <- i - mutations.cum[strain]
@@ -95,7 +89,7 @@ while(tick < max.tick) {
       new.strain <- num.strains
       mu.rates <- c(mu.rates, mu.rate) # TODO
       rec.rates <- c(rec.rates, rec.rate) # TODO
-      fitness <- c(fitness, hamming.fitness(s, genome, target.genome))
+      fitness <- c(fitness, hamming.fitness(genome))
       population <- c(population, 1)
     } else {
       # increment number of individual in new strain

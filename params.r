@@ -1,5 +1,6 @@
-debug = FALSE 
+debug = TRUE 
 num.loci = 1000
+num.alleles = 2
 pop.size = 100000
 s = 0.01
 mu.rate = 0.003
