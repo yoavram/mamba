@@ -1,8 +1,8 @@
 source('params.r')
 library(e1071)
 
-hamming.fitness <- function(s, genome, target) {
-  return((1-s)^hamming.distance(genome, target))
+hamming.fitness <- function(genome) {
+  return((1-s)^hamming.distance(genome, target.genome))
 }
 
 random.genome <- function(alleles=2, num.loci=100, prob.zero=0.99) {
