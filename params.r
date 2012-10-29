@@ -1,4 +1,4 @@
-debug = TRUE 
+debug = FALSE 
 num.loci = 1000
 pop.size = 100000
 s = 0.01
@@ -10,7 +10,7 @@ min.non.empty.fraction = 0.9
 tick.interval = 100
 out.dir = "output"
 job.name = "msb"
-if (Sys.getenv('OS')=="Windows_NT") {Sys.setlocale("LC_TIME", "English") # used to get a month name in english}
+if (Sys.getenv('OS')=="Windows_NT") {Sys.setlocale("LC_TIME", "English")} # used to get a month name in english
 job.id = strftime(Sys.time(), format="%Y_%b_%d_%H_%M_%S")
 file.ext = ".csv"
 output.fname = paste(out.dir,"/",job.name,"_",job.id,file.ext, sep="")
