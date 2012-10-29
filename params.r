@@ -6,6 +6,7 @@ mu.rate = 0.003
 rec.rate = 0.06
 max.tick = 100000
 
+min.non.empty.fraction = 0.9
 tick.interval = 100
 out.dir = "output"
 job.name = "msb"

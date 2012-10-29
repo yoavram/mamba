@@ -11,27 +11,14 @@ random.genome <- function(alleles=2, num.loci=100, prob.zero=0.99) {
   return(draw)
 }
 
-clear.empty.strains <- function(min.non.empty.fraction = 0.9) {
-  strains <- which(population>0) # the non-empty strains
-  fraction.non.empty <- length(strains)/num.strains
-  if (fraction.non.empty < min.non.empty.fraction) {
-    population <- population[strains]
-    genomes <- genomes[strains,]
-    mu.rates <- mu.rates[strains]
-    rec.rates <- rec.rates[strains]
-    fitness <- fitness[strains]
-    num.strains <- length(population)
-  }
-}
-
 stats.to.dataframe <- function() {
   df <- data.frame(count=population, fitness=fitness, mutation.load=apply(genomes, 1, sum), mu.rates=mu.rate, rec.rates=rec.rates)
   return(df)
 }
 
 if (debug) {
-  max.tick <- 5
-  num.loci <- 3
+  max.tick <- 10
+  num.loci <- 30
 }
 
 target.genome <- rep(0, num.loci)
@@ -119,7 +106,16 @@ while(tick < max.tick) {
   }
   
   # clear empty strains
-  clear.empty.strains()  
+  strains <- which(population>0) # the non-empty strains
+  fraction.non.empty <- length(strains)/num.strains
+  if (fraction.non.empty < min.non.empty.fraction) {
+    population <- population[strains]
+    genomes <- genomes[strains,]
+    mu.rates <- mu.rates[strains]
+    rec.rates <- rec.rates[strains]
+    fitness <- fitness[strains]
+    num.strains <- length(population)
+  }  
   
   # mean fitness
   mf <- weighted.mean(fitness, population)
@@ -139,7 +135,16 @@ if (debug) {
   close(pb)
 }
 
-clear.empty.strains(1)
+strains <- which(population>0) # the non-empty strains
+fraction.non.empty <- length(strains)/num.strains
+if (fraction.non.empty < 1) {
+  population <- population[strains]
+  genomes <- genomes[strains,]
+  mu.rates <- mu.rates[strains]
+  rec.rates <- rec.rates[strains]
+  fitness <- fitness[strains]
+  num.strains <- length(population)
+}
 
 df <- stats.to.dataframe()
 write.csv(df, output.fname, row.names=F)
