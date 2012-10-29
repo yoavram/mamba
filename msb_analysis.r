@@ -30,11 +30,11 @@ plot.summary <- function(sf) {
     geom_point(mapping=aes(y=count, colour="observed")) +
     geom_point(mapping=aes(y=expect, colour="expected")) +
     geom_line(mapping=aes(y=theor, colour="theoretical"), linetype=2) +
-    
+    geom_vline(xintercept=c(mu/s, obs.mean), colour=c("red", "blue"))+
+  
     xlab(label="# of deleterious mutations") +
     ylab(label="# of individuals") + 
-    scale_colour_manual(values = rev(brewer.pal(3,"Set1")), name="") +
-    geom_vline(xintercept=c(mu/s, obs.mean)) 
+    scale_colour_manual(values = rev(brewer.pal(3,"Set1")), name="") 
   
   return(q)
 }
@@ -53,7 +53,7 @@ test.goodnesoffit.poisson <- function(sf) {
 mu <- 0.003
 s <- 0.01
 
-file.list <- list.files(path='output/',pattern="mamba_\\w*.csv",full.names=T)
+file.list <- list.files(path='output/',pattern="msb_\\w*.csv",full.names=T)
 for (fname in file.list) {
   sf <- crunch.data(fname=fname)
   p <- plot.summary(sf=sf)
