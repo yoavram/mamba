@@ -1,3 +1,4 @@
+source('params.r')
 library(e1071)
 
 hamming.fitness <- function(s, genome, target) {
@@ -10,15 +11,26 @@ random.genome <- function(alleles=2, num.loci=100, prob.zero=0.99) {
   return(draw)
 }
 
-debug <- FALSE # | interactive()
-num.loci <- 1000
-pop.size <- 100000
-s <- 0.01
-mu.rate <- 0.003
-rec.rate <- 0.00006
-max.tick <- 100000
+clear.empty.strains <- function(min.non.empty.fraction = 0.9) {
+  strains <- which(population>0) # the non-empty strains
+  fraction.non.empty <- length(strains)/num.strains
+  if (fraction.non.empty < min.non.empty.fraction) {
+    population <- population[strains]
+    genomes <- genomes[strains,]
+    mu.rates <- mu.rates[strains]
+    rec.rates <- rec.rates[strains]
+    fitness <- fitness[strains]
+    num.strains <- length(population)
+  }
+}
+
+stats.to.dataframe <- function() {
+  df <- data.frame(count=population, fitness=fitness, mutation.load=apply(genomes, 1, sum), mu.rates=mu.rate, rec.rates=rec.rates)
+  return(df)
+}
+
 if (debug) {
-  max.tick <- 5
+  max.tick <- 500
   num.loci <- 3
 }
 
@@ -105,15 +117,7 @@ while(tick < max.tick) {
   }
   
   # clear empty strains
-  strains <- which(population>0)
-  if (length(strains)>(num.strains/10)) {
-    population <- population[strains]
-    genomes <- genomes[strains,]
-    mu.rates <- mu.rates[strains]
-    rec.rates <- rec.rates[strains]
-    fitness <- fitness[strains]
-    num.strains <- length(population)
-  }
+  clear.empty.strains()  
   
   # mean fitness
   mf <- weighted.mean(fitness, population)
@@ -123,7 +127,7 @@ while(tick < max.tick) {
   if (debug) {
     setTxtProgressBar(pb, tick)
   }
-  if (tick%%100==0) {
+  if (tick %% tick.interval==0) {
     sprintf("Tick %d mean fitness %f number of strains %d", tick, mf, num.strains)
   }
 }
@@ -133,17 +137,9 @@ if (debug) {
   close(pb)
 }
 
-# clear empty strains
-strains <- which(population>0)
-population <- population[strains]
-genomes <- genomes[strains,]
-mu.rates <- mu.rates[strains]
-rec.rates <- rec.rates[strains]
-fitness <- fitness[strains]
-num.strains <- length(population)
+clear.empty.strains(1)
 
-df <- data.frame(count=population, fitness=fitness, mutation.load=apply(genomes,1,sum), mu.rates=mu.rate, rec.rates=rec.rates)
-Sys.setlocale("LC_TIME", "English")
-fname <- paste("output/mamba_",strftime(Sys.time(),format="%Y_%b_%d_%H_%M_%S"),".csv", sep="")
-write.csv(df, fname, row.names=F)
+df <- stats.to.dataframe()
+write.csv(df, output.fname, row.names=F)
+sprintf("Output written to %s", output.fname)
 
