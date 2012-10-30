@@ -1,33 +1,66 @@
 source('params.r')
 library(e1071)
 
-hamming.fitness <- function(genome) {
-  return((1-s)^hamming.distance(genome, target.genome))
-}
-
 stats.to.dataframe <- function() {
+  # TODO add modifier stats
   df <- data.frame( tick=rep(tick, num.strains), count=population, fitness=fitness, mutation.load=apply(genomes, 1, sum), mu.rates=mu.rate, rec.rates=rec.rates)
   return(df)
 }
 
+hamming.fitness <- function(genome) {
+  return((1-s)^hamming.distance(genome, target.genome))
+}
+
+mutation.rate <- function(genome, modifier) {
+  load <- hamming.distance(genome, target.genome)
+  if (load >= modifier$pi) {
+    return(mu.rate*modifier$tau)
+  } else{
+    return(mu.rate)
+  }
+}
+
+mutation.rate.for.strain <- function(strain) {
+  x <- mutation.rate(genomes[strain,], modifiers[strain,])
+  return(x)
+}
+
+recombination.rate <- function(genome, modifier) {
+  load <- hamming.distance(genome, target.genome)
+  if (load >= modifier$phi) {
+    return(rec.rate*modifier$rho)
+  } else{
+    return(rec.rate)
+  }
+}
+
+recombination.rate.for.strain <- function(strain) {
+  x <- recombination.rate(genomes[strain,], modifiers[strain,])
+  return(x)
+}
+
 if (debug) {
-  max.tick <- 2
-  num.loci <- 3
+  max.tick <- 100
+  num.loci <- 5
 }
 
 target.genome <- rep(0, num.loci)
 
 genomes <- t(matrix(target.genome))
+modifiers <- data.frame(pi=1, tau=10, phi=Inf, rho=1) # pi, tau, phi, rho
+
 if (debug) {
-  new.genome <- genomes[1,]
-  new.genome[1] <- 1
-  genomes <- rbind(genomes, new.genome)
+  new.modifiers <- modifiers[1,]
+  new.modifiers$pi <- 2
+  new.modifiers$tau <- 10
+  modifiers <- rbind(modifiers, new.modifiers)
+  genomes <- rbind(genomes, genomes[1,])
 }
 
 num.strains <- dim(genomes)[1]
 population <- rep(pop.size/num.strains, num.strains)
-mu.rates <- rep(mu.rate, num.strains)
-rec.rates <- rep(rec.rate, num.strains)
+mu.rates <- sapply(1:num.strains, mutation.rate.for.strain)
+rec.rates <- sapply(1:num.strains, recombination.rate.for.strain)
 fitness <- apply(genomes, 1, hamming.fitness)
 
 mf <- weighted.mean(fitness, population)
@@ -47,7 +80,7 @@ while(tick < max.tick) {
   # selection
   population <- rmultinom(1, pop.size, population*fitness)
   
-  # mutation+recombination
+  # mutation + recombination
   events <- rpois(num.strains, (rec.rates+mu.rates)*population)
   events.cum <- cumsum(events)
   loci <- sample( num.loci, sum(events), T )
@@ -86,10 +119,11 @@ while(tick < max.tick) {
     if (new.strain == -1) {
       # add new strain
       genomes <- rbind(genomes, genome)
+      modifiers <- rbind(modifiers, modifiers[strain,])
       num.strains <- num.strains + 1
       new.strain <- num.strains
-      mu.rates <- c(mu.rates, mu.rate) # TODO
-      rec.rates <- c(rec.rates, rec.rate) # TODO
+      mu.rates <- c(mu.rates, mutation.rate.for.strain(new.strain)) 
+      rec.rates <- c(rec.rates, recombination.rate.for.strain(new.strain)) 
       fitness <- c(fitness, hamming.fitness(genome))
       population <- c(population, 1)
     } else {
@@ -97,6 +131,7 @@ while(tick < max.tick) {
       population[new.strain] <- population[new.strain] + 1
     }
     # decrement number of individuals in mutated strain
+    cat(sprintf("Change in strain %d locus %d\n", strain, locus))
     population[strain] <- population[strain] - 1
   }
   
@@ -106,6 +141,7 @@ while(tick < max.tick) {
   if (fraction.non.empty < min.non.empty.fraction) {
     population <- population[strains]
     genomes <- genomes[strains,]
+    modifiers <- modifiers[strains,]
     mu.rates <- mu.rates[strains]
     rec.rates <- rec.rates[strains]
     fitness <- fitness[strains]
@@ -138,6 +174,7 @@ fraction.non.empty <- length(strains)/num.strains
 if (fraction.non.empty < 1) {
   population <- population[strains]
   genomes <- genomes[strains,]
+  modifiers <- modifiers[strains,]
   mu.rates <- mu.rates[strains]
   rec.rates <- rec.rates[strains]
   fitness <- fitness[strains]
