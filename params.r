@@ -9,6 +9,7 @@ max.tick = 100000
 
 min.non.empty.fraction = 0.9
 tick.interval = 100
+stats.interval = 100
 out.dir = "output"
 job.name = "msb"
 if (Sys.getenv('OS')=="Windows_NT") {Sys.setlocale("LC_TIME", "English")} # used to get a month name in english
