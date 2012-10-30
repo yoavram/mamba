@@ -6,13 +6,13 @@ hamming.fitness <- function(genome) {
 }
 
 stats.to.dataframe <- function() {
-  df <- data.frame(count=population, fitness=fitness, mutation.load=apply(genomes, 1, sum), mu.rates=mu.rate, rec.rates=rec.rates)
+  df <- data.frame( tick=rep(tick, num.strains), count=population, fitness=fitness, mutation.load=apply(genomes, 1, sum), mu.rates=mu.rate, rec.rates=rec.rates)
   return(df)
 }
 
 if (debug) {
-  max.tick <- 10
-  num.loci <- 30
+  max.tick <- 2
+  num.loci <- 3
 }
 
 target.genome <- rep(0, num.loci)
@@ -32,6 +32,7 @@ fitness <- apply(genomes, 1, hamming.fitness)
 
 mf <- weighted.mean(fitness, population)
 tick <- 0
+output.df <- stats.to.dataframe()
 
 if (debug) {
   pb <- txtProgressBar(min = 0, max = 1000, style = 3)
@@ -119,8 +120,11 @@ while(tick < max.tick) {
   if (debug) {
     setTxtProgressBar(pb, tick)
   }
-  if (tick %% tick.interval==0) {
+  if (tick %% tick.interval == 0) {
     cat(sprintf("Tick %d mean fitness %f number of strains %d\n", tick, mf, num.strains))
+  }
+  if (tick %% stats.interval == 0 ) {
+    output.df <- rbind(output.df, stats.to.dataframe())
   }
 }
 
@@ -140,7 +144,10 @@ if (fraction.non.empty < 1) {
   num.strains <- length(population)
 }
 
-df <- stats.to.dataframe()
-write.csv(df, output.fname, row.names=F)
+if (tick %% stats.interval != 0 ) {
+  # save last tick if it wasn't saves
+ output.df <- rbind(output.df, stats.to.dataframe())
+}
+write.csv(output.df, output.fname, row.names=F)
 cat(sprintf("Output written to %s\n", output.fname))
 
