@@ -45,8 +45,10 @@ plot.summary <- function(sf) {
 }
 
 test.goodnesoffit.poisson <- function(sf) {
+  # I DONT THINK THIS WORKS
   # http://www.zoology.ubc.ca/~whitlock/bio300/lecturenotes/gof/gof.html
-  chisquare.statistic <- sum((sf$count-sf$expect)^2/sf$expect)
+  sf <- subset(sf, tick==max(tick))
+  chisquare.statistic <- sum(((sf$count-sf$expect)/sf$expect)^2)
   df <- length(sf$count)-2 # one parameter for the poisson distribution
   if (df<=1) {
     return(NA)
