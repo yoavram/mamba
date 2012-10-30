@@ -4,7 +4,7 @@ num.alleles = 2
 pop.size = 100000
 s = 0.01
 mu.rate = 0.003
-rec.rate = 0.06
+rec.rate = 0.003
 max.tick = 100000
 
 min.non.empty.fraction = 0.9
