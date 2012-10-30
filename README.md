@@ -73,6 +73,12 @@ The results will be saved either using regular CSV files or using MongoDB. Proba
 
 Initial *mutation-selection balance* analysis is written to analyze results of simulations reaching a balance.
 
+### Version alfred
+
+Version [alfred], named after [Alfred Russel Wallace][alfred-wallace], was sommited on 30/10/2012 and contains a working Wright-Fisher simulator with selection, drift, mutation and recombination (HGT). Also contains parameter file, overriding parameters from command line, writing output to CSV files, printing log messages to console, SGE file for batching jobs on an SGE cluster and code for mutation-selection balance analysis.
+
+The next version, *baptiste*, will have an implementation of modifiers of mutation and recombination rates.
+
 ### Other tools
 
 The code is hosted on [github]. 
@@ -85,6 +91,8 @@ The README was edited using [prose], an online text editor for github which allo
 [e1071]: http://cran.r-project.org/web/packages/e1071/index.html
 [prose]: http://prose.io/
 [github]: https://github.com/yoavram/mamba
-[python-last-commit](https://github.com/yoavram/mamba/commit/b9fa9b3b9b30aaa545a7376b54de753cd126dfe5))
+[python-last-commit]: https://github.com/yoavram/mamba/commit/b9fa9b3b9b30aaa545a7376b54de753cd126dfe5
+[alfred]: https://github.com/yoavram/mamba/commit/alfred
+[alfred-wallace]: http://en.wikipedia.org/wiki/Alfred_Russel_Wallace
 
 1: An allele is an instance of a gene. For example, at the homoglobin gene, which codes for the Homoglobin protein, which carries oxygen around the body, one could have a "good" allele that does a good job, and one can have a "bad" allele, that doesn't bind oxygen as good as the "good" allele, and therefore the person might suffer from breathing problems.
