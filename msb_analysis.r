@@ -3,38 +3,39 @@ library(plyr)
 library(RColorBrewer)
 
 crunch.data <- function(fname, s=0.01, mu=0.003) {
-  df<-read.csv(fname, header=T)
+  df <- read.csv(fname, header=T)
   
   # sf = summarized df
-  sf<-ddply(df,.(mutation.load), summarize, count=sum(count))
+  sf <- ddply(df, .(tick, mutation.load), transform, 
+    count = sum(count),
+    theoretical = dpois(x=unique(mutation.load), lambda=mu.rates/s)*pop.size)
+    
+  sf <- ddply(sf, .(tick), transform,
+    #count = sum(count),
+    obs.mean = weighted.mean(mutation.load, count),
+    max.load = max(mutation.load))
   
-  obs.mean <- weighted.mean(sf$mutation.load, sf$count)
-  expect <- dpois(0:max(sf$mutation.load), lambda=obs.mean)
-  expect <- expect*sum(df$count)
-  
-  theor <- dpois(0:max(sf$mutation.load), lambda=mu/s)
-  theor <- theor*sum(df$count)
-  
-  sf <- cbind(sf, theor, expect)
+  sf <- ddply(sf, .(tick, mutation.load), transform, 
+    expected = dpois(x=unique(mutation.load), lambda=unique(obs.mean))*pop.size)
   
   return(sf)
 }
 
 plot.summary <- function(sf) {
-  obs.mean <- weighted.mean(sf$mutation.load, sf$count)
-  
+  pal <- rev(brewer.pal(3,"Set1"))
   p <- ggplot(data=sf, mapping=aes(mutation.load))
   
   q <- p + ggtitle(label="Mutation load distribution") + 
-    
+    geom_point(mapping=aes(y=expected, colour="expected")) +
     geom_point(mapping=aes(y=count, colour="observed")) +
-    geom_point(mapping=aes(y=expect, colour="expected")) +
-    geom_line(mapping=aes(y=theor, colour="theoretical"), linetype=2) +
-    geom_vline(xintercept=c(mu/s, obs.mean), colour=c("red", "blue"))+
-  
+    geom_line(mapping=aes(y=theoretical, colour="theoretical"), linetype=2) +
+    facet_grid(.~tick) +
+    geom_vline(aes(xintercept=obs.mean), colour=pal[2]) + 
+    geom_vline(aes(xintercept=mu.rate/s), colour=pal[3]) +
+    
     xlab(label="# of deleterious mutations") +
     ylab(label="# of individuals") + 
-    scale_colour_manual(values = rev(brewer.pal(3,"Set1")), name="") 
+    scale_colour_manual(values = pal, name="") 
   
   return(q)
 }
