@@ -6,10 +6,14 @@ crunch.data <- function(fname, s=0.01, mu=0.003) {
   df <- read.csv(fname, header=T)
   
   # sf = summarized df
+  
+  # sum counts of different types with the same load, and calc theoretical msb loads
   sf <- ddply(df, .(tick, mutation.load), transform, 
     count = sum(count),
-    theoretical = dpois(x=unique(mutation.load), lambda=mu.rates/s)*pop.size)
-    
+    theoretical = dpois(x=unique(mutation.load), lambda=(mu.rate/s)*(1-(1-s)^unique(tick)))*pop.size)
+  
+  # got to calc the observed mean of mutation load before i can calc the expected
+  # because it is the parameter for the poisson dist.
   sf <- ddply(sf, .(tick), transform,
     #count = sum(count),
     obs.mean = weighted.mean(mutation.load, count),
