@@ -73,7 +73,7 @@ The results will be saved either using regular CSV files or using MongoDB. Proba
 
 Initial *mutation-selection balance* analysis is written to analyze results of simulations reaching a balance.
 
-### Version alfred
+#### Version alfred
 
 Version [alfred], named after [Alfred Russel Wallace][alfred-wallace], was sommited on 30/10/2012 and contains a working Wright-Fisher simulator with selection, drift, mutation and recombination (HGT). Also contains parameter file, overriding parameters from command line, writing output to CSV files, printing log messages to console, SGE file for batching jobs on an SGE cluster and code for mutation-selection balance analysis.
 
