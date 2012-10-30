@@ -53,7 +53,9 @@ while(tick < max.tick) {
   loci <- sample( num.loci, sum(events), T )
   p.mu <- mu.rates/(mu.rates + rec.rates) # the prob that an event is a mutation and not a recombination
   mutations <- rbinom(length(events), events, p.mu)
-  mutations.cum <- cumsum(mutations)
+  mutation.threshold <- sapply(1:num.strains, function(x){
+    if (x==1) return(mutations[x]) else return(mutations[x]+events.cum[x-1])
+    })
   recombinations <- events-mutations
   donors <- sample(num.strains, sum(recombinations), replace=T, prob=population)
   
@@ -64,12 +66,13 @@ while(tick < max.tick) {
     genome <- genomes[strain,]
     
     # mutation or recombination?
-    if (i <= mutations.cum[strain]) {
+    
+    if (i <= mutation.threshold[strain]) {
       # mutation - TODO more alleles
       genome[locus] <- (genome[locus]+1)%%num.alleles # TODO do I need to draw or is +1 good enough?
     } else {
       # recombination
-      rec.i <- i - mutations.cum[strain]
+      rec.i <- i - mutation.threshold[strain]
       donor <- donors[rec.i]
       genome[locus] <- genomes[donor, locus]
     }
