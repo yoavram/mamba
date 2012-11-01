@@ -6,8 +6,16 @@ hamming.fitness <- function(genome) {
 }
 
 stats.to.dataframe <- function() {
-  df <- data.frame( tick=rep(tick, num.strains), count=population, fitness=fitness, mutation.load=apply(genomes, 1, sum), mu.rates=mu.rate, rec.rates=rec.rates)
+  df <- data.frame( tick=rep(tick, num.strains), strain=apply(genomes, 1, genome.to.int), population=population, fitness=fitness, mutation.load=apply(genomes, 1, hamming.distance, target.genome), mu.rates=mu.rates, rec.rates=rec.rates)
   return(df)
+}
+
+genome.to.int <- function(genome) {
+  s <- 0
+  for (i in 1:length(genome)) {
+    s <- s + num.alleles^(i-1) * genome[i]
+  }
+  return(s)
 }
 
 if (debug) {
