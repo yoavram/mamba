@@ -40,3 +40,5 @@ pip-log.txt
 output
 *.pdf
 *.png
+log*
+*log
