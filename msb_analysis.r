@@ -9,14 +9,13 @@ crunch.data <- function(fname, s=0.01, mu=0.003) {
   
   # sum counts of different types with the same load, and calc theoretical msb loads
   sf <- ddply(df, .(tick, mutation.load), transform, 
-    count = sum(count),
+    observed = sum(population),
     theoretical = dpois(x=unique(mutation.load), lambda=(mu.rate/s)*(1-(1-s)^unique(tick)))*pop.size)
   
   # got to calc the observed mean of mutation load before i can calc the expected
   # because it is the parameter for the poisson dist.
   sf <- ddply(sf, .(tick), transform,
-    #count = sum(count),
-    obs.mean = weighted.mean(mutation.load, count),
+    obs.mean = weighted.mean(mutation.load, population),
     max.load = max(mutation.load))
   
   sf <- ddply(sf, .(tick, mutation.load), transform, 
@@ -31,9 +30,9 @@ plot.summary <- function(sf) {
   
   q <- p + ggtitle(label="Mutation load distribution") + 
     geom_point(mapping=aes(y=expected, colour="expected")) +
-    geom_point(mapping=aes(y=count, colour="observed")) +
+    geom_point(mapping=aes(y=observed, colour="observed")) +
     geom_line(mapping=aes(y=theoretical, colour="theoretical"), linetype=2) +
-    facet_grid(.~tick) +
+    facet_grid(tick~.) +
     geom_vline(aes(xintercept=obs.mean), colour=pal[2]) + 
     geom_vline(aes(xintercept=mu.rate/s), colour=pal[3]) +
     
@@ -57,12 +56,11 @@ test.goodnesoffit.poisson <- function(sf) {
   return(pval)  
 }
 
-mu <- 0.003
-s <- 0.01
-
+source("params.r")
 file.list <- list.files(path='output/',pattern="msb_\\w*.csv",full.names=T)
 for (fname in file.list) {
   sf <- crunch.data(fname=fname)
+  sf <- subset(sf, tick %in% c(0,100,500,1000) )
   p <- plot.summary(sf=sf)
   png.name <- gsub(x=fname, pattern=".csv",replacement=".png")
   if (interactive() ) print(p) 
