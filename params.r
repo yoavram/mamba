@@ -10,12 +10,19 @@ max.tick = 100000
 min.non.empty.fraction = 0.9
 tick.interval = 100
 stats.interval = 100
+
 out.dir = "output"
 job.name = "msb"
 if (Sys.getenv('OS')=="Windows_NT") {Sys.setlocale("LC_TIME", "English")} # used to get a month name in english
 job.id = strftime(Sys.time(), format="%Y_%b_%d_%H_%M_%S")
-file.ext = ".csv"
-output.fname = paste(out.dir,"/",job.name,"_",job.id,file.ext, sep="")
+output.ext = ".csv"
+output.fname = paste(out.dir,"/", job.name,"_", job.id, output.ext, sep="")
+ser.ext = ".RData"
+ser.dir = "serialization"
+ser.fname = paste(ser.dir, "/", job.name, "_", job.id, ser.ext, sep="")
+start.model = "msb_2012_Nov_08_14_20_19"
+start.fname = paste(ser.dir, "/", start.model, ser.ext, sep="")
+
 
 args = commandArgs(T)
 cat("Changing default parameters with command line arguments:\n")

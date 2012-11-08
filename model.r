@@ -52,29 +52,43 @@ genome.to.int <- function(genome) {
   return(s)
 }
 
+save.model <- function(filename) {
+  save.list <- c('genomes', 'modifiers', 'population', 'target.genome', 'fitness', 'mu.rates', 'rec.rates', 'num.loci', 'num.strains', 'pop.size', 's', 'mu.rate', 'rec.rate' )
+  save(list = save.list, file = filename)
+}
+
+load.model <- function(filename) {
+  load(filename)
+}
+
 if (debug) {
   max.tick <- 100
   num.loci <- 5
 }
 
-target.genome <- rep(0, num.loci)
-
-genomes <- t(matrix(target.genome))
-modifiers <- data.frame(pi=1, tau=10, phi=Inf, rho=1) # pi, tau, phi, rho
-
-if (debug) {
-  new.modifiers <- modifiers[1,]
-  new.modifiers$pi <- 2
-  new.modifiers$tau <- 10
-  modifiers <- rbind(modifiers, new.modifiers)
-  genomes <- rbind(genomes, genomes[1,])
+if (file.exists(start.fname)) {
+  load.model(start.fname)
+  cat(sprintf("Loaded model %s", start.fname))
+} else {
+  target.genome <- rep(0, num.loci)
+  
+  genomes <- t(matrix(target.genome))
+  modifiers <- data.frame(pi=1, tau=10, phi=Inf, rho=1) # pi, tau, phi, rho
+  
+  if (debug) {
+    new.modifiers <- modifiers[1,]
+    new.modifiers$pi <- 2
+    new.modifiers$tau <- 10
+    modifiers <- rbind(modifiers, new.modifiers)
+    genomes <- rbind(genomes, genomes[1,])
+  }
+  
+  num.strains <- dim(genomes)[1]
+  population <- rep(pop.size/num.strains, num.strains)
+  mu.rates <- sapply(1:num.strains, mutation.rate.for.strain)
+  rec.rates <- sapply(1:num.strains, recombination.rate.for.strain)
+  fitness <- apply(genomes, 1, hamming.fitness)
 }
-
-num.strains <- dim(genomes)[1]
-population <- rep(pop.size/num.strains, num.strains)
-mu.rates <- sapply(1:num.strains, mutation.rate.for.strain)
-rec.rates <- sapply(1:num.strains, recombination.rate.for.strain)
-fitness <- apply(genomes, 1, hamming.fitness)
 
 mf <- weighted.mean(fitness, population)
 tick <- 0
@@ -147,7 +161,7 @@ while(tick < max.tick) {
       population[new.strain] <- population[new.strain] + 1
     }
     # decrement number of individuals in mutated strain
-    cat(sprintf("Change in strain %d locus %d\n", strain, locus))
+    # cat(sprintf("Change in strain %d locus %d\n", strain, locus))
     population[strain] <- population[strain] - 1
   }
   
@@ -204,3 +218,5 @@ if (tick %% stats.interval != 0 ) {
 write.csv(output.df, output.fname, row.names=F)
 cat(sprintf("Output written to %s\n", output.fname))
 
+save.model(filename=ser.fname)
+cat(sprintf("Model saved to %s\n", ser.fname))
