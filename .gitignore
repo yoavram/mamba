@@ -31,6 +31,7 @@ pip-log.txt
 .Rhistory
 .RData
 
+
 # Example code in package build process
 *-Ex.R
 
@@ -40,5 +41,7 @@ pip-log.txt
 output
 *.pdf
 *.png
+log
 log*
 *log
+serialization
