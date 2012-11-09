@@ -165,7 +165,6 @@ while(tick < max.tick) {
       population[new.strain] <- population[new.strain] + 1
     }
     # decrement number of individuals in mutated strain
-    loginfo(sprintf("Change in strain %d locus %d\n", strain, locus))
     population[strain] <- population[strain] - 1
   }
   
