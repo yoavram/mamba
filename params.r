@@ -16,6 +16,10 @@ job.name = "msb"
 if (Sys.getenv('OS')=="Windows_NT") {Sys.setlocale("LC_TIME", "English")} # used to get a month name in english
 job.id = strftime(Sys.time(), format="%Y_%b_%d_%H_%M_%S")
 
+log.dir = "log"
+log.ext = ".log"
+log.fname = paste(log.dir,"/", job.name,"_", job.id, log.ext, sep="")
+
 out.dir = "output"
 output.ext = ".csv"
 output.fname = paste(out.dir,"/", job.name,"_", job.id, output.ext, sep="")

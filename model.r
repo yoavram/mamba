@@ -1,8 +1,17 @@
 source('params.r')
 source('../R/rcommon/tictoc.R')
 library(e1071)
+library(logging)
 
-tic()
+setup.logging <- function() {
+  logReset() 
+  if (debug) {
+    addHandler(writeToConsole, level=9, file=log.fname)
+  } else {
+    addHandler(writeToConsole, level=30, file=log.fname)
+  }
+  addHandler(writeToFile, level=9, file=log.fname)
+}
 
 stats.to.dataframe <- function() {
   # TODO add modifier stats
@@ -64,14 +73,18 @@ load.model <- function(filename, envir=parent.frame()) {
   load(file=filename, envir=envir)
 }
 
+tic()
+setup.logging()
+
 if (debug) {
+  loginfo("Running in debug mode")
   max.tick <- 100
   num.loci <- 5
 }
 
 if (file.exists(start.fname)) {
   load.model(start.fname)
-  cat(sprintf("Loaded model %s", start.fname))
+  loginfo(sprintf("Loaded model %s", start.fname))
 } else {
   target.genome <- rep(0, num.loci)
   
@@ -89,11 +102,7 @@ mf <- weighted.mean(fitness, population)
 tick <- 0
 output.df <- stats.to.dataframe()
 
-if (debug) {
-  pb <- txtProgressBar(min = 0, max = 1000, style = 3)
-}
-
-cat(sprintf("Starting %s simulation\n", job.name))
+loginfo(sprintf("Starting %s simulation\n", job.name))
 
 while(tick < max.tick) {
   # drift
@@ -156,7 +165,7 @@ while(tick < max.tick) {
       population[new.strain] <- population[new.strain] + 1
     }
     # decrement number of individuals in mutated strain
-    # cat(sprintf("Change in strain %d locus %d\n", strain, locus))
+    loginfo(sprintf("Change in strain %d locus %d\n", strain, locus))
     population[strain] <- population[strain] - 1
   }
   
@@ -178,9 +187,7 @@ while(tick < max.tick) {
   
   # finish step
   tick <- tick + 1
-  if (debug) {
-    setTxtProgressBar(pb, tick)
-  }
+  
   if (tick %% tick.interval == 0) {
     cat(sprintf("Tick %d mean fitness %f number of strains %d\n", tick, mf, num.strains))
   }
@@ -189,10 +196,7 @@ while(tick < max.tick) {
   }
 }
 
-cat(sprintf("Finished at tick %d with mean fitness %f and number of strains %d\n", tick, mf, num.strains))
-if (debug) {
-  close(pb)
-}
+loginfo(sprintf("Finished at tick %d with mean fitness %f and number of strains %d\n", tick, mf, num.strains))
 
 strains <- which(population>0) # the non-empty strains
 fraction.non.empty <- length(strains)/num.strains
@@ -211,9 +215,9 @@ if (tick %% stats.interval != 0 ) {
  output.df <- rbind(output.df, stats.to.dataframe())
 }
 write.csv(output.df, output.fname, row.names=F)
-cat(sprintf("Output written to %s\n", output.fname))
+loginfo(sprintf("Output written to %s\n", output.fname))
 
 save.model(filename=ser.fname)
-cat(sprintf("Model saved to %s\n", ser.fname))
+loginfo(sprintf("Model saved to %s\n", ser.fname))
 
-cat(sprintf("Simulation time: %f seconds", toc()))
+loginfo(sprintf("Simulation time: %f seconds", toc()))
