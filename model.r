@@ -57,8 +57,8 @@ save.model <- function(filename) {
   save(list = save.list, file = filename)
 }
 
-load.model <- function(filename) {
-  load(filename)
+load.model <- function(filename, envir=parent.frame()) {
+  load(file=filename, envir=envir)
 }
 
 if (debug) {
@@ -74,14 +74,6 @@ if (file.exists(start.fname)) {
   
   genomes <- t(matrix(target.genome))
   modifiers <- data.frame(pi=1, tau=10, phi=Inf, rho=1) # pi, tau, phi, rho
-  
-  if (debug) {
-    new.modifiers <- modifiers[1,]
-    new.modifiers$pi <- 2
-    new.modifiers$tau <- 10
-    modifiers <- rbind(modifiers, new.modifiers)
-    genomes <- rbind(genomes, genomes[1,])
-  }
   
   num.strains <- dim(genomes)[1]
   population <- rep(pop.size/num.strains, num.strains)
