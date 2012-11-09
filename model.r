@@ -1,5 +1,8 @@
 source('params.r')
+source('../R/rcommon/tictoc.R')
 library(e1071)
+
+tic()
 
 stats.to.dataframe <- function() {
   # TODO add modifier stats
@@ -212,3 +215,5 @@ cat(sprintf("Output written to %s\n", output.fname))
 
 save.model(filename=ser.fname)
 cat(sprintf("Model saved to %s\n", ser.fname))
+
+cat(sprintf("Simulation time: %f seconds", toc()[1]))
