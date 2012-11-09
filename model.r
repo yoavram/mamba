@@ -216,4 +216,4 @@ cat(sprintf("Output written to %s\n", output.fname))
 save.model(filename=ser.fname)
 cat(sprintf("Model saved to %s\n", ser.fname))
 
-cat(sprintf("Simulation time: %f seconds", toc()[1]))
+cat(sprintf("Simulation time: %f seconds", toc()))
