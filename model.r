@@ -104,6 +104,12 @@ mf <- weighted.mean(fitness, population)
 tick <- 0
 output.df <- stats.to.dataframe()
 
+if (phylogeny) {
+  source("tree.R")
+  strains <- as.character(apply(genomes, 1, genome.to.int))
+  tree <- create.initial.tree(strains)
+}
+
 # Start simulation loop
 loginfo(sprintf("Starting %s simulation\n", job.name))
 
@@ -165,6 +171,9 @@ while(tick < max.tick) {
       rec.rates <- c(rec.rates, recombination.rate.for.strain(new.strain)) 
       fitness <- c(fitness, hamming.fitness(genome))
       population <- c(population, 1)
+      if (phylogeny) {
+        tree <- add.strain(tree, as.character(genome.to.int(genomes[new.strain,])), as.character(genome.to.int(genomes[strain,])))
+      }
     } else {
       # increment number of individual in new strain
       population[new.strain] <- population[new.strain] + 1
@@ -219,6 +228,10 @@ if (fraction.non.empty < 1) {
   rec.rates <- rec.rates[strains]
   fitness <- fitness[strains]
   num.strains <- length(population)
+}
+if (phylogeny) {
+  save(tree, file=tree.fname)
+  loginfo(sprintf("Phylogeny written to %s\n", tree.fname))
 }
 
 if (tick %% stats.interval != 0 ) {

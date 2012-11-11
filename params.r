@@ -13,7 +13,7 @@ num.loci.to.change = 4
 min.non.empty.fraction = 0.9
 tick.interval = 100
 stats.interval = 100
-phylogeny = FALSE                                      
+phylogeny = TRUE                                    
 
 job.name = "msb"
 if (Sys.getenv('OS')=="Windows_NT") {Sys.setlocale("LC_TIME", "English")} # used to get a month name in english
@@ -26,6 +26,10 @@ log.fname = paste(log.dir,"/", job.name,"_", job.id, log.ext, sep="")
 out.dir = "output"
 output.ext = ".csv"
 output.fname = paste(out.dir,"/", job.name,"_", job.id, output.ext, sep="")
+
+tree.dir = "trees"
+tree.ext = ".RData"
+tree.fname = paste(tree.dir,"/", job.name,"_", job.id, tree.ext, sep="")
 
 ser.dir = "serialization"
 ser.ext = ".RData"
