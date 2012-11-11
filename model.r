@@ -15,7 +15,7 @@ setup.logging <- function() {
 
 stats.to.dataframe <- function() {
   # TODO add modifier stats
-  df <- data.frame( tick=rep(tick, num.strains), count=population, fitness=fitness, mutation.load=apply(genomes, 1, sum), mu.rates=mu.rate, rec.rates=rec.rates)
+  df <- data.frame( tick=rep(tick, num.strains), strain=apply(genomes, 1, genome.to.int), population=population, fitness=fitness, mutation.load=apply(genomes, 1, hamming.distance, target.genome), mu.rates=mu.rates, rec.rates=rec.rates)
   return(df)
 }
 
@@ -200,7 +200,7 @@ while(tick < max.tick) {
   # finish step
   
   if (tick %% tick.interval == 0) {
-    cat(sprintf("Tick %d mean fitness %f number of strains %d\n", tick, mf, num.strains))
+    loginfo(sprintf("Tick %d mean fitness %f number of strains %d\n", tick, mf, num.strains))
   }
   if (tick %% stats.interval == 0 ) {
     output.df <- rbind(output.df, stats.to.dataframe())
