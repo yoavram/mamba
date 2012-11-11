@@ -13,6 +13,7 @@ num.loci.to.change = 4
 min.non.empty.fraction = 0.9
 tick.interval = 100
 stats.interval = 100
+phylogeny = FALSE                                      
 
 job.name = "msb"
 if (Sys.getenv('OS')=="Windows_NT") {Sys.setlocale("LC_TIME", "English")} # used to get a month name in english
