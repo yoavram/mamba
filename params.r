@@ -6,7 +6,9 @@ pop.size = 100000
 s = 0.01
 mu.rate = 0.003
 rec.rate = 0.003
-max.tick = 100000
+max.tick = 1000
+env.change.freq = 0 #1/100
+num.loci.to.change = 4
 
 min.non.empty.fraction = 0.9
 tick.interval = 100
@@ -28,7 +30,7 @@ ser.dir = "serialization"
 ser.ext = ".RData"
 ser.fname = paste(ser.dir, "/", job.name, "_", job.id, ser.ext, sep="")
 
-start.model = "" #msb_2012_Nov_08_14_20_19"
+start.model = "msb_2012_Nov_09_10_01_34" 
 start.fname = paste(ser.dir, "/", start.model, ser.ext, sep="")
 
 

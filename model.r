@@ -98,13 +98,17 @@ if (file.exists(start.fname)) {
   fitness <- apply(genomes, 1, hamming.fitness)
 }
 
+env.changes <- rbinom(n=max.tick, size=1, prob=env.change.freq)==1
 mf <- weighted.mean(fitness, population)
 tick <- 0
 output.df <- stats.to.dataframe()
 
+# Start simulation loop
 loginfo(sprintf("Starting %s simulation\n", job.name))
 
 while(tick < max.tick) {
+  tick  <- tick + 1
+  
   # drift
   population <- rmultinom(1, pop.size, population)
   
@@ -168,6 +172,14 @@ while(tick < max.tick) {
     population[strain] <- population[strain] - 1
   }
   
+  # environmental changes
+  if (env.changes[tick]) {
+    changed.loci <- sample(x=num.loci, size=num.loci.to.change, replace=F)
+    allele.incr <- sample(x=(num.alleles-1), size=num.loci.to.change, replace=T)
+    target.genome[changed.loci] <- (target.genome[changed.loci] + allele.incr) %% num.alleles
+    fitness <- apply(genomes, 1, hamming.fitness)
+  }
+  
   # clear empty strains
   strains <- which(population>0) # the non-empty strains
   fraction.non.empty <- length(strains)/num.strains
@@ -185,7 +197,6 @@ while(tick < max.tick) {
   mf <- weighted.mean(fitness, population)
   
   # finish step
-  tick <- tick + 1
   
   if (tick %% tick.interval == 0) {
     cat(sprintf("Tick %d mean fitness %f number of strains %d\n", tick, mf, num.strains))
