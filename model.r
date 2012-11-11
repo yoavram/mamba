@@ -73,8 +73,9 @@ load.model <- function(filename, envir=parent.frame()) {
   load(file=filename, envir=envir)
 }
 
-tic()
+dump(params, log.fname)
 setup.logging()
+tic()
 
 if (debug) {
   loginfo("Running in debug mode")

@@ -5,7 +5,7 @@ num.alleles = 2
 pop.size = 100000
 s = 0.01
 mu.rate = 0.003
-rec.rate = 0.003
+rec.rate = 0.0
 max.tick = 1000
 env.change.freq = 0 #1/100
 num.loci.to.change = 4
@@ -30,7 +30,7 @@ ser.dir = "serialization"
 ser.ext = ".RData"
 ser.fname = paste(ser.dir, "/", job.name, "_", job.id, ser.ext, sep="")
 
-start.model = "msb_2012_Nov_09_10_01_34" 
+start.model = "" #msb_2012_Nov_09_10_01_34" 
 start.fname = paste(ser.dir, "/", start.model, ser.ext, sep="")
 
 
@@ -40,3 +40,5 @@ for (arg in args) {
   cat(arg,"\n")
   eval(parse(text=arg))
 }
+rm(arg)
+params <- ls.str()
