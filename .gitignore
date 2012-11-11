@@ -45,3 +45,4 @@ log
 log*
 *log
 serialization
+*.RData
