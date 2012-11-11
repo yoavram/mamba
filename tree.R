@@ -9,7 +9,9 @@ create.initial.tree <- function(strains=c("0")) {
 }
 
 add.strain <- function(tree, new.strain, parent.strain) {
-  tree <- addNode(new.strain, tree)
+  if (!new.strain %in% nodes(tree)) {
+    tree <- addNode(new.strain, tree)
+  }
   tree <- addEdge(parent.strain, new.strain, tree)
   return(tree)
 }
