@@ -1,8 +1,10 @@
 library(Rgraphviz)
 
-create.initial.tree <- function(strain="0") {
+create.initial.tree <- function(strains=c("0")) {
   g <- graphNEL()
-  g <- addNode(strain, g)
+  for (strain in strains) {
+    g <- addNode(strain, g)
+  }
   return(g)
 }
 
@@ -34,9 +36,9 @@ plot.tree <- function(tree, live.strains=NULL) {
 }
 
 test.tree <- function() {
-  g <- create.initial.tree()
+  g <- create.initial.tree(c("0","5"))
   g <- add.strain(g, "1", "0")
-  g <- add.strain(g, "10", "0")
+  g <- add.strain(g, "10", "5")
   g <- add.strain(g, "13", "10")
   g <- add.strain(g, "11", "10")
   g <- add.strain(g, "33", "0")
