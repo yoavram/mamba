@@ -20,7 +20,7 @@ crunch.data <- function(fname, s=0.01, mu=0.003) {
               obs.mean=unique(obs.mean))
   
   sf <- ddply(sf, .(tick, mutation.load), transform, 
-              expected = dpois(x=unique(mutation.load), lambda=unique(obs.mean))*pop.size            
+              expected = dpois(x=unique(mutation.load), lambda=unique(obs.mean))*pop.size)          
   
   return(sf)
 }
@@ -56,7 +56,7 @@ test.goodnes.of.fit <- function(observed, expected, reduction.df) {
 }
 
 source("params.r")
-file.list <- list.files(path='output/',pattern="msb_\\w*.csv",full.names=T)
+file.list <- list.files(path='~/lecs/workspace/mamba/output/',pattern="msb_\\w*.csv",full.names=T)
 for (fname in file.list) {
   sf <- crunch.data(fname=fname)
   p <- plot.summary(sf=sf)
