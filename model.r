@@ -1,60 +1,50 @@
-source('params.r')
-source('../R/rcommon/tictoc.R')
 library(e1071)
-library(logging)
 
-setup.logging <- function() {
-  logReset() 
-  if (debug) {
-    addHandler(writeToConsole, level=9, file=log.fname)
-  } else {
-    addHandler(writeToConsole, level=30, file=log.fname)
-  }
-  addHandler(writeToFile, level=9, file=log.fname)
+load.model <- function(start.fname) {
+  load(file=filename, envir=envir)
 }
 
-stats.to.dataframe <- function() {
-  # TODO add modifier stats
-  df <- data.frame( tick=rep(tick, num.strains), strain=apply(genomes, 1, genome.to.int), population=population, fitness=fitness, mutation.load=apply(genomes, 1, hamming.distance, target.genome), mu.rates=mu.rates, rec.rates=rec.rates)
-  return(df)
+save.model <- function(filename) {
+  save.list <- c('population', 'target.genome', 'num.loci', 'num.alleles', 'pop.size', 's', 'mu.rate', 'rec.rate' )
+  save(list = save.list, file = filename)
 }
 
 hamming.fitness <- function(genome) {
   return((1-s)^hamming.distance(genome, target.genome))
 }
 
-mutation.rate <- function(genome, modifier) {
+mutation.rate <- function(genome, pi, tau) {
   load <- hamming.distance(genome, target.genome)
-  if (load >= modifier$pi) {
-    return(mu.rate*modifier$tau)
+  if (load >= pi) {
+    return(mu.rate * tau)
   } else{
     return(mu.rate)
   }
 }
 
-mutation.rate.for.strain <- function(strain) {
-  x <- mutation.rate(genomes[strain,], modifiers[strain,])
-  return(x)
+mutation.rate.for.strain <- function(strain.row) {
+  genome <- strain.row[1:num.loci]
+  pi <- strain.row$pi
+  tau <- strain.row$tau
+  return(mutation.rate(genome, pi, tau))
 }
 
-recombination.rate <- function(genome, modifier) {
+recombination.rate <- function(genome, phi, rho) {
   load <- hamming.distance(genome, target.genome)
-  if (load >= modifier$phi) {
-    return(rec.rate*modifier$rho)
+  if (load >= phi) {
+    return(rec.rate * rho)
   } else{
     return(rec.rate)
   }
 }
 
-recombination.rate.for.strain <- function(strain) {
-  x <- recombination.rate(genomes[strain,], modifiers[strain,])
-  return(x)
+recombination.rate.for.strain <- function(strain.row) {
+  genome <- strain.row[1:num.loci]
+  phi <- strain.row$phi
+  rho <- strain.row$rho
+  return(recombination.rate(genome, phi, rho))
 }
 
-stats.to.dataframe <- function() {
-  df <- data.frame( tick=rep(tick, num.strains), strain=apply(genomes, 1, genome.to.int), population=population, fitness=fitness, mutation.load=apply(genomes, 1, hamming.distance, target.genome), mu.rates=mu.rates, rec.rates=rec.rates)
-  return(df)
-}
 
 genome.to.int <- function(genome) {
   s <- 0
@@ -64,81 +54,82 @@ genome.to.int <- function(genome) {
   return(s)
 }
 
-save.model <- function(filename) {
-  save.list <- c('genomes', 'modifiers', 'population', 'target.genome', 'fitness', 'mu.rates', 'rec.rates', 'num.loci', 'num.strains', 'pop.size', 's', 'mu.rate', 'rec.rate' )
-  save(list = save.list, file = filename)
+default.target.genome <- function() {
+  return(rep(0, num.loci))
 }
 
-load.model <- function(filename, envir=parent.frame()) {
-  load(file=filename, envir=envir)
-}
-
-dump(params, log.fname)
-setup.logging()
-tic()
-
-if (debug) {
-  loginfo("Running in debug mode")
-  max.tick <- 100
-  num.loci <- 5
-}
-
-if (file.exists(start.fname)) {
-  load.model(start.fname)
-  loginfo(sprintf("Loaded model %s", start.fname))
-} else {
-  target.genome <- rep(0, num.loci)
-  
+create.population <- function() {
   genomes <- t(matrix(target.genome))
-  modifiers <- data.frame(pi=1, tau=10, phi=Inf, rho=1) # pi, tau, phi, rho
+    
+  modifiers <- data.frame(pi=Inf, tau=10, phi=Inf, rho=1)
   
-  num.strains <- dim(genomes)[1]
-  population <- rep(pop.size/num.strains, num.strains)
-  mu.rates <- sapply(1:num.strains, mutation.rate.for.strain)
-  rec.rates <- sapply(1:num.strains, recombination.rate.for.strain)
+  count <- rep(pop.size/nrow(genomes), nrow(genomes))
+  strain <- apply(genomes, 1, genome.to.int)
   fitness <- apply(genomes, 1, hamming.fitness)
+    
+  mu.rates <- apply(genomes, 1, mutation.rate, pi=Inf, tau=1)
+  rec.rates <- apply(genomes, 1, recombination.rate, phi=Inf, rho=1)
+  
+  population <- cbind(genomes, strain, count, modifiers, fitness, mu.rates, rec.rates)
+  
+  return(population)
 }
 
-env.changes <- rbinom(n=max.tick, size=1, prob=env.change.freq)==1
-mf <- weighted.mean(fitness, population)
-tick <- 0
-output.df <- stats.to.dataframe()
-
-if (phylogeny) {
-  source("tree.R")
-  strains <- as.character(apply(genomes, 1, genome.to.int))
-  tree <- create.initial.tree(strains)
+create.two.strain.population <- function() {
+  genomes <- t(matrix(target.genome))
+  genomes <- rbind(genomes, rep(1,num.loci))
+    
+  modifiers <- data.frame(pi=Inf, tau=10, phi=Inf, rho=1)
+  modifiers <- rbind(modifiers, modifiers)
+  
+  count <- rep(pop.size/nrow(genomes), nrow(genomes))
+  strain <- apply(genomes, 1, genome.to.int)
+  fitness <- apply(genomes, 1, hamming.fitness)
+  
+  mu.rates <- apply(genomes, 1, mutation.rate, pi=Inf, tau=1)
+  rec.rates <- apply(genomes, 1, recombination.rate, phi=Inf, rho=1)
+  
+  population <- cbind(genomes, strain, count, modifiers, fitness, mu.rates, rec.rates)
+  
+  return(population)
 }
 
-# Start simulation loop
-loginfo(sprintf("Starting %s simulation\n", job.name))
+mean.fitness <- function(population) {
+  return(weighted.mean(population$fitness, population$count))
+}
 
-while(tick < max.tick) {
-  tick  <- tick + 1
-  
-  # drift
-  population <- rmultinom(1, pop.size, population)
-  
-  # selection
-  population <- rmultinom(1, pop.size, population*fitness)
-  
-  # mutation + recombination
-  events <- rpois(num.strains, (rec.rates+mu.rates)*population)
+draw.environmental.changes <- function() {
+  changes <- rbinom(n=max.tick, size=1, prob=env.change.freq)==1
+  return(changes)
+}
+
+genetic.drift <- function(population) {
+  population$count <- rmultinom(1, pop.size, population$count)
+  return(population)
+}
+
+selection <- function(population) {
+  population$count <- rmultinom(1, pop.size, population$count * population$fitness)
+  return(population)
+}
+
+mutation.recombination <- function(population) {
+  events <- rpois(nrow(population), (population$rec.rates + population$mu.rates) * population$count)
   events.cum <- cumsum(events)
   loci <- sample( num.loci, sum(events), T )
-  p.mu <- mu.rates/(mu.rates + rec.rates) # the prob that an event is a mutation and not a recombination
+  p.mu <- population$mu.rates/(population$mu.rates + population$rec.rates) # the prob that an event is a mutation and not a recombination
   mutations <- rbinom(length(events), events, p.mu)
-  mutation.threshold <- sapply(1:num.strains, function(x){
-    if (x==1) return(mutations[x]) else return(mutations[x]+events.cum[x-1])
-    })
+  mutation.threshold <- sapply(1:nrow(population), function(x){
+    if (x==1) return(mutations[x]) else return(mutations[x] + events.cum[x-1])
+  })
   recombinations <- events-mutations
-  donors <- sample(num.strains, sum(recombinations), replace=T, prob=population)
+  donors <- sample(nrow(population), sum(recombinations), replace=T, prob=population$count)
   
   for (i in seq_along(loci)) {
     locus <- loci[i]
     strain <- which.max( events.cum>=i )
     # create new genome
-    genome <- genomes[strain,]
+    genome <- as.numeric(population[strain, 1:num.loci])
     
     # mutation or recombination?
     
@@ -149,99 +140,45 @@ while(tick < max.tick) {
       # recombination
       rec.i <- i - mutation.threshold[strain]
       donor <- donors[rec.i]
-      genome[locus] <- genomes[donor, locus]
+      genome[locus] <- population[donor, locus]
     }
     
     # find if new genome already exists
     new.strain <- -1
-    for (i in 1:num.strains) {
+    for (i in 1:nrow(population)) {
       # this is faster than apply, and not just because there is a stop condition
-      if (all(genomes[i,]==genome)) {
+      if (all(as.numeric(population[i, 1:num.loci])==genome)) {
         new.strain <- i
         break
       }
     }
     if (new.strain == -1) {
       # add new strain
-      genomes <- rbind(genomes, genome)
-      modifiers <- rbind(modifiers, modifiers[strain,])
-      num.strains <- num.strains + 1
-      new.strain <- num.strains
-      mu.rates <- c(mu.rates, mutation.rate.for.strain(new.strain)) 
-      rec.rates <- c(rec.rates, recombination.rate.for.strain(new.strain)) 
-      fitness <- c(fitness, hamming.fitness(genome))
-      population <- c(population, 1)
+      modifiers <- population[strain, c("pi","tau","phi","rho")]
+      strain.row <- unlist(c(genome, genome.to.int(genome), 1, modifiers, hamming.fitness(genome), mutation.rate(genome, modifiers$pi, modifiers$tau), recombination.rate(genome, modifiers$phi, modifiers$rho)))
+      population <- rbind(population, strain.row)
       if (phylogeny) {
-        tree <- add.strain(tree, as.character(genome.to.int(genomes[new.strain,])), as.character(genome.to.int(genomes[strain,])))
+        tree <- add.strain(tree, as.character(genome.to.int(population[new.strain, 1:num.loci])), as.character(genome.to.int(genomes[strain,])))
       }
     } else {
       # increment number of individual in new strain
-      population[new.strain] <- population[new.strain] + 1
+      population[new.strain, ]$count <- population[new.strain, ]$count + 1
     }
     # decrement number of individuals in mutated strain
-    population[strain] <- population[strain] - 1
+    population[strain, ]$count <- population[strain, ]$count - 1
   }
-  
-  # environmental changes
-  if (env.changes[tick]) {
-    changed.loci <- sample(x=num.loci, size=num.loci.to.change, replace=F)
-    allele.incr <- sample(x=(num.alleles-1), size=num.loci.to.change, replace=T)
-    target.genome[changed.loci] <- (target.genome[changed.loci] + allele.incr) %% num.alleles
-    fitness <- apply(genomes, 1, hamming.fitness)
-  }
-  
-  # clear empty strains
-  strains <- which(population>0) # the non-empty strains
-  fraction.non.empty <- length(strains)/num.strains
-  if (fraction.non.empty < min.non.empty.fraction) {
-    population <- population[strains]
-    genomes <- genomes[strains,]
-    modifiers <- modifiers[strains,]
-    mu.rates <- mu.rates[strains]
-    rec.rates <- rec.rates[strains]
-    fitness <- fitness[strains]
-    num.strains <- length(population)
-  }  
-  
-  # mean fitness
-  mf <- weighted.mean(fitness, population)
-  
-  # finish step
-  
-  if (tick %% tick.interval == 0) {
-    loginfo(sprintf("Tick %d mean fitness %f number of strains %d\n", tick, mf, num.strains))
-  }
-  if (tick %% stats.interval == 0 ) {
-    output.df <- rbind(output.df, stats.to.dataframe())
-  }
+  return(population)
 }
 
-loginfo(sprintf("Finished at tick %d with mean fitness %f and number of strains %d\n", tick, mf, num.strains))
-
-strains <- which(population>0) # the non-empty strains
-fraction.non.empty <- length(strains)/num.strains
-if (fraction.non.empty < 1) {
-  population <- population[strains]
-  genomes <- genomes[strains,]
-  modifiers <- modifiers[strains,]
-  mu.rates <- mu.rates[strains]
-  rec.rates <- rec.rates[strains]
-  fitness <- fitness[strains]
-  num.strains <- length(population)
-}
-if (phylogeny) {
-  save(tree, file=tree.fname)
-  loginfo(sprintf("Phylogeny written to %s\n", tree.fname))
+environmental.change <- function() {
+  changed.loci <- sample(x=num.loci, size=num.loci.to.change, replace=F)
+  allele.incr <- sample(x=(num.alleles-1), size=num.loci.to.change, replace=T)
+  target.genome[changed.loci] <- (target.genome[changed.loci] + allele.incr) %% num.alleles
+  return(target.genome)
 }
 
-if (tick %% stats.interval != 0 ) {
-  # save last tick if it wasn't saves
- output.df <- rbind(output.df, stats.to.dataframe())
+clear.empty.strains <- function(population) {
+  strains <- which(population$count > 0) # the non-empty strains
+  population <- population[strains, ]
+  return(population)
 }
-write.csv(output.df, output.fname, row.names=F)
-loginfo(sprintf("Output written to %s\n", output.fname))
-
-save.model(filename=ser.fname)
-loginfo(sprintf("Model saved to %s\n", ser.fname))
-
-loginfo(sprintf("Simulation time: %f seconds", toc()))
