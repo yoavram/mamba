@@ -1,6 +1,6 @@
 library(e1071)
 
-load.model <- function(start.fname) {
+load.model <- function(filename, envir=parent.frame()) {
   load(file=filename, envir=envir)
 }
 

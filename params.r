@@ -35,7 +35,7 @@ ser.dir = "serialization"
 ser.ext = ".RData"
 ser.fname = paste(ser.dir, "/", job.name, "_", job.id, ser.ext, sep="")
 
-start.model = "" #msb_2012_Nov_09_10_01_34" 
+start.model = "msb_2012_Nov_18_14_48_21"
 start.fname = paste(ser.dir, "/", start.model, ser.ext, sep="")
 
 invasion.rate = 0.5
@@ -50,8 +50,10 @@ for (arg in args) {
 rm(arg)
 
 if (debug) {
-  max.tick <- 10
-  num.loci <- 5
+  max.tick = 3
+  num.loci = 5
+  stats.interval = 1
+  tick.interval = 1
 }
 
 params <- ls.str()

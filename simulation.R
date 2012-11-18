@@ -33,8 +33,7 @@ tic()
 
 if (file.exists(start.fname)) {
   load.model(start.fname)
-}
-else {
+} else {
   target.genome <- default.target.genome()
   population <- create.population()
 }
@@ -47,6 +46,7 @@ env.changes <- draw.environmental.changes()
 mf <- mean.fitness(population)
 tick <- 0
 output.df <- population.stats(population)
+tick <- 1
 
 if (phylogeny) {
   source("tree.R")
@@ -56,8 +56,8 @@ if (phylogeny) {
 
 loginfo(sprintf("Starting %s simulation\n", job.name))
 
-while (tick <- max.tick) {
-  tick <- tick + 1
+while (tick < max.tick) {
+  
   
   population <- genetic.drift(population)
   population <- selection(population)
@@ -71,6 +71,7 @@ while (tick <- max.tick) {
   population <- clear.empty.strains(population)
   
   mf <- mean.fitness(population)
+  tick <- tick + 1
   
   if (tick %% tick.interval == 0) {
     loginfo(sprintf("Tick %d mean fitness %f number of strains %d\n", tick, mf, nrow(population)))
@@ -80,7 +81,7 @@ while (tick <- max.tick) {
   }
 }
 
-loginfo(sprintf("Finished at tick %d with mean fitness %f and number of strains %d\n", tick, mf, num.strains))
+loginfo(sprintf("Finished at tick %d with mean fitness %f and number of strains %d\n", tick, mf, nrow(population)))
 
 if (phylogeny) {
   save(tree, file=tree.fname)
