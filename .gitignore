@@ -1,5 +1,4 @@
 *.py[co]
-
 # Packages
 *.egg
 *.egg-info
@@ -12,29 +11,21 @@ var
 sdist
 develop-eggs
 .installed.cfg
-
 # Installer logs
 pip-log.txt
-
 # Unit test / coverage reports
 .coverage
 .tox
-
 #Translations
 *.mo
-
 #Mr Developer
 .mr.developer.cfg
 .Rproj.user
-
 # History files
 .Rhistory
 .RData
-
-
 # Example code in package build process
 *-Ex.R
-
 # Output files
 *.csv
 *.csv.gz
@@ -46,3 +37,4 @@ log*
 *log
 serialization
 *.RData
+Rprof.out
