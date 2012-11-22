@@ -3,8 +3,11 @@ cimport numpy as np
 import numpy.random as npr
 cimport cython
 
+# USE ctypedef np.float64_t dtype_t ?
+
 @cython.boundscheck(False)
-def mutation_by_mutation_load(np.ndarray[long, ndim=1, negative_indices=False] population, np.ndarray[double, ndim=1, negative_indices=False] mutation_rates):
+@cython.wraparound(False)
+def mutation_by_mutation_load(np.ndarray[long, ndim=1] population, np.ndarray[double, ndim=1] mutation_rates):
     cdef np.ndarray[long, ndim=1, negative_indices=False] mutations
     mutations = npr.poisson(population*mutation_rates)
     cdef Py_ssize_t i
@@ -14,11 +17,13 @@ def mutation_by_mutation_load(np.ndarray[long, ndim=1, negative_indices=False] p
     return population
 
 @cython.boundscheck(False)
-def hamming_fitness_genomes(np.ndarray[int, ndim=2, negative_indices=False] genomes, np.ndarray[int, ndim=1, negative_indices=False] target_genome):
+@cython.wraparound(False)
+def hamming_fitness_genomes(np.ndarray[int, ndim=2] genomes, np.ndarray[int, ndim=1] target_genome, double s):
 	'''this is slightly faster than iterating without cython and twice as fast as using np.apply_along_axis'''
-    cdef np.ndarray[int, ndim=1, negative_indices=False] hamming_fitness 
+    cdef np.ndarray[double, ndim=1] hamming_fitness 
     hamming_fitness = np.zeros(genomes.shape[0], dtype=np.int)
     cdef Py_ssize_t i
     for i in range(genomes.shape[0]):
-        hamming_fitness[i] = (target_genome!=genomes[i,:]).sum()
+    	# TODO clib power?
+        hamming_fitness[i] = s**((target_genome!=genomes[i,:]).sum()) 
     return hamming_fitness
