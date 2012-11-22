@@ -1,20 +1,31 @@
-from model import *
-#import pyximport
-#pyximport.install(setup_args={"script_args":["--compiler=mingw32"],
-#                              "include_dirs":np.get_include()},
-#                  reload_support=True)
+# import numpy as np
+# import pyximport
+# pyximport.install(setup_args={"script_args":["--compiler=mingw32"],
+#                               "include_dirs":np.get_include()},
+#                   reload_support=True)
 import cython_load
-from model_c import *
-from timeit import timeit
+from time import clock
 
-def run1():
+from model import drift, selection, create_fitness, create_muation_rates
+from model import create_mutation_free_population as create_population
+from model_c import mutation_by_mutation_load as mutation
+
+def run(ticks=10, tick_interval=1):
+	tic = clock()
 	population = create_population()
 	fitness = create_fitness()
 	mutation_rates = create_muation_rates()
-	for i in range(1000):
-		population = drift(population)
-		population = selection(population, fitness)
-		population = mutation(population, mutation_rates)
+	
+	for tick in range(ticks):
+		drift(population)
+		selection(population, fitness)
+		mutation(population, mutation_rates)
 
+		if tick % tick_interval == 0:
+			print "Tick", tick
+	toc = clock()
+	print "Simulation finished, time elapsed", (toc-tic), "seconds"
+	return population
 
-print timeit(run1, number=1)/1000.
+if __name__=="__main__":
+	print run()[0]

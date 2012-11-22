@@ -4,7 +4,7 @@ import numpy.random as npr
 cimport cython
 
 @cython.boundscheck(False)
-def mutation(np.ndarray[long, ndim=1, negative_indices=False] population, np.ndarray[double, ndim=1, negative_indices=False] mutation_rates):
+def mutation_by_mutation_load(np.ndarray[long, ndim=1, negative_indices=False] population, np.ndarray[double, ndim=1, negative_indices=False] mutation_rates):
     cdef np.ndarray[long, ndim=1, negative_indices=False] mutations
     mutations = npr.poisson(population*mutation_rates)
     cdef Py_ssize_t i
