@@ -3,8 +3,8 @@ import numpy.random as npr
 import random
 from math import floor
 
-pop_size = 10 ** 6
-num_classes = 10000
+pop_size = 10 ** 9
+num_classes = 1000
 num_loci = 1000
 s = 0.01
 mu = 0.003
@@ -49,15 +49,15 @@ def genome_to_num(genome):
 
 def drift(population):
 	pop_size = population.sum()
-	population[:] = population / float(pop_size)
-	population[:] = npr.multinomial(pop_size, population)
+	p = population / float(pop_size)
+	population[:] = npr.multinomial(pop_size, p)
 
 
 def selection(population, fitness):
-	population[:] = population * fitness
-	population[:] = population / population.sum()
-	population[:] = npr.multinomial(pop_size, population)
-
+	pop_size = population.sum()
+	p = population * fitness
+	p[:] = p / p.sum()
+	population[:] = npr.multinomial(pop_size, p)
 
 def draw_environmental_changes(ticks, env_change_prob):
 	changes = npr.binomial(n=1, p=env_change_prob, size=ticks)
