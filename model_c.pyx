@@ -10,7 +10,7 @@ cimport cython
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
-def mutation_by_mutation_load(np.ndarray[long, ndim=1] population, np.ndarray[double, ndim=1] mutation_rates):
+def mutation_by_mutation_load(np.ndarray[int, ndim=1] population, np.ndarray[double, ndim=1] mutation_rates):
 	cdef np.ndarray[long, ndim=1] mutations
 	mutations = npr.poisson(population * mutation_rates)
 	cdef Py_ssize_t i
