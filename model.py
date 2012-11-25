@@ -66,3 +66,31 @@ def environmental_change(target_genome):
 def choose(n, k):
     return random.sample(xrange(n), k)   
 
+
+def mutation_implicit_genomes(genomes, population, mutation_rates, target_genome):
+	'''limit to one mutation per individual, doesn't update rates or fitness'''
+	mutations = npr.poisson(population * mutation_rates)
+	loci = npr.randint(0, num_loci, muts.sum())
+	loci_split = np.split(loci, muts.cumsum())[:-1]
+	new_allele = (target_genome[loci] + 1) % 2
+	# create dict of new strains
+	new_counts = {}
+	new_genomes = {}
+	i = 0
+	for strain in range(loci_split):
+		population[strain] = population[strain] - mutations[strain]
+		assert population[strain] > 0
+		for locus in loci_split[strain]:
+			key = (strain, loci)
+			if key in new_counts:
+				new_counts[key] += 1
+			else:
+				genome = genomes[strain,:].copy()
+				genome[locus] = new_allele[i]
+				new_counts[key] = 1
+				new_genomes[key] = genome
+			i += 1
+	# update 
+	population = np.vstack((population, new_counts.values()))
+	genomes = np.vstack((genomes, new_genomes.values()))
+	return genomes, population
