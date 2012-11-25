@@ -3,34 +3,28 @@ import numpy.random as npr
 import random
 from math import floor
 
-pop_size = 10 ** 9
-num_classes = 1000
-num_loci = 1000
-s = 0.01
-mu = 0.003
-
 # TODO see where range can be chaged to arange and arange to xrange (generator) http://www.jesshamrick.com/2012/04/29/the-demise-of-for-loops/
 
-def create_uniform_mutation_load_population():
+def create_uniform_mutation_load_population(num_classes):
 	return npr.multinomial(pop_size, [1.0 / num_classes] * num_classes)
 
 
-def create_mutation_free_population():
-	population = np.zeros(num_classes, dtype=np.int32)
+def create_mutation_free_population(pop_size, num_classes):
+	population = np.zeros(num_classes, dtype=np.int)
 	population[0] = pop_size
 	return population
 
 
-def create_fitness_by_mutational_load():
+def create_fitness_by_mutational_load(s, num_classes):
 	return np.array([(1 - s) ** x for x in range(num_classes)])
 
 
-def create_muation_rates():
+def create_muation_rates(mu, num_classes):
 	return np.array([mu] * num_classes)
 
 
-def create_target_genome():
-	return np.array(np.zeros(num_loci), dtype=np.uint8)
+def create_target_genome(num_loci):
+	return np.array(np.zeros(num_loci), dtype=np.int)
 
 
 def hamming_fitness_genome(genome, target_genome, s):
@@ -71,5 +65,4 @@ def environmental_change(target_genome):
 
 def choose(n, k):
     return random.sample(xrange(n), k)   
-
 
