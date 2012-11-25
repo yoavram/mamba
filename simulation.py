@@ -12,6 +12,7 @@ from params import *
 from model import drift, selection, create_muation_rates, create_target_genome
 from model import create_fitness_by_mutational_load as create_fitness
 from model import create_mutation_free_population as create_population
+from model import mutation_implicit_genomes as mutation
 #from model_c import mutation_by_mutation_load as mutation
 from model_c import hamming_fitness_genomes as create_fitness
 
@@ -25,16 +26,18 @@ def run(ticks=1000, tick_interval=100):
 	genome2[0] = 1
 	genomes = np.vstack((genomes, genome2))
 
-	population = create_population(pop_size, num_classes)
+	population = create_population(pop_size, genomes.shape[0])
 	population[1], population[0] = population[0]/2, population[0]/2
 	fitness = create_fitness(genomes, target_genome, s)
-	#mutation_rates = create_muation_rates()
+	mutation_rates = create_muation_rates(mu, genomes.shape[0])
 
 	print "Starting simulation with ", ticks, "ticks"
 	for tick in range(ticks + 1):
 		drift(population)
 		selection(population, fitness)
-		#mutation(population, mutation_rates)
+		genomes, population = mutation(genomes, population, mutation_rates, num_loci, target_genome)
+		fitness = create_fitness(genomes, target_genome, s)
+		mutation_rates = create_muation_rates(mu, genomes.shape[0])
 
 		if tick_interval != 0 and tick % tick_interval == 0:
 			print "Tick", tick
@@ -43,5 +46,5 @@ def run(ticks=1000, tick_interval=100):
 	return population
 
 if __name__=="__main__":
-	p = run()
+	p = run(100)
 
