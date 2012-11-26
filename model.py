@@ -23,16 +23,22 @@ def create_muation_rates(mu, num_classes):
 	return np.array([mu] * num_classes)
 
 
+def create_recombination_rates(r, num_classes):
+	return np.array([r] * num_classes)
+
+
 def create_target_genome(num_loci):
 	return np.array(np.zeros(num_loci), dtype=np.int)
 
 
 def hamming_fitness_genome(genome, target_genome, s):
+	# TODO np.hamming
 	return s ** (genome != target_genome).sum()
 
 
 def hamming_fitness_genomes(genomes, target_genome, s):
 	'''The cython version is faster'''
+	# TODO check np.vectorize
 	return np.apply_along_axis(hamming_fitness_genome, 1, genomes, target_genome, s)
 
 
@@ -45,6 +51,7 @@ def drift(population):
 	pop_size = population.sum()
 	p = population / float(pop_size)
 	population[:] = npr.multinomial(pop_size, p)
+	return population
 
 
 def selection(population, fitness):
@@ -52,6 +59,8 @@ def selection(population, fitness):
 	p = population * fitness
 	p[:] = p / p.sum()
 	population[:] = npr.multinomial(pop_size, p)
+	return population
+
 
 def draw_environmental_changes(ticks, env_change_prob):
 	changes = npr.binomial(n=1, p=env_change_prob, size=ticks)
@@ -67,9 +76,9 @@ def choose(n, k):
     return random.sample(xrange(n), k)   
 
 
-def mutation_implicit_genomes(genomes, population, mutation_rates, num_loci, target_genome):
+def mutation_implicit_genomes(population, genomes, mutation_rates, num_loci, target_genome):
 	'''limit to one mutation per individual, doesn't update rates or fitness'''
-	mutations = npr.poisson(population * mutation_rates)
+	mutations = np.array(npr.poisson(population * mutation_rates))
 	loci = npr.randint(0, num_loci, mutations.sum())
 	loci_split = np.split(loci, mutations.cumsum())[:-1]
 	new_alleles = (target_genome[loci] + 1) % 2
@@ -85,12 +94,32 @@ def mutation_implicit_genomes(genomes, population, mutation_rates, num_loci, tar
 			if key in new_counts:
 				new_counts[key] += 1
 			else:
-				genome = genomes[strain,:].copy()
+				genome = genomes[strain,:].copy()				
 				genome[locus] = new_alleles[i]
+				if genome in genomes:
+					geomes
 				new_counts[key] = 1
 				new_genomes[key] = genome
 			i += 1
 	# update 
 	population = np.append(population, new_counts.values())
 	genomes = np.vstack((genomes, new_genomes.values()))
-	return genomes, population
+	return population, genomes
+
+
+def clear_empty_classes(population, genomes, fitness, mutation_rates, recombination_rates):
+	non_zero = population.nonzero()
+	population = population[non_zero]
+	fitness = fitness[non_zero]
+	mutation_rates = mutation_rates[non_zero]
+	recombination_rates = recombination_rates[non_zero]
+	genomes = genomes[non_zero]
+	return population, genomes, fitness, mutation_rates, recombination_rates
+
+
+def find_row_index(genomes, genome):
+	'''looks for genome in the rows of genome, returns the index if found, -1 otherwise'''
+	for i, row in enumerate(genomes):
+		if (row==genome).all():
+			return i
+	return -1

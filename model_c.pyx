@@ -46,3 +46,20 @@ def genomes_to_nums(np.ndarray[DTYPE_INT_t, ndim=2] genomes):
 		i = np.arange(num_loci_f)
 		nums[j] = (2. ** i * genomes[j,:]).sum()
 	return nums
+
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+def find_row(np.ndarray[int, ndim=2] matrix, np.ndarray[int, ndim=1] target):
+    cdef np.ndarray[int, ndim=1] row 
+    cdef Py_ssize_t i, j
+    cdef bool found
+    for i, row in enumerate(matrix):
+        found = True
+        for j in range(target.shape[0]):
+            if target[j] != row[j]:
+            	found = False
+                break
+        if found:
+            return i
+    return -1

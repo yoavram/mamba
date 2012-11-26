@@ -9,7 +9,7 @@ import numpy as np
 
 from params import *
 
-from model import drift, selection, create_muation_rates, create_target_genome
+from model import drift, selection, create_muation_rates, create_target_genome, clear_empty_classes, create_recombination_rates
 from model import create_fitness_by_mutational_load as create_fitness
 from model import create_mutation_free_population as create_population
 from model import mutation_implicit_genomes as mutation
@@ -30,20 +30,23 @@ def run(ticks=1000, tick_interval=100):
 	population[1], population[0] = population[0]/2, population[0]/2
 	fitness = create_fitness(genomes, target_genome, s)
 	mutation_rates = create_muation_rates(mu, genomes.shape[0])
+	recombination_rates = create_recombination_rates(r, genomes.shape[0])
 
 	print "Starting simulation with ", ticks, "ticks"
 	for tick in range(ticks + 1):
 		drift(population)
 		selection(population, fitness)
-		genomes, population = mutation(genomes, population, mutation_rates, num_loci, target_genome)
+		population, genomes = mutation(population, genomes, mutation_rates, num_loci, target_genome)
 		fitness = create_fitness(genomes, target_genome, s)
 		mutation_rates = create_muation_rates(mu, genomes.shape[0])
+		recombination_rates = create_recombination_rates(r, genomes.shape[0])
+		population, genomes, fitness, mutation_rates, recombination_rates = clear_empty_classes(population, genomes, fitness, mutation_rates, recombination_rates)
 
 		if tick_interval != 0 and tick % tick_interval == 0:
 			print "Tick", tick
 	toc = clock()
 	print "Simulation finished,", tick, "ticks, time elapsed", (toc-tic), "seconds"
-	return population
+	return population, genomes
 
 if __name__=="__main__":
 	p = run(100)
