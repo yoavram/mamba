@@ -6,6 +6,8 @@ import cython_load
 from model_c import find_row
 
 # TODO see where range can be chaged to arange and arange to xrange (generator) http://www.jesshamrick.com/2012/04/29/the-demise-of-for-loops/
+# TODO sparse matrix?
+
 
 def create_uniform_mutation_load_population(pop_size, num_classes):
 	return npr.multinomial(pop_size, [1.0 / num_classes] * num_classes)
@@ -113,7 +115,7 @@ def mutation_implicit_genomes(population, genomes, mutation_rates, num_loci, tar
 
 
 def clear_empty_classes(population, genomes, fitness, mutation_rates, recombination_rates):
-	non_zero = population.nonzero()
+	non_zero = population > 0
 	population = population[non_zero]
 	fitness = fitness[non_zero]
 	mutation_rates = mutation_rates[non_zero]

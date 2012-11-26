@@ -16,7 +16,7 @@ from model import mutation_implicit_genomes as mutation
 #from model_c import mutation_by_mutation_load as mutation
 from model_c import hamming_fitness_genomes as create_fitness
 
-def run(ticks=1000, tick_interval=100):
+def run(ticks=10, tick_interval=1):
 	tic = clock()
 
 	target_genome = create_target_genome(num_loci)
