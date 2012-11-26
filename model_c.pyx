@@ -2,6 +2,7 @@ import numpy as np
 cimport numpy as np
 import numpy.random as npr
 cimport cython
+from cpython cimport bool
 
 DTYPE_INT = np.int
 ctypedef np.int_t DTYPE_INT_t
@@ -51,15 +52,15 @@ def genomes_to_nums(np.ndarray[DTYPE_INT_t, ndim=2] genomes):
 @cython.boundscheck(False)
 @cython.wraparound(False)
 def find_row(np.ndarray[int, ndim=2] matrix, np.ndarray[int, ndim=1] target):
-    cdef np.ndarray[int, ndim=1] row 
-    cdef Py_ssize_t i, j
-    cdef bool found
-    for i, row in enumerate(matrix):
-        found = True
-        for j in range(target.shape[0]):
-            if target[j] != row[j]:
-            	found = False
-                break
-        if found:
-            return i
-    return -1
+	cdef np.ndarray[int, ndim=1] row 
+	cdef Py_ssize_t i, j
+	cdef bool found
+	for i, row in enumerate(matrix):
+		found = True
+		for j in range(target.shape[0]):
+			if target[j] != row[j]:
+				found = False
+				break
+		if found:
+			return i
+	return -1

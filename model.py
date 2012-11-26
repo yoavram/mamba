@@ -2,10 +2,12 @@ import numpy as np
 import numpy.random as npr
 import random
 from math import floor
+import cython_load
+from model_c import find_row
 
 # TODO see where range can be chaged to arange and arange to xrange (generator) http://www.jesshamrick.com/2012/04/29/the-demise-of-for-loops/
 
-def create_uniform_mutation_load_population(num_classes):
+def create_uniform_mutation_load_population(pop_size, num_classes):
 	return npr.multinomial(pop_size, [1.0 / num_classes] * num_classes)
 
 
@@ -82,25 +84,28 @@ def mutation_implicit_genomes(population, genomes, mutation_rates, num_loci, tar
 	loci = npr.randint(0, num_loci, mutations.sum())
 	loci_split = np.split(loci, mutations.cumsum())[:-1]
 	new_alleles = (target_genome[loci] + 1) % 2
+	new_allele_index = 0
 	# create dict of new strains
 	new_counts = {}
 	new_genomes = {}
-	i = 0
 	for strain in range(len(loci_split)):
 		population[strain] = population[strain] - mutations[strain]
 		assert population[strain] >= 0  # ASSERT
 		for locus in loci_split[strain]:
-			key = (strain, locus)
+			new_allele = new_alleles[new_allele_index]
+			new_allele_index += 1
+			key = (strain, locus, new_allele)
 			if key in new_counts:
 				new_counts[key] += 1
 			else:
-				genome = genomes[strain,:].copy()				
-				genome[locus] = new_alleles[i]
-				if genome in genomes:
-					geomes
-				new_counts[key] = 1
-				new_genomes[key] = genome
-			i += 1
+				new_genome = genomes[strain,:].copy()				
+				new_genome[locus] = new_allele
+				index = find_row(genomes, new_genome)
+				if index == -1:
+					new_counts[key] = 1
+					new_genomes[key] = new_genome
+				else:
+					population[index] += 1
 	# update 
 	population = np.append(population, new_counts.values())
 	genomes = np.vstack((genomes, new_genomes.values()))
@@ -116,10 +121,3 @@ def clear_empty_classes(population, genomes, fitness, mutation_rates, recombinat
 	genomes = genomes[non_zero]
 	return population, genomes, fitness, mutation_rates, recombination_rates
 
-
-def find_row_index(genomes, genome):
-	'''looks for genome in the rows of genome, returns the index if found, -1 otherwise'''
-	for i, row in enumerate(genomes):
-		if (row==genome).all():
-			return i
-	return -1
