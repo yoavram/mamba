@@ -80,7 +80,7 @@ def choose(n, k):
     return random.sample(xrange(n), k)   
 
 
-def mutation_implicit_genomes(population, genomes, mutation_rates, num_loci, target_genome):
+def mutation_explicit_genomes(population, genomes, mutation_rates, num_loci, target_genome):
 	'''limit to one mutation per individual, doesn't update rates or fitness'''
 	mutations = np.random.poisson(population * mutation_rates, size=population.shape)	
 	loci = npr.randint(0, num_loci, mutations.sum())

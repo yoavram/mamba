@@ -7,7 +7,7 @@ from params import *
 from model import drift, selection, create_muation_rates, create_target_genome, clear_empty_classes, create_recombination_rates
 from model import create_fitness_by_mutational_load as create_fitness
 from model import create_mutation_free_population as create_population
-from model import mutation_implicit_genomes as mutation
+from model import mutation_explicit_genomes as mutation
 #from model_c import mutation_by_mutation_load as mutation
 from model_c import hamming_fitness_genomes as create_fitness
 
