@@ -109,8 +109,9 @@ def mutation_implicit_genomes(population, genomes, mutation_rates, num_loci, tar
 				else:
 					population[index] += 1
 	# update 
-	population = np.append(population, new_counts.values())
-	genomes = np.vstack((genomes, new_genomes.values()))
+	if len(new_counts) > 0:
+		population = np.append(population, new_counts.values())
+		genomes = np.vstack((genomes, new_genomes.values()))
 	return population, genomes
 
 
