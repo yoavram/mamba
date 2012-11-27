@@ -82,7 +82,7 @@ def choose(n, k):
 
 def mutation_implicit_genomes(population, genomes, mutation_rates, num_loci, target_genome):
 	'''limit to one mutation per individual, doesn't update rates or fitness'''
-	mutations = np.array(npr.poisson(population * mutation_rates))
+	mutations = np.random.poisson(population * mutation_rates, size=population.shape)	
 	loci = npr.randint(0, num_loci, mutations.sum())
 	loci_split = np.split(loci, mutations.cumsum())[:-1]
 	new_alleles = (target_genome[loci] + 1) % 2
