@@ -1,8 +1,3 @@
-# import numpy as np
-# import pyximport
-# pyximport.install(setup_args={"script_args":["--compiler=mingw32"],
-#                               "include_dirs":np.get_include()},
-#                   reload_support=True)
 import cython_load
 from time import clock
 import numpy as np
@@ -16,32 +11,35 @@ from model import mutation_implicit_genomes as mutation
 #from model_c import mutation_by_mutation_load as mutation
 from model_c import hamming_fitness_genomes as create_fitness
 
-def run(ticks=10, tick_interval=1):
+def run(ticks=10, tick_interval=1, debug=False):
 	tic = clock()
 
 	target_genome = create_target_genome(num_loci)
 	genomes = target_genome.copy()
 	genomes.resize( (1, target_genome.shape[0]) )
-	genome2 = target_genome.copy()
-	genome2[0] = 1
-	genomes = np.vstack((genomes, genome2))
 
 	population = create_population(pop_size, genomes.shape[0])
-	population[1], population[0] = population[0]/2, population[0]/2
+
 	fitness = create_fitness(genomes, target_genome, s)
 	mutation_rates = create_muation_rates(mu, genomes.shape[0])
 	recombination_rates = create_recombination_rates(r, genomes.shape[0])
 
 	print "Starting simulation with ", ticks, "ticks"
 	for tick in range(ticks + 1):
-		drift(population)
-		selection(population, fitness)
+		if debug: print "Drift"
+		population = drift(population)
+		if debug: print "Selection"
+		population = selection(population, fitness)
+		if debug: print "Mutation"
 		population, genomes = mutation(population, genomes, mutation_rates, num_loci, target_genome)
+		if debug: print "Update"
 		fitness = create_fitness(genomes, target_genome, s)
 		mutation_rates = create_muation_rates(mu, genomes.shape[0])
 		recombination_rates = create_recombination_rates(r, genomes.shape[0])
+		if debug: print "Clear"
 		population, genomes, fitness, mutation_rates, recombination_rates = clear_empty_classes(population, genomes, fitness, mutation_rates, recombination_rates)
-
+		if debug: print "Done"
+		
 		if tick_interval != 0 and tick % tick_interval == 0:
 			print "Tick", tick
 	toc = clock()
@@ -49,5 +47,5 @@ def run(ticks=10, tick_interval=1):
 	return population, genomes
 
 if __name__=="__main__":
-	p = run(100)
+	p,g = run(10,1,True)
 
