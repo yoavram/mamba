@@ -3,11 +3,9 @@ import numpy.random as npr
 import random
 from math import floor
 import cython_load
-from model_c import find_row
+import numexpr
 
 # TODO see where range can be chaged to arange and arange to xrange (generator) http://www.jesshamrick.com/2012/04/29/the-demise-of-for-loops/
-# TODO sparse matrix?
-
 
 def create_uniform_mutation_load_population(pop_size, num_classes):
 	return npr.multinomial(pop_size, [1.0 / num_classes] * num_classes)
@@ -47,8 +45,20 @@ def hamming_fitness_genomes(genomes, target_genome, s):
 
 
 def genome_to_num(genome):
-	i = np.arange(genome.shape[0])
-	return (2. ** i * genome).sum()
+    non_zero = genome.nonzero()[0]
+    #return numexpr.evaluate("sum(2. ** non_zero )")
+    return (2. ** non_zero).sum() # this is faster than numexpr
+
+
+def genomes_to_nums(genomes):
+    return np.array([genome_to_num(g) for g in genomes])
+
+
+def find_row_nums(nums, target):
+	for i,n in enumerate(nums):
+		if n == target:
+			return i
+	return -1
 
 
 def drift(population):
@@ -80,14 +90,23 @@ def choose(n, k):
     return random.sample(xrange(n), k)   
 
 
-def mutation_explicit_genomes(population, genomes, mutation_rates, num_loci, target_genome):
-	'''limit to one mutation per individual, doesn't update rates or fitness'''
+def clear_empty_classes(population, genomes, fitness, mutation_rates, recombination_rates, nums):
+	non_zero = population > 0
+	population = population[non_zero]
+	fitness = fitness[non_zero]
+	mutation_rates = mutation_rates[non_zero]
+	recombination_rates = recombination_rates[non_zero]
+	genomes = genomes[non_zero]
+	nums = nums[non_zero]
+	return population, genomes, fitness, mutation_rates, recombination_rates, nums
+
+
+def mutation_explicit_genomes(population, genomes, mutation_rates, num_loci, target_genome, nums):
 	mutations = np.random.poisson(population * mutation_rates, size=population.shape)	
 	loci = npr.randint(0, num_loci, mutations.sum())
 	loci_split = np.split(loci, mutations.cumsum())[:-1]
 	new_alleles = (target_genome[loci] + 1) % 2
 	new_allele_index = 0
-	# create dict of new strains
 	new_counts = {}
 	new_genomes = {}
 	for strain in range(len(loci_split)):
@@ -102,25 +121,15 @@ def mutation_explicit_genomes(population, genomes, mutation_rates, num_loci, tar
 			else:
 				new_genome = genomes[strain,:].copy()				
 				new_genome[locus] = new_allele
-				index = find_row(genomes, new_genome)
-				if index == -1:
-					new_counts[key] = 1
-					new_genomes[key] = new_genome
-				else:
-					population[index] += 1
-	# update 
-	if len(new_counts) > 0:
+				new_counts[key] = 1
+				new_genomes[key] = new_genome
+	if len(new_genomes) > 0:
+		for key, new_genome in new_genomes.items():
+			index = find_row_nums(nums, genome_to_num(new_genome))
+			if index != -1:
+				new_genomes.pop(key)
+				new_counts.pop(key)
+				population[index] += 1
 		population = np.append(population, new_counts.values())
 		genomes = np.vstack((genomes, new_genomes.values()))
 	return population, genomes
-
-
-def clear_empty_classes(population, genomes, fitness, mutation_rates, recombination_rates):
-	non_zero = population > 0
-	population = population[non_zero]
-	fitness = fitness[non_zero]
-	mutation_rates = mutation_rates[non_zero]
-	recombination_rates = recombination_rates[non_zero]
-	genomes = genomes[non_zero]
-	return population, genomes, fitness, mutation_rates, recombination_rates
-
