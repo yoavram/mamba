@@ -23,31 +23,6 @@ def mutation_by_mutation_load(np.ndarray[DTYPE_INT_t, ndim=1] population, np.nda
 		population[i+1] = population[i+1] + mutations[i]   
 	return population
 
-@cython.boundscheck(False)
-@cython.wraparound(False)
-def hamming_fitness_genomes(np.ndarray[DTYPE_INT_t, ndim=2] genomes, np.ndarray[DTYPE_INT_t, ndim=1] target_genome, double s):
-	cdef np.ndarray[DTYPE_FLOAT_t, ndim=1] hamming_fitness 
-	hamming_fitness = np.zeros(genomes.shape[0], dtype=DTYPE_FLOAT)
-	cdef Py_ssize_t i
-	for i in range(genomes.shape[0]):
-		hamming_fitness[i] = s ** ((target_genome != genomes[i,:]).sum()) 
-	return hamming_fitness
-
-
-@cython.boundscheck(False)
-@cython.wraparound(False)
-def genomes_to_nums(np.ndarray[DTYPE_INT_t, ndim=2] genomes):
-	cdef np.ndarray[DTYPE_FLOAT_t, ndim=1] nums
-	cdef np.ndarray[DTYPE_FLOAT_t, ndim=1] i
-	cdef DTYPE_FLOAT_t num_loci_f 
-	num_loci_f = np.float(genomes.shape[1])
-	nums = np.zeros(genomes.shape[0], dtype=DTYPE_FLOAT)
-	cdef Py_ssize_t j
-	for j in range(genomes.shape[0]):
-		i = np.arange(num_loci_f)
-		nums[j] = (2. ** i * genomes[j,:]).sum()
-	return nums
-
 
 @cython.boundscheck(False)
 @cython.wraparound(False) # TODO int -> DTYPE_...
@@ -69,8 +44,9 @@ def find_row(np.ndarray[DTYPE_INT_t, ndim=2] matrix, np.ndarray[DTYPE_INT_t, ndi
 @cython.boundscheck(False)
 @cython.wraparound(False)
 def find_row_nums(np.ndarray[DTYPE_FLOAT_t, ndim=1] nums, DTYPE_FLOAT_t target):
-	cdef Py_ssize_t i
-	for i,n in enumerate(nums):
-		if n == target:
-			return i
-	return -1
+    cdef Py_ssize_t i
+    cdef DTYPE_FLOAT_t n
+    for i,n in enumerate(nums):
+        if n == target:
+            return i
+    return -1
