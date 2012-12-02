@@ -39,7 +39,8 @@ def hamming_fitness_genome(genome, target_genome, s):
 
 def hamming_fitness_genomes(genomes, target_genome, s):
 	num_loci = target_genome.shape[0]
-	return cdist(genomes, target_genome.reshape(1, num_loci), 'hamming') * num_loci
+	load = cdist(genomes, target_genome.reshape(1, num_loci), 'hamming') * num_loci
+	return (s ** load).reshape(genomes.shape[0])
 
 
 def genome_to_num(genome):
@@ -67,8 +68,8 @@ def drift(population):
 
 
 def selection(population, fitness):
-	pop_size = population.sum()
-	p = population * fitness
+	pop_size = population.sum
+	p = population * fitness.reshape(population.shape)
 	p[:] = p / p.sum()
 	population[:] = npr.multinomial(pop_size, p)
 	return population
