@@ -7,7 +7,11 @@ def create_parser():
 		type=str,
 		metavar="filename",
 		default="params.py",
-		help="default parameters filename")
+		help="parameters filename")
+	parser.add_argument("--log_file",
+		type=str,
+		metavar="filename",
+		help="log filename")
 	parser.add_argument("--pop_size",
 		type=int,
 		metavar="integer",
@@ -66,8 +70,8 @@ def args_and_params():
 	args = vars(args)
 	args = { k: v for k,v in args.items() if v != None }
 	params.update(args)
-	globals().update(params)
 	print params
+	return params
 
 if __name__ == '__main__':
 	args_and_params()

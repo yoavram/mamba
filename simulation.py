@@ -2,14 +2,19 @@
 from time import clock
 import numpy as np
 
-from params import *
-
 from model import drift, selection, create_muation_rates, create_target_genome
 from model import create_recombination_rates, genomes_to_nums, genome_to_num
 from model import create_fitness_by_mutational_load as create_fitness
 from model import create_mutation_free_population as create_population
 from model import mutation_explicit_genomes as mutation
 from model import hamming_fitness_genomes as create_fitness
+
+# load parameters to global namespace
+import args
+globals().update(args.args_and_params())
+# load logging
+import log
+logger = log.get_logger(log_file)
 
 def run(ticks=10, tick_interval=1):
 	tic = clock()
@@ -20,7 +25,7 @@ def run(ticks=10, tick_interval=1):
 
 	population = create_population(pop_size, genomes.shape[0])
 
-	print "Starting simulation with ", ticks, "ticks"
+	logger.info("Starting simulation with %d ticks", ticks)
 	for tick in range(ticks + 1):
 		fitness, mutation_rates, recombination_rates, nums = update(genomes, target_genome, s, mu ,r)
 
@@ -29,10 +34,10 @@ def run(ticks=10, tick_interval=1):
 		population, genomes = clear(population, genomes)
 
 		if tick_interval != 0 and tick % tick_interval == 0:
-			print "Tick", tick
+			logger.debug("Tick %d", tick)
 
 	toc = clock()
-	print "Simulation finished,", tick, "ticks, time elapsed", (toc-tic), "seconds"
+	logger.info("Simulation finished, %d ticks, time elapsed %.3f seconds",tick, (toc-tic))
 	return population, genomes
 
 
@@ -58,5 +63,5 @@ def clear(population, genomes):
 
 
 if __name__=="__main__":
-	p,g = run(0,0)
+	p,g = run(ticks, tick_interval)
 
