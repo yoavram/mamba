@@ -17,7 +17,7 @@ args_and_params = args.args_and_params()
 globals().update(args_and_params)
 # load logging
 import log
-log.init(log_file, debug)
+log.init(log_filename=log_file, log_dir=log_dir, debug=debug)
 logger = log.get_logger('simulation')
 logger.info("Parametes from file and command line: %s", args_and_params)
 

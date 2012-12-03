@@ -57,9 +57,11 @@ def load_params_file(filename):
 	if filename and exists(filename):
 		fin = open(filename)
 		for line in fin:
-			k,v = line.split('=')
-			k,v = k.strip(), eval(v.strip())
-			params[k] = v
+			line = line.strip()
+			if line:
+				k,v = line.split('=')
+				k,v = k.strip(), eval(v.strip())
+				params[k] = v
 		fin.close()
 	return params
 

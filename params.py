@@ -6,4 +6,8 @@ mu = 0.003
 r = 0.00006
 tick_interval = 0
 ticks = 10
+
+log_dir = 'log'
 log_file = 'mamba.log'
+ser_dir = 'serialization'
+out_dir = 'output'
