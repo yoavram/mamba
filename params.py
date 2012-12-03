@@ -8,6 +8,7 @@ tick_interval = 0
 ticks = 10
 
 log_dir = 'log'
-log_file = 'mamba.log'
+log_ext = '.log'
+log_file = 'mamba'
 ser_dir = 'serialization'
 out_dir = 'output'

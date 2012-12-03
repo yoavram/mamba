@@ -11,13 +11,18 @@ from model import hamming_fitness_genomes as create_fitness
 
 ## Setting up the simulation infrastructure
 
+# time and date as a unique id
+import datetime
+date_time = datetime.datetime.now().strftime('%Y-%b-%d_%H-%M-%S-%f')
+
 # load parameters to global namespace
 import args
 args_and_params = args.args_and_params()
 globals().update(args_and_params)
+
 # load logging
 import log
-log.init(log_filename=log_file, log_dir=log_dir, debug=debug)
+log.init(log_filename=log_file + '_' + date_time + log_ext, log_dir=log_dir, debug=debug)
 logger = log.get_logger('simulation')
 logger.info("Parametes from file and command line: %s", args_and_params)
 
