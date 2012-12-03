@@ -1,3 +1,11 @@
+## TODO
+# modifiers
+# recombination
+# serialization
+# invasion
+# realtime plotting?
+# sumatra interface?
+
 #import cython_load
 from time import clock
 from os.path import sep
