@@ -68,7 +68,7 @@ def drift(population):
 
 
 def selection(population, fitness):
-	pop_size = population.sum
+	pop_size = population.sum()
 	p = population * fitness.reshape(population.shape)
 	p[:] = p / p.sum()
 	population[:] = npr.multinomial(pop_size, p)

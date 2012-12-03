@@ -1,4 +1,4 @@
-import cython_load
+#import cython_load
 from time import clock
 import numpy as np
 
@@ -53,6 +53,7 @@ def update(genomes, target_genome, s, mu ,r):
 def clear(population, genomes):
 	non_zero = population > 0
 	population = population[non_zero]
+	genomes = genomes[non_zero]
 	return population, genomes
 
 
