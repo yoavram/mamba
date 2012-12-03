@@ -32,9 +32,7 @@ pip-log.txt
 output
 *.pdf
 *.png
-log
-log*
-*log
+*.log
 serialization
 *.RData
 Rprof.out
