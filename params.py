@@ -5,10 +5,18 @@ s = 0.01
 mu = 0.003
 r = 0.00006
 tick_interval = 0
-ticks = 10
+ticks = 1
+
+job_name = 'test'
 
 log_dir = 'log'
 log_ext = '.log'
-log_file = 'mamba'
+
 ser_dir = 'serialization'
+ser_ext = '.ser'
+
 out_dir = 'output'
+out_ext = '.csv'
+
+params_dir = 'params'
+params_ext = '.py'

@@ -1,5 +1,8 @@
 #import cython_load
 from time import clock
+from os.path import sep
+from datetime import datetime
+
 import numpy as np
 
 from model import drift, selection, create_muation_rates, create_target_genome
@@ -12,19 +15,26 @@ from model import hamming_fitness_genomes as create_fitness
 ## Setting up the simulation infrastructure
 
 # time and date as a unique id
-import datetime
-date_time = datetime.datetime.now().strftime('%Y-%b-%d_%H-%M-%S-%f')
+date_time = datetime.now().strftime('%Y-%b-%d_%H-%M-%S-%f')
 
 # load parameters to global namespace
 import args
 args_and_params = args.args_and_params()
 globals().update(args_and_params)
+params_filename = params_dir + sep + job_name + '_' + date_time + params_ext
+args.save_params_file(params_filename, args_and_params)
 
 # load logging
 import log
-log.init(log_filename=log_file + '_' + date_time + log_ext, log_dir=log_dir, debug=debug)
+log_filename = log_dir + sep + job_name + '_' + date_time + log_ext
+log.init(log_filename, debug)
 logger = log.get_logger('simulation')
+
+# log initial stuff
+logger.info("Simulation ID: %s", date_time)
+logger.info("Logging to %s", log_filename)
 logger.info("Parametes from file and command line: %s", args_and_params)
+logger.info("Parameters saved to file %s", params_filename)
 
 
 def run(ticks=10, tick_interval=1):

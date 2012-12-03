@@ -66,6 +66,20 @@ def load_params_file(filename):
 	return params
 
 
+def str2(arg):
+	if isinstance(arg, str):
+		return "'"+arg+"'"
+	else:
+		return str(arg)
+
+
+def save_params_file(filename, params_dict):
+	fout = open(filename, 'w')
+	for k,v in params_dict.items():
+		fout.write(str(k) + " = " + str2(v) + "\n")
+	fout.close()
+
+
 def args_and_params():	
 	args = parse_args(create_parser())
 	params = load_params_file(args.params)
