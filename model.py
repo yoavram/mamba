@@ -6,6 +6,10 @@ from scipy.spatial.distance import cdist, hamming
 
 # TODO see where range can be chaged to arange and arange to xrange (generator) http://www.jesshamrick.com/2012/04/29/the-demise-of-for-loops/
 
+#import log
+#logger = log.get_logger('model')
+
+
 def create_uniform_mutation_load_population(pop_size, num_classes):
 	return npr.multinomial(pop_size, [1.0 / num_classes] * num_classes)
 

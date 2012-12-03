@@ -9,12 +9,18 @@ from model import create_mutation_free_population as create_population
 from model import mutation_explicit_genomes as mutation
 from model import hamming_fitness_genomes as create_fitness
 
+## Setting up the simulation infrastructure
+
 # load parameters to global namespace
 import args
-globals().update(args.args_and_params())
+args_and_params = args.args_and_params()
+globals().update(args_and_params)
 # load logging
 import log
-logger = log.get_logger(log_file)
+log.init(log_file, debug)
+logger = log.get_logger('simulation')
+logger.info("Parametes from file and command line: %s", args_and_params)
+
 
 def run(ticks=10, tick_interval=1):
 	tic = clock()

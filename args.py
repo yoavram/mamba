@@ -70,7 +70,6 @@ def args_and_params():
 	args = vars(args)
 	args = { k: v for k,v in args.items() if v != None }
 	params.update(args)
-	print params
 	return params
 
 if __name__ == '__main__':
