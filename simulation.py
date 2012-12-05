@@ -1,6 +1,7 @@
 ## TODO
 # modifiers
 # recombination
+# statistics
 # serialization
 # invasion
 # realtime plotting?
@@ -10,6 +11,7 @@
 from time import clock
 from os.path import sep
 from datetime import datetime
+import pickle
 
 import numpy as np
 
@@ -67,7 +69,7 @@ def run(ticks=10, tick_interval=1):
 
 	toc = clock()
 	logger.info("Simulation finished, %d ticks, time elapsed %.3f seconds",tick, (toc-tic))
-	return population, genomes
+	return population, genomes, target_genome
 
 
 def step(population, genomes, target_genome, fitness, mutation_rates, recombination_rates, num_loci, nums):
@@ -91,6 +93,22 @@ def clear(population, genomes):
 	return population, genomes
 
 
-if __name__=="__main__":
-	p,g = run(ticks, tick_interval)
+def serialize(population, genomes, target_genome):
+	filename = ser_dir + sep + job_name + '_' + date_time + ser_ext
+	fout = open(filename, "wb")
+	pickle.dump((population, genomes, target_genome), fout)
+	fout.close()
+	logger.info("Serialized population to %s", filename)
+	return filename
 
+
+def deserialize(filename):
+	fin = open(filename)
+	pickled = pickle.load(fin)
+	fin.close()
+	logger.info("Deserialized population from %s", filename)
+	return pickled
+
+
+if __name__=="__main__":
+	p, g, tg = run(0, tick_interval)
