@@ -46,10 +46,12 @@ logger.info("Logging to %s", log_filename)
 logger.info("Parametes from file and command line: %s", args_and_params)
 logger.info("Parameters saved to file %s", params_filename)
 
+# output filename
+output_filename = output_dir + sep + job_name + '_' + date_time + output_ext
+logger.info("Saving output to %s", output_filename)
 
 def run(ticks=10, tick_interval=1):
 	tic = clock()
-	stats = []
 
 	target_genome = create_target_genome(num_loci)
 	genomes = target_genome.copy()
@@ -60,19 +62,22 @@ def run(ticks=10, tick_interval=1):
 	logger.info("Starting simulation with %d ticks", ticks)
 	for tick in range(ticks + 1):
 		fitness, mutation_rates, recombination_rates, nums = update(genomes, target_genome, s, mu ,r)
-
+		
+		if stats_interval != 0 and tick % stats_interval == 0:
+			df = tabularize(population, nums, fitness, mutation_rates, recombination_rates, tick)
+			header = False if tick > 0 else True
+			df.to_csv(output_filename, header=header, mode='a', index_label='genome')
+		
 		population, genomes = step(population, genomes, target_genome, fitness, mutation_rates, recombination_rates, num_loci, nums)
 		
 		population, genomes = clear(population, genomes)
 
 		if tick_interval != 0 and tick % tick_interval == 0:
 			logger.debug("Tick %d", tick)
-		if stats_interval !=0 and tick % stats_interval == 0:
-			stats.append(tabularize(population, nums, fitness, mutation_rates, recombination_rates))
 
 	toc = clock()
 	logger.info("Simulation finished, %d ticks, time elapsed %.3f seconds",tick, (toc-tic))
-	return population, genomes, target_genome, stats
+	return population, genomes, target_genome
 
 
 def step(population, genomes, target_genome, fitness, mutation_rates, recombination_rates, num_loci, nums):
@@ -105,14 +110,14 @@ def serialize(population, genomes, target_genome):
 	return filename
 
 
-def tabularize(population, nums, fitness, mutation_rates, recombination_rates):
+def tabularize(population, nums, fitness, mutation_rates, recombination_rates, tick):
 	df = pd.DataFrame(data={
-		'tick''population': pd.Series(population),
-		'fitness': pd.Series(fitness),
-		'mutation_rates': pd.Series(mutation_rates),
-		'recombination_rates': pd.Series(recombination_rates)
-		}, 
-		index=nums)
+		'tick': pd.Series([tick] * population.shape[0], index=nums),
+		'population': pd.Series(population, index=nums),
+		'fitness': pd.Series(fitness, index=nums),
+		'mutation_rates': pd.Series(mutation_rates, index=nums),
+		'recombination_rates': pd.Series(recombination_rates, index=nums)
+		})
 	return df
 
 def deserialize(filename):
@@ -124,4 +129,4 @@ def deserialize(filename):
 
 
 if __name__=="__main__":
-	p, g, tg, stats = run(0, tick_interval)
+	p, g, tg = run(ticks, tick_interval)

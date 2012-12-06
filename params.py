@@ -15,8 +15,8 @@ log_ext = '.log'
 ser_dir = 'serialization'
 ser_ext = '.ser'
 
-out_dir = 'output'
-out_ext = '.csv'
+output_dir = 'output'
+output_ext = '.csv'
 
 params_dir = 'params'
 params_ext = '.py'
