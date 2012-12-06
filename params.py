@@ -5,7 +5,8 @@ s = 0.01
 mu = 0.003
 r = 0.00006
 tick_interval = 0
-ticks = 1
+stats_interval = 1
+ticks = 2
 
 job_name = 'test'
 

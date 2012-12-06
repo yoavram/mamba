@@ -2,7 +2,6 @@
 # modifiers
 # recombination
 # statistics
-# serialization
 # invasion
 # realtime plotting?
 # sumatra interface?
@@ -12,6 +11,7 @@ from time import clock
 from os.path import sep
 from datetime import datetime
 import pickle
+import pandas as pd
 
 import numpy as np
 
@@ -49,6 +49,7 @@ logger.info("Parameters saved to file %s", params_filename)
 
 def run(ticks=10, tick_interval=1):
 	tic = clock()
+	stats = []
 
 	target_genome = create_target_genome(num_loci)
 	genomes = target_genome.copy()
@@ -66,10 +67,12 @@ def run(ticks=10, tick_interval=1):
 
 		if tick_interval != 0 and tick % tick_interval == 0:
 			logger.debug("Tick %d", tick)
+		if stats_interval !=0 and tick % stats_interval == 0:
+			stats.append(tabularize(population, nums, fitness, mutation_rates, recombination_rates))
 
 	toc = clock()
 	logger.info("Simulation finished, %d ticks, time elapsed %.3f seconds",tick, (toc-tic))
-	return population, genomes, target_genome
+	return population, genomes, target_genome, stats
 
 
 def step(population, genomes, target_genome, fitness, mutation_rates, recombination_rates, num_loci, nums):
@@ -102,6 +105,16 @@ def serialize(population, genomes, target_genome):
 	return filename
 
 
+def tabularize(population, nums, fitness, mutation_rates, recombination_rates):
+	df = pd.DataFrame(data={
+		'tick''population': pd.Series(population),
+		'fitness': pd.Series(fitness),
+		'mutation_rates': pd.Series(mutation_rates),
+		'recombination_rates': pd.Series(recombination_rates)
+		}, 
+		index=nums)
+	return df
+
 def deserialize(filename):
 	fin = open(filename)
 	pickled = pickle.load(fin)
@@ -111,4 +124,4 @@ def deserialize(filename):
 
 
 if __name__=="__main__":
-	p, g, tg = run(0, tick_interval)
+	p, g, tg, stats = run(0, tick_interval)
