@@ -1,4 +1,3 @@
-debug = True
 pop_size = 10 ** 5
 num_loci = 1000
 s = 0.01

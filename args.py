@@ -37,9 +37,13 @@ def create_parser():
 		metavar="float",
 		help="selection coefficient")
 	parser.add_argument( "--debug",
-		type=bool,
-		metavar="boolean",
-		help="debug mode")
+		action='store_false',
+		default=True,
+		help="production mode"),
+	parser.add_argument( "--console",
+		action='store_false',
+		default=True,
+		help="don't output logging to console")
 	parser.add_argument( "--tick_interval",
 		type=int,
 		metavar="integer",

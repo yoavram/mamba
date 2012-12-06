@@ -37,7 +37,7 @@ args.save_params_file(params_filename, args_and_params)
 # load logging
 import log
 log_filename = log_dir + sep + job_name + '_' + date_time + log_ext
-log.init(log_filename, debug)
+log.init(log_filename, console)
 logger = log.get_logger('simulation')
 
 # log initial stuff
