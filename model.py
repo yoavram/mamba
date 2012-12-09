@@ -1,5 +1,4 @@
 import numpy as np
-import numpy.random as npr
 import random
 from math import floor
 from scipy.spatial.distance import cdist, hamming
@@ -11,7 +10,7 @@ from scipy.spatial.distance import cdist, hamming
 
 
 def create_uniform_mutation_load_population(pop_size, num_classes):
-	return npr.multinomial(pop_size, [1.0 / num_classes] * num_classes)
+	return np.random.multinomial(pop_size, [1.0 / num_classes] * num_classes)
 
 
 def create_mutation_free_population(pop_size, num_classes):
@@ -67,7 +66,7 @@ def find_row_nums(nums, target):
 def drift(population):
 	pop_size = population.sum()
 	p = population / float(pop_size)
-	population[:] = npr.multinomial(pop_size, p)
+	population[:] = np.random.multinomial(pop_size, p)
 	return population
 
 
@@ -75,12 +74,12 @@ def selection(population, fitness):
 	pop_size = population.sum()
 	p = population * fitness.reshape(population.shape)
 	p[:] = p / p.sum()
-	population[:] = npr.multinomial(pop_size, p)
+	population[:] = np.random.multinomial(pop_size, p)
 	return population
 
 
 def draw_environmental_changes(ticks, env_change_prob):
-	changes = npr.binomial(n=1, p=env_change_prob, size=ticks)
+	changes = np.random.binomial(n=1, p=env_change_prob, size=ticks)
 	return changes
 
 
@@ -95,7 +94,7 @@ def choose(n, k):
 
 def mutation_explicit_genomes(population, genomes, mutation_rates, num_loci, target_genome, nums):
 	mutations = np.random.poisson(population * mutation_rates, size=population.shape)	
-	loci = npr.randint(0, num_loci, mutations.sum())
+	loci = np.random.randint(0, num_loci, mutations.sum())
 	loci_split = np.split(loci, mutations.cumsum())[:-1]
 	new_alleles = (target_genome[loci] + 1) % 2 # binomial(1, mutations.sum(), beta)
 	new_allele_index = 0
@@ -124,4 +123,59 @@ def mutation_explicit_genomes(population, genomes, mutation_rates, num_loci, tar
 	if len(new_genomes) > 0:
 		population = np.append(population, new_counts.values())
 		genomes = np.vstack((genomes, new_genomes.values()))
+	return population, genomes
+
+
+def mutation_recombination(population, genomes, mutation_rates, recombination_rates, num_loci, target_genome, nums):
+	total_rates = mutation_rates + recombination_rates
+	prob_mu = mutation_rates/total_rates
+	events = np.random.poisson(population * total_rates, size=population.shape)	
+	#mutations = np.random.binomial(events, prob_mu, size=population.shape) # TODO doesn't accept n=0
+	mutations = np.round(events * prob_mu)
+	mutations = np.array([np.int(x) for x in mutations])
+	recombinations = events - mutations
+	events_cumsum = events.cumsum()
+	total_events = events_cumsum[-1]
+	loci = np.random.randint(0, num_loci, total_events)
+	loci_split = np.split(loci, events.cumsum())[:-1] # split by strain
+	loci_split = [np.split(x, mutations[i:i+1]) for i,x in enumerate(loci_split)] # split by mutation/recombination
+	new_counts = {}
+	new_genomes = {}
+
+	# 0 - mutation, 1 - recombination
+	for strain in range(population.shape[0]):
+		population[strain] = population[strain] - events[strain]
+		assert population[strain] >= 0  # ASSERT
+
+		for method in range(len(loci_split[strain])):
+			_loci = loci_split[strain][method]	
+			if len(_loci) == 0:
+				continue
+			if method == 0: # mutation
+				new_alleles = (target_genome[_loci] + 1) % 2 # binomial(1, mutations.sum(), beta)
+			elif method == 1: # recombination
+				new_alleles = (target_genome[_loci] + 1) % 2 # TODO
+
+			for i,locus in enumerate(_loci):
+				new_allele = new_alleles[i]
+				key = (strain, locus, new_allele)
+				if key in new_counts:
+					new_counts[key] += 1
+				else:
+					new_genome = genomes[strain,:].copy()				
+					new_genome[locus] = new_allele # xor target_genom[locus]
+					new_counts[key] = 1
+					new_genomes[key] = new_genome
+
+	if len(new_genomes) > 0:
+		for key, new_genome in new_genomes.items():
+			index = find_row_nums(nums, genome_to_num(new_genome))
+			if index != -1:
+				new_genomes.pop(key)
+				population[index] += new_counts.pop(key)
+
+	if len(new_genomes) > 0:
+		population = np.append(population, new_counts.values())
+		genomes = np.vstack((genomes, new_genomes.values()))
+
 	return population, genomes
