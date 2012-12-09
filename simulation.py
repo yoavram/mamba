@@ -1,7 +1,6 @@
 ## TODO
 # modifiers
 # recombination
-# statistics
 # invasion
 # realtime plotting?
 # sumatra interface?
@@ -60,6 +59,7 @@ def run(ticks=10, tick_interval=1):
 	population = create_population(pop_size, genomes.shape[0])
 
 	logger.info("Starting simulation with %d ticks", ticks)
+	tick = 0
 	for tick in range(ticks + 1):
 		fitness, mutation_rates, recombination_rates, nums = update(genomes, target_genome, s, mu ,r)
 		
@@ -77,7 +77,8 @@ def run(ticks=10, tick_interval=1):
 
 	toc = clock()
 	logger.info("Simulation finished, %d ticks, time elapsed %.3f seconds",tick, (toc-tic))
-	return population, genomes, target_genome
+	filename = serialize(population, genomes, target_genome)
+	return population, genomes, target_genome, filename
 
 
 def step(population, genomes, target_genome, fitness, mutation_rates, recombination_rates, num_loci, nums):
@@ -129,4 +130,4 @@ def deserialize(filename):
 
 
 if __name__=="__main__":
-	p, g, tg = run(ticks, tick_interval)
+	p, g, tg, f = run(ticks, tick_interval)
