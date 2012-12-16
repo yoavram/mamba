@@ -1,6 +1,5 @@
 ## TODO
 # modifiers
-# recombination
 # invasion
 # realtime plotting?
 # sumatra interface?
