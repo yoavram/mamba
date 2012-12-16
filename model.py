@@ -154,9 +154,11 @@ def mutation_recombination(population, genomes, mutation_rates, recombination_ra
 			if method == 0: # mutation
 				new_alleles = (target_genome[_loci] + 1) % 2 # binomial(1, mutations.sum(), beta)
 			elif method == 1: # recombination
-				new_alleles = (target_genome[_loci] + 1) % 2 # TODO
+				donors = np.random.multinomial(len(_loci), population/float(population.sum()))
+				donors = np.repeat(np.arange(donors.shape[0]), donors)
+				new_alleles = genomes[donors, _loci]
 
-			for i,locus in enumerate(_loci):
+			for i, locus in enumerate(_loci):
 				new_allele = new_alleles[i]
 				key = (strain, locus, new_allele)
 				if key in new_counts:
