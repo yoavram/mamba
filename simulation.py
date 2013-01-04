@@ -1,4 +1,5 @@
 ## TODO
+# assert population[strain] >= 0  raises AssertionError when mutation rate is 0.03
 # invasion
 # realtime plotting?
 # sumatra interface?
