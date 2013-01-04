@@ -1,5 +1,4 @@
 ## TODO
-# modifiers
 # invasion
 # realtime plotting?
 # sumatra interface?
