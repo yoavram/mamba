@@ -14,8 +14,9 @@ import gzip
 import pandas as pd
 import numpy as np
 
-from model import drift, selection, create_muation_rates, create_target_genome
-from model import create_recombination_rates, genomes_to_nums, genome_to_num
+from model import drift, selection, create_target_genome, genomes_to_nums, genome_to_num
+from model import create_mutation_rates_with_modifiers as create_muation_rates
+from model import create_recombination_rates_with_modifiers as create_recombination_rates
 from model import create_mutation_free_population as create_population
 from model import mutation_recombination
 from model import hamming_fitness_genomes as create_fitness
@@ -91,8 +92,8 @@ def step(population, genomes, target_genome, fitness, mutation_rates, recombinat
 
 def update(genomes, target_genome, s, mu ,r):
 	fitness = create_fitness(genomes, target_genome, s, num_loci)
-	mutation_rates = create_muation_rates(mu, genomes.shape[0])
-	recombination_rates = create_recombination_rates(r, genomes.shape[0])
+	mutation_rates = create_muation_rates(mu, genomes, fitness, s, num_loci)
+	recombination_rates = create_recombination_rates(r, genomes, fitness, s, num_loci)
 	nums = genomes_to_nums(genomes, num_loci)
 	return fitness, mutation_rates, recombination_rates, nums
 

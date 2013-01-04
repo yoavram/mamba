@@ -23,12 +23,33 @@ def create_fitness_by_mutational_load(s, num_classes):
 	return  np.array([(1 - s) ** load for load in range(num_classes)])
 
 
+def create_rates(basic_rate, num_classes):
+	return np.array([basic_rate] * num_classes)
+
+
 def create_muation_rates(mu, num_classes):
-	return np.array([mu] * num_classes)
+	return create_rates(mu, num_classes)
 
 
 def create_recombination_rates(r, num_classes):
-	return np.array([r] * num_classes)
+	return create_rates(r, num_classes)
+
+
+def create_rates_with_modifiers(basic_rate, genomes, fitness, s, num_loci, th_offset, incr_offset, create_rates):
+	threshold = (1 - s) ** genomes[:, num_loci + th_offset]
+	increase = genomes[:, num_loci + incr_offset]
+	rates = create_rates(basic_rate, genomes.shape[0])
+	hypers = fitness <= threshold
+	rates[hypers] *= increase[hypers]
+	return rates
+
+
+def create_mutation_rates_with_modifiers(mu, genomes, fitness, s, num_loci):
+	return create_rates_with_modifiers(mu, genomes, fitness, s, num_loci, 0, 1, create_muation_rates)
+
+
+def create_recombination_rates_with_modifiers(r, genomes, fitness, s, num_loci):
+	return create_rates_with_modifiers(r, genomes, fitness, s, num_loci, 2, 3, create_recombination_rates)
 
 
 def create_target_genome(num_loci):
