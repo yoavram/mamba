@@ -36,23 +36,24 @@ def create_target_genome(num_loci):
 
 
 def hamming_fitness_genome(genome, target_genome, s):
-	load = hamming(genome, target_genome) * target_genome.shape[0]
-	return s ** load
+	load = hamming(genome[:num_loci], target_genome) * target_genome.shape[0]
+	return (1 - s) ** load
 
 
-def hamming_fitness_genomes(genomes, target_genome, s):
+def hamming_fitness_genomes(genomes, target_genome, s, num_loci):
 	num_loci = target_genome.shape[0]
-	load = cdist(genomes, target_genome.reshape(1, num_loci), 'hamming') * num_loci
+	load = cdist(genomes[:, :num_loci], target_genome.reshape(1, num_loci), 'hamming') * num_loci
 	return ((1 - s) ** load).reshape(genomes.shape[0])
 
 
-def genome_to_num(genome):
+def genome_to_num(genome, num_loci):
     non_zero = genome.nonzero()[0]
+    non_zero = non_zero[non_zero < num_loci]
     return (2. ** non_zero).sum() # this is faster than numexpr
 
 
-def genomes_to_nums(genomes):
-    return np.array([genome_to_num(g) for g in genomes])
+def genomes_to_nums(genomes, num_loci):
+    return np.array([genome_to_num(g, num_loci) for g in genomes])
 
 
 def find_row_nums(nums, target):
@@ -164,14 +165,14 @@ def mutation_recombination(population, genomes, mutation_rates, recombination_ra
 				if key in new_counts:
 					new_counts[key] += 1
 				else:
-					new_genome = genomes[strain,:].copy()				
+					new_genome = genomes[strain, :].copy()				
 					new_genome[locus] = new_allele # xor target_genom[locus]
 					new_counts[key] = 1
 					new_genomes[key] = new_genome
 
 	if len(new_genomes) > 0:
 		for key, new_genome in new_genomes.items():
-			index = find_row_nums(nums, genome_to_num(new_genome))
+			index = find_row_nums(nums, genome_to_num(new_genome, num_loci))
 			if index != -1:
 				new_genomes.pop(key)
 				population[index] += new_counts.pop(key)

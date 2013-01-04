@@ -10,8 +10,8 @@ from os.path import sep
 from datetime import datetime
 import pickle
 import gzip
-import pandas as pd
 
+import pandas as pd
 import numpy as np
 
 from model import drift, selection, create_muation_rates, create_target_genome
@@ -53,9 +53,9 @@ def run(ticks=10, tick_interval=1):
 	output_file = gzip.open(output_filename, 'wb')
 
 	target_genome = create_target_genome(num_loci)
-	genomes = target_genome.copy()
-	genomes.resize( (1, target_genome.shape[0]) )
-
+	genomes = np.concatenate((target_genome, np.array([0, 1.0, 0, 1.0])))
+	genomes.resize( (1, genomes.shape[0]) )
+	
 	population = create_population(pop_size, genomes.shape[0])
 
 	logger.info("Starting simulation with %d ticks", ticks)
@@ -90,10 +90,10 @@ def step(population, genomes, target_genome, fitness, mutation_rates, recombinat
 
 
 def update(genomes, target_genome, s, mu ,r):
-	fitness = create_fitness(genomes, target_genome, s)
+	fitness = create_fitness(genomes, target_genome, s, num_loci)
 	mutation_rates = create_muation_rates(mu, genomes.shape[0])
 	recombination_rates = create_recombination_rates(r, genomes.shape[0])
-	nums = genomes_to_nums(genomes)
+	nums = genomes_to_nums(genomes, num_loci)
 	return fitness, mutation_rates, recombination_rates, nums
 
 def clear(population, genomes):
