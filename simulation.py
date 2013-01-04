@@ -9,6 +9,7 @@ from time import clock
 from os.path import sep
 from datetime import datetime
 import pickle
+import gzip
 import pandas as pd
 
 import numpy as np
@@ -44,11 +45,12 @@ logger.info("Parametes from file and command line: %s", args_and_params)
 logger.info("Parameters saved to file %s", params_filename)
 
 # output filename
-output_filename = output_dir + sep + job_name + '_' + date_time + output_ext
+output_filename = output_dir + sep + job_name + '_' + date_time + output_ext + '.gz'
 logger.info("Saving output to %s", output_filename)
 
 def run(ticks=10, tick_interval=1):
 	tic = clock()
+	output_file = gzip.open(output_filename, 'wb')
 
 	target_genome = create_target_genome(num_loci)
 	genomes = target_genome.copy()
@@ -64,7 +66,7 @@ def run(ticks=10, tick_interval=1):
 		if stats_interval != 0 and tick % stats_interval == 0:
 			df = tabularize(population, nums, fitness, mutation_rates, recombination_rates, tick)
 			header = False if tick > 0 else True
-			df.to_csv(output_filename, header=header, mode='a', index_label='genome')
+			df.to_csv(output_file, header=header, mode='a', index_label='genome')
 		
 		population, genomes = step(population, genomes, target_genome, fitness, mutation_rates, recombination_rates, num_loci, nums)
 		
@@ -76,6 +78,7 @@ def run(ticks=10, tick_interval=1):
 	toc = clock()
 	logger.info("Simulation finished, %d ticks, time elapsed %.3f seconds",tick, (toc-tic))
 	filename = serialize(population, genomes, target_genome)
+	output_file.close()
 	return population, genomes, target_genome, filename
 
 
@@ -101,8 +104,8 @@ def clear(population, genomes):
 
 
 def serialize(population, genomes, target_genome):
-	filename = ser_dir + sep + job_name + '_' + date_time + ser_ext
-	fout = open(filename, "wb")
+	filename = ser_dir + sep + job_name + '_' + date_time + ser_ext + '.gz'
+	fout = gzip.open(filename, "wb")
 	pickle.dump((population, genomes, target_genome), fout)
 	fout.close()
 	logger.info("Serialized population to %s", filename)
