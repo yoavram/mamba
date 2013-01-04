@@ -5,8 +5,8 @@ from scipy.spatial.distance import cdist, hamming
 
 # TODO see where range can be chaged to arange and arange to xrange (generator) http://www.jesshamrick.com/2012/04/29/the-demise-of-for-loops/
 
-#import log
-#logger = log.get_logger('model')
+import log
+logger = log.get_logger('model')
 
 
 def create_uniform_mutation_load_population(pop_size, num_classes):
@@ -151,8 +151,9 @@ def mutation_explicit_genomes(population, genomes, mutation_rates, num_loci, tar
 def mutation_recombination(population, genomes, mutation_rates, recombination_rates, num_loci, target_genome, nums):
 	total_rates = mutation_rates + recombination_rates
 	prob_mu = mutation_rates/total_rates
-	events = np.random.poisson(population * total_rates, size=population.shape)	
-	#mutations = np.random.binomial(events, prob_mu, size=population.shape) # TODO doesn't accept n=0
+	popultation_rates = population * total_rates
+	events = np.random.poisson(popultation_rates, size=population.shape)
+	events  = np.array((events, population)).min(axis=0) # no more than one mutation per individual
 	mutations = np.round(events * prob_mu)
 	mutations = np.array([np.int(x) for x in mutations])
 	recombinations = events - mutations
