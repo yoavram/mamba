@@ -20,7 +20,7 @@ def create_mutation_free_population(pop_size, num_classes):
 
 
 def create_fitness_by_mutational_load(s, num_classes):
-	return np.array([(1 - s) ** x for x in range(num_classes)])
+	return  np.array([(1 - s) ** load for load in range(num_classes)])
 
 
 def create_muation_rates(mu, num_classes):
@@ -43,7 +43,7 @@ def hamming_fitness_genome(genome, target_genome, s):
 def hamming_fitness_genomes(genomes, target_genome, s):
 	num_loci = target_genome.shape[0]
 	load = cdist(genomes, target_genome.reshape(1, num_loci), 'hamming') * num_loci
-	return (s ** load).reshape(genomes.shape[0])
+	return ((1 - s) ** load).reshape(genomes.shape[0])
 
 
 def genome_to_num(genome):
