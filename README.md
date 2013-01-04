@@ -75,7 +75,7 @@ Initial *mutation-selection balance* analysis is written to analyze results of s
 
 #### Version: alfred
 
-Version [alfred], named after [Alfred Russel Wallace][alfred-wallace], was sommited on 30/10/2012 and contains a working Wright-Fisher simulator with selection, drift, mutation and recombination (HGT). Also contains parameter file, overriding parameters from command line, writing output to CSV files, printing log messages to console, SGE file for batching jobs on an SGE cluster and code for mutation-selection balance analysis.
+Version [alfred], named after [Alfred Russel Wallace][alfred-wallace], was commited on 30/10/2012 and contains a working Wright-Fisher simulator with selection, drift, mutation and recombination (HGT). Also contains parameter file, overriding parameters from command line, writing output to CSV files, printing log messages to console, SGE file for batching jobs on an SGE cluster and code for mutation-selection balance analysis.
 
 The next version, *baptiste*, will have an implementation of modifiers of mutation and recombination rates.
 
