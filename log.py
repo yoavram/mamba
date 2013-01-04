@@ -6,7 +6,7 @@ FILE_LEVEL = logging.DEBUG
 CONSOLE_LEVEL = logging.INFO
 
 
-def init(log_filename="tmp.log", console=True):
+def init(log_filename="tmp.log", console=True, debug=False):
 	logging.root.name = ROOT_LOGGER_NAME
 	logging.root.setLevel(logging.DEBUG)
 
@@ -15,7 +15,10 @@ def init(log_filename="tmp.log", console=True):
 	# console
 	if console: 
 		ch = logging.StreamHandler()
-		ch.setLevel(CONSOLE_LEVEL)		
+		if debug:
+			ch.setLevel(FILE_LEVEL)
+		else:
+			ch.setLevel(CONSOLE_LEVEL)
 		ch.setFormatter(formatter)
 		logging.root.addHandler(ch)
 
