@@ -54,7 +54,8 @@ def run(ticks=10, tick_interval=1):
 	output_file = gzip.open(output_filename, 'wb')
 
 	target_genome = create_target_genome(num_loci)
-	genomes = np.concatenate((target_genome, np.array([0, 1.0, 0, 1.0])))
+	modifiers = np.array([pi, tau, phi, rho])
+	genomes = np.concatenate((target_genome, modifiers))
 	genomes.resize( (1, genomes.shape[0]) )
 	
 	population = create_population(pop_size, genomes.shape[0])

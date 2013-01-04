@@ -3,9 +3,13 @@ num_loci = 1000
 s = 0.01
 mu = 0.003
 r = 0.00006
-tick_interval = 0
+pi = 0
+tau = 1
+phi = 0
+rho = 1
+tick_interval = 10
 stats_interval = 1
-ticks = 2
+ticks = 10
 
 job_name = 'test'
 
