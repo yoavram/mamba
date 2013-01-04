@@ -15,7 +15,6 @@ import numpy as np
 
 from model import drift, selection, create_muation_rates, create_target_genome
 from model import create_recombination_rates, genomes_to_nums, genome_to_num
-from model import create_fitness_by_mutational_load as create_fitness
 from model import create_mutation_free_population as create_population
 from model import mutation_recombination
 from model import hamming_fitness_genomes as create_fitness
