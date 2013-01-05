@@ -114,6 +114,17 @@ def choose(n, k):
  	return random.sample(xrange(n), k)
 
 
+def invasion(population, genomes, modifiers, rate, num_loci):
+	pop2 = population.copy()
+	pop2 *= rate
+	population -= pop2
+	gen2 = genomes.copy()
+	gen2[:, num_loci:] = np.array(modifiers)
+	population = np.concatenate((population, pop2),axis=0)
+	genomes = np.concatenate((genomes, gen2),axis=0)
+	return population, genomes
+
+
 def mutation_explicit_genomes(population, genomes, mutation_rates, num_loci, target_genome, nums):
 	mutations = np.random.poisson(population * mutation_rates, size=population.shape)	
 	loci = np.random.randint(0, num_loci, mutations.sum())
