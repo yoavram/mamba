@@ -106,12 +106,12 @@ def draw_environmental_changes(ticks, env_change_prob):
 
 
 def environmental_change(target_genome):
-  changed_loci = choose(num_loci, num_loci_to_change)
-  target_genome[changed_loci] = (target.genome[changed.loci] + 1) % 2
+	changed_loci = choose(num_loci, num_loci_to_change)
+	target_genome[changed_loci] = (target.genome[changed.loci] + 1) % 2
 
 
 def choose(n, k):
-    return random.sample(xrange(n), k)   
+ 	return random.sample(xrange(n), k)
 
 
 def mutation_explicit_genomes(population, genomes, mutation_rates, num_loci, target_genome, nums):
