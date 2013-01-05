@@ -98,6 +98,7 @@ def update(genomes, target_genome, s, mu ,r):
 	nums = genomes_to_nums(genomes, num_loci)
 	return fitness, mutation_rates, recombination_rates, nums
 
+
 def clear(population, genomes):
 	non_zero = population > 0
 	population = population[non_zero]
