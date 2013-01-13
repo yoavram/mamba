@@ -6,6 +6,7 @@
 
 #import cython_load
 from time import clock
+import os
 from os.path import sep
 from datetime import datetime
 import pickle
@@ -45,13 +46,15 @@ logger.info("Logging to %s", log_filename)
 logger.info("Parametes from file and command line: %s", args_and_params)
 logger.info("Parameters saved to file %s", params_filename)
 
-# output filename
-output_filename = output_dir + sep + job_name + '_' + date_time + output_ext + '.gz'
-logger.info("Saving output to %s", output_filename)
+
 
 def run(ticks=10, tick_interval=1):
 	tic = clock()
-	output_file = gzip.open(output_filename, 'wb')
+
+	# output temporary file
+	output_tmp_filename = output_dir + sep + 'tmp' + sep + job_name + '_' + date_time + output_ext + '.gz'
+	logger.info("Saving temporary output to %s", output_tmp_filename)
+	output_file = gzip.open(output_tmp_filename, 'wb')
 
 	target_genome = create_target_genome(num_loci)
 	modifiers = np.array([pi, tau, phi, rho])
@@ -79,8 +82,16 @@ def run(ticks=10, tick_interval=1):
 
 	toc = clock()
 	logger.info("Simulation finished, %d ticks, time elapsed %.3f seconds",tick, (toc-tic))
+
+	# serialization
 	filename = serialize(population, genomes, target_genome)
+	
+	# output file
 	output_file.close()
+	output_filename = output_dir + sep + job_name + '_' + date_time + output_ext + '.gz'
+	os.rename(output_tmp_filename, output_filename)	
+	logger.info("Saved output to %s", output_filename)
+
 	return population, genomes, target_genome, filename
 
 
