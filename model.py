@@ -164,7 +164,12 @@ def mutation_recombination(population, genomes, mutation_rates, recombination_ra
 	prob_mu = mutation_rates/total_rates
 	popultation_rates = population * total_rates
 	events = np.random.poisson(popultation_rates, size=population.shape)
+	total_events = events.sum()	
 	events  = np.array((events, population)).min(axis=0) # no more than one mutation per individual
+	# DEBUG STUFF
+	if total_events > events.sum():
+		logger.debug("Reduced %.4f of events from %d to %d" % ((1-events.sum()/float(total_events)), total_events, events.sum()))
+	# DEBUG END
 	mutations = np.round(events * prob_mu)
 	mutations = np.array([np.int(x) for x in mutations])
 	recombinations = events - mutations
