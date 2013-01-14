@@ -26,6 +26,7 @@ pip-log.txt
 .RData
 # Example code in package build process
 *-Ex.R
+
 # Output files
 *.csv
 *.csv.gz
@@ -36,3 +37,6 @@ output
 serialization
 *.RData
 Rprof.out
+params
+log
+analysis
