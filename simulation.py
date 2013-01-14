@@ -30,6 +30,7 @@ date_time = datetime.now().strftime('%Y-%b-%d_%H-%M-%S-%f')
 import args
 args_and_params = args.args_and_params()
 globals().update(args_and_params)
+args_and_params['datetime'] = date_time
 params_filename = params_dir + sep + job_name + sep + job_name + '_' + date_time + params_ext
 make_path(params_filename)
 args.save_params_file(params_filename, args_and_params)
