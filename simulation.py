@@ -1,7 +1,6 @@
 ## TODO
 # invasion
 # realtime plotting?
-# sumatra interface?
 
 #import cython_load
 from time import clock
