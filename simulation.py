@@ -6,7 +6,7 @@
 
 from time import clock
 from os import makedirs, rename
-from os.path import sep, exists
+from os.path import sep, exists, dirname
 from datetime import datetime
 import pickle
 import gzip
@@ -20,6 +20,17 @@ from model import create_recombination_rates_with_modifiers as create_recombinat
 from model import create_mutation_free_population as create_population
 from model import mutation_recombination
 from model import hamming_fitness_genomes as create_fitness
+
+
+# utility functions
+
+def make_path(filename):
+	path = dirname(filename)
+	if not exists(path):
+		print("Creating path: %s" % path)
+		makedirs(path)
+	return exists(path)
+
 
 ## Setting up the simulation infrastructure
 
@@ -92,7 +103,7 @@ def run(ticks=10, tick_interval=1):
 	output_file.close()
 	output_filename = output_dir + sep + job_name +  sep + job_name + '_' + date_time + output_ext + '.gz'
 	make_path(output_filename)
-	os.rename(output_tmp_filename, output_filename)	
+	rename(output_tmp_filename, output_filename)	
 	logger.info("Saved output to %s", output_filename)
 
 	return population, genomes, target_genome, filename
@@ -101,7 +112,7 @@ def run(ticks=10, tick_interval=1):
 def step(population, genomes, target_genome, fitness, mutation_rates, recombination_rates, num_loci, nums):
 	population = drift(population)
 	population = selection(population, fitness)
-	population, genomes = mutation_recombination(population, genomes, mutation_rates, recombination_rates, num_loci, target_genome, nums)
+	population, genomes = mutation_recombination(population, genomes, mutation_rates, recombination_rates, num_loci, target_genome, nums, rb)
 	return population, genomes
 
 
@@ -147,13 +158,6 @@ def deserialize(filename):
 	logger.info("Deserialized population from %s", filename)
 	return pickled
 
-
-def make_path(filename):
-	path = dirname(filename)
-	if not exists(path):
-		logger.debug("Creating path: %s" % path)
-		makedirs(path)
-	return exists(path)
 
 if __name__=="__main__":
 	p, g, tg, f = run(ticks, tick_interval)
