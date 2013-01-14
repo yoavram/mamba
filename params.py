@@ -8,6 +8,8 @@ tau = 1
 phi = 0
 rho = 1
 rb = False
+envch_str = 0
+envch_rate = 1./100
 
 tick_interval = 10
 stats_interval = 1

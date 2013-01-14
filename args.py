@@ -52,6 +52,18 @@ def create_parser():
 		type=float,
 		metavar="float",
 		help="selection coefficient")
+	parser.add_argument( "--envch_rate",
+		type=float,
+		metavar="float",
+		help="environmental change rate")
+	parser.add_argument( "--envch_str",
+		type=int,
+		metavar="int",
+		help="environmental change strength")
+	parser.add_argument( "--envch_start",
+		action='store_true',
+		default=False,
+		help="change environment on startup")
 	parser.add_argument( "--rb",
 		action='store_true',
 		default=False,

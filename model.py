@@ -100,8 +100,10 @@ def selection(population, fitness):
 	return population
 
 
-def draw_environmental_changes(ticks, env_change_prob):
+def draw_environmental_changes(ticks, env_change_prob, envch_start=False):
 	changes = np.random.binomial(n=1, p=env_change_prob, size=ticks)
+	if envch_start:
+		changes[0] = 1
 	return changes
 
 
