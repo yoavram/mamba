@@ -1,6 +1,6 @@
 # Mamba
 
-## Evolutionary simulations in R (and maybe Python) 
+## Evolutionary simulations in Python
 
 ### Overview
 
@@ -13,19 +13,20 @@ In density-based models the population is composed of types or classes, and inst
 
 The population has several attributes:
 
-#### Genotype/Genome
+#### Genome
 This is the types/classes the population is divided to. 
-As a starting points the genotype is simply a the allele(1) sequence of the individual, and can be modeled by a simple vector where the index is the locus (=site on genome, gene) number and the value is the allele identifier.
+As a starting points the genome is simply the allele(1) sequence of the individual, and can be modeled by a simple vector where the index is the locus (=site on genome, gene) number and the value is the allele identifier. 
+Most loci affect the fitness of individuals, but some loci arre *modifiers*, which mean that they affect other attributes rather than fitness, such as the mutation rate.
 
 #### Size
 The population size (number of individuals) will be kept constant throughtout the simulation.
 
 #### Counts
-A simple counter for each class - how many individuals are in this class.
+An individual count for each class - how many individuals are in each class. 
 
 #### Fitness
 Fitness is a relative measure of the reproductive succes of an individual. It is relative to the entire population in the sense that the best organism, the one most optimizes, always has a fitness of unity.
-In the most simple model the fitness is calculated as (1-s)^k, where k=d(genome, optimal_genome), d is the Hamming distance, the optimal_genome is a reference genome that is the optimal in this specfic environment (for examples, all zeros), and s is the selection coefficient, which is the amplitude of natural selection (for example, s=0.01).
+In the most simple model the fitness is calculated as $(1-s)^k$, where k=d(genome, optimal_genome), d is the Hamming distance, the optimal_genome is a reference genome that is the optimal in this specfic environment (for examples, all zeros), and s is the selection coefficient, which is the amplitude of natural selection (for example, s=0.01).
 
 #### Mutation/Recombination Rate
 Each class has it's own mutation and recombination rate. As a starting point they all have the same rate but at some point we would like to be able to set their rates according to their genomes.
