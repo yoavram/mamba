@@ -72,7 +72,7 @@ The is written with Python v.2.7.3, (EPD 7.3-2) 64-bit on Windows 7. The model u
 
 The results are saved using GZiped CSV files.
 
-Analysis is performed with R 2.15.2 with *ggplot2* and *plyr*. 
+Analysis is performed with R 2.15.2 with *ggplot2* 0.9.2.1 and *plyr*. 
 
 ### Other tools
 
