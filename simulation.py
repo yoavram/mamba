@@ -1,13 +1,12 @@
 ## TODO
-# assert population[strain] >= 0  raises AssertionError when mutation rate is 0.03
 # invasion
 # realtime plotting?
 # sumatra interface?
 
 #import cython_load
 from time import clock
-import os
-from os.path import sep
+from os import makedirs, rename
+from os.path import sep, exists
 from datetime import datetime
 import pickle
 import gzip
@@ -31,12 +30,14 @@ date_time = datetime.now().strftime('%Y-%b-%d_%H-%M-%S-%f')
 import args
 args_and_params = args.args_and_params()
 globals().update(args_and_params)
-params_filename = params_dir + sep + job_name + '_' + date_time + params_ext
+params_filename = params_dir + sep + job_name + sep + job_name + '_' + date_time + params_ext
+make_path(params_filename)
 args.save_params_file(params_filename, args_and_params)
 
 # load logging
 import log
-log_filename = log_dir + sep + job_name + '_' + date_time + log_ext
+log_filename = log_dir + sep + job_name + sep + job_name + '_' + date_time + log_ext
+make_path(log_filename)
 log.init(log_filename, console, debug)
 logger = log.get_logger('simulation')
 
@@ -47,12 +48,12 @@ logger.info("Parametes from file and command line: %s", args_and_params)
 logger.info("Parameters saved to file %s", params_filename)
 
 
-
 def run(ticks=10, tick_interval=1):
 	tic = clock()
 
 	# output temporary file
-	output_tmp_filename = output_dir + sep + 'tmp' + sep + job_name + '_' + date_time + output_ext + '.gz'
+	output_tmp_filename = output_dir + sep + job_name + sep + 'tmp' + sep + job_name + '_' + date_time + output_ext + '.gz'
+	make_path(output_tmp_filename)
 	logger.info("Saving temporary output to %s", output_tmp_filename)
 	output_file = gzip.open(output_tmp_filename, 'wb')
 
@@ -88,7 +89,8 @@ def run(ticks=10, tick_interval=1):
 	
 	# output file
 	output_file.close()
-	output_filename = output_dir + sep + job_name + '_' + date_time + output_ext + '.gz'
+	output_filename = output_dir + sep + job_name +  sep + job_name + '_' + date_time + output_ext + '.gz'
+	make_path(output_filename)
 	os.rename(output_tmp_filename, output_filename)	
 	logger.info("Saved output to %s", output_filename)
 
@@ -118,7 +120,8 @@ def clear(population, genomes):
 
 
 def serialize(population, genomes, target_genome):
-	filename = ser_dir + sep + job_name + '_' + date_time + ser_ext + '.gz'
+	filename = ser_dir + sep + job_name + sep + job_name + '_' + date_time + ser_ext + '.gz'
+	make_path(filename)
 	fout = gzip.open(filename, "wb")
 	pickle.dump((population, genomes, target_genome), fout)
 	fout.close()
@@ -143,6 +146,13 @@ def deserialize(filename):
 	logger.info("Deserialized population from %s", filename)
 	return pickled
 
+
+def make_path(filename):
+	path = dirname(filename)
+	if not exists(path):
+		logger.debug("Creating path: %s" % path)
+		makedirs(path)
+	return exists(path)
 
 if __name__=="__main__":
 	p, g, tg, f = run(ticks, tick_interval)
