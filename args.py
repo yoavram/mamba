@@ -52,6 +52,10 @@ def create_parser():
 		type=float,
 		metavar="float",
 		help="selection coefficient")
+	parser.add_argument( "--rb",
+		action='store_true',
+		default=False,
+		help="use recombination barriers")
 	parser.add_argument( "--debug",
 		action='store_false',
 		default=True,

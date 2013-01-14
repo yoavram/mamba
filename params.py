@@ -7,6 +7,8 @@ pi = 0
 tau = 1
 phi = 0
 rho = 1
+rb = False
+
 tick_interval = 10
 stats_interval = 1
 ticks = 10
