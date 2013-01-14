@@ -105,7 +105,7 @@ def draw_environmental_changes(ticks, env_change_prob):
 	return changes
 
 
-def environmental_change(target_genome):
+def environmental_change(target_genome, num_loci, num_loci_to_change):
 	changed_loci = choose(num_loci, num_loci_to_change)
 	target_genome[changed_loci] = (target.genome[changed.loci] + 1) % 2
 
