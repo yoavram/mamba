@@ -26,11 +26,11 @@ An individual count for each class - how many individuals are in each class.
 
 #### Fitness
 Fitness is a relative measure of the reproductive succes of an individual. It is relative to the entire population in the sense that the best organism, the one most optimizes, always has a fitness of unity.
-In the most simple model the fitness is calculated as $(1-s)^k$, where k=d(genome, optimal_genome), d is the Hamming distance, the optimal_genome is a reference genome that is the optimal in this specfic environment (for examples, all zeros), and s is the selection coefficient, which is the amplitude of natural selection (for example, s=0.01).
+In the most simple model the fitness is calculated as $(1-s)^k$, where $k=d(genome, optimal_genome)$, *d* is the *Hamming distance*, the *optimal_genome* is a reference genome that is the optimal in this specfic environment (for examples, all zeros), and *s* is the selection coefficient, which is the strength of natural selection. For example, with *s=0.01* any additional deleterious mutation reduces the fitness by 1%.
 
 #### Mutation/Recombination Rate
-Each class has it's own mutation and recombination rate. As a starting point they all have the same rate but at some point we would like to be able to set their rates according to their genomes.
-An example of rates are: mutation rate 0.003 mutations per genome per generation, recombination rate 0.0001 recombinations per genome per generation.
+Each class has its own mutation and recombination rate. This rate is determined by a basal population rate ($\mu$ and *r* for mutation and recombination) and the individual's modifiers which determine the rate increase ($\tau$ and $\rho$) and the number of deleterious mutations that induce that increae ($\pi$ and $\phi$).
+An example of rates: a basal mutation rate for *E. coli* bacteria is 0.003 mutations per genome per generation, recombination rate 0.00006 recombinations per genome per generation.
 
 ### Processes
 
