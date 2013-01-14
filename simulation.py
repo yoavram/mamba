@@ -1,8 +1,9 @@
 ## TODO
 # invasion
 # realtime plotting?
+# recombination barriers
+# env change
 
-#import cython_load
 from time import clock
 from os import makedirs, rename
 from os.path import sep, exists
