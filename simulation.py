@@ -20,7 +20,7 @@ from model import create_recombination_rates_with_modifiers as create_recombinat
 from model import create_mutation_free_population as create_population
 from model import mutation_recombination
 from model import hamming_fitness_genomes as create_fitness
-
+from model import draw_environmental_changes, environmental_change
 
 # utility functions
 
@@ -76,9 +76,14 @@ def run(ticks=10, tick_interval=1):
 	
 	population = create_population(pop_size, genomes.shape[0])
 
+	changes = draw_environmental_changes(ticks + 1, envch_rate, envch_start)
+	
 	logger.info("Starting simulation with %d ticks", ticks)
-	tick = 0
+	tick = 0 # so that '--ticks=-1' will work, that is, you could start a simulation without any ticks
+
 	for tick in range(ticks + 1):
+		if changes[tick]:
+			target_genome = environmental_change(target_genome, num_loci, envch_str)
 		fitness, mutation_rates, recombination_rates, nums = update(genomes, target_genome, s, mu ,r)
 		
 		if stats_interval != 0 and tick % stats_interval == 0:
