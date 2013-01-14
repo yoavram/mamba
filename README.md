@@ -66,25 +66,17 @@ The simulation stops when:
   
 ### Implementation
 
-I (YR) started implementing the model in R. Java is out of the question - to much overhead and not as fast. C/C++ is to much overhead. Matlab costs money (won't be able to use the entire computing power at hand) and is not open-source. I implemented it in Python (see [python last commit], but it was too much work compared to R, with all those *NumPy* arrays. Also I think it was slower. 
+The simulation is implemented in Python (after an attempt at implementing it in R which resulted in a slow simulation). It is highly dependent on NumPy, and all `model.py` funcitons were thouroughly tested for efficiency using IPython notebook `%timeit` magic against different implementations, including using *cython* and *numba*.
 
-The R implementation was coded on R v.2.15. The model uses the [e1071] package, the analysis uses the *ggplot2* and *plyr* packages. 
+The is written with Python v.2.7.3, (EPD 7.3-2) 64-bit on Windows 7. The model uses *NumPy* 1.6.2, *SciPy* 0.11.0, the simulation uses *pandas* 0.10.0. The simulation managed with *Sumatra* 0.4.0 and ran on an *SGE* cluster. 
 
-The results will be saved either using regular CSV files or using MongoDB. Probably CSV with gzip compression.
+The results are saved using GZiped CSV files.
 
-Initial *mutation-selection balance* analysis is written to analyze results of simulations reaching a balance.
-
-#### Version: alfred
-
-Version [alfred], named after [Alfred Russel Wallace][alfred-wallace], was commited on 30/10/2012 and contains a working Wright-Fisher simulator with selection, drift, mutation and recombination (HGT). Also contains parameter file, overriding parameters from command line, writing output to CSV files, printing log messages to console, SGE file for batching jobs on an SGE cluster and code for mutation-selection balance analysis.
-
-The next version, *baptiste*, will have an implementation of modifiers of mutation and recombination rates.
+Analysis is performed with R 2.15.2 with *ggplot2* and *plyr*. 
 
 ### Other tools
 
 The code is hosted on [github]. 
-
-The README was edited using [prose], an online text editor for github which allows to checkout and commit in a flouent way right from the browser and can be also used to deal with python files, although in a naive way. For markdown it's great as it have a preview and help panes.
 
 [Yoav Ram]: http://www.yoavram.com/
 [Hadany Evolutionary Theory Lab in Tel-Aviv]: http://sites.google.com/site/hadanylab/
