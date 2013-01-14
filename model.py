@@ -159,7 +159,7 @@ def mutation_explicit_genomes(population, genomes, mutation_rates, num_loci, tar
 	return population, genomes
 
 
-def mutation_recombination(population, genomes, mutation_rates, recombination_rates, num_loci, target_genome, nums):
+def mutation_recombination(population, genomes, mutation_rates, recombination_rates, num_loci, target_genome, nums, rec_bar=False):
 	total_rates = mutation_rates + recombination_rates
 	prob_mu = mutation_rates/total_rates
 	popultation_rates = population * total_rates
@@ -193,7 +193,10 @@ def mutation_recombination(population, genomes, mutation_rates, recombination_ra
 			if method == 0: # mutation
 				new_alleles = (target_genome[_loci] + 1) % 2 # binomial(1, mutations.sum(), beta)
 			elif method == 1: # recombination
-				donors = np.random.multinomial(len(_loci), population/float(population.sum()))
+				if rec_bar:
+					raise NotImplemented("Recombination barriers not implemented")
+				else:
+					donors = np.random.multinomial(len(_loci), population/float(population.sum()))
 				donors = np.repeat(np.arange(donors.shape[0]), donors)
 				new_alleles = genomes[donors, _loci]
 
