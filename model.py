@@ -100,15 +100,15 @@ def selection(population, fitness):
 	return population
 
 
-def draw_environmental_changes(ticks, env_change_prob, envch_start=False):
-	changes = np.random.binomial(n=1, p=env_change_prob, size=ticks)
+def draw_environmental_changes(ticks, envch_rate, envch_start=False):
+	changes = np.random.binomial(n=1, p=envch_rate, size=ticks)
 	if envch_start:
 		changes[0] = 1
 	return changes
 
 
-def environmental_change(target_genome, num_loci, num_loci_to_change):
-	changed_loci = choose(num_loci, num_loci_to_change)
+def environmental_change(target_genome, num_loci, envch_str):
+	changed_loci = choose(num_loci, envch_str)
 	target_genome[changed_loci] = (target.genome[changed.loci] + 1) % 2
 
 
