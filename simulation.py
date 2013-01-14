@@ -2,7 +2,6 @@
 # invasion
 # realtime plotting?
 # recombination barriers
-# env change
 
 from time import clock
 from os import makedirs, rename
