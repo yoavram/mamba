@@ -194,7 +194,7 @@ def mutation_recombination(population, genomes, mutation_rates, recombination_ra
 				new_alleles = (target_genome[_loci] + 1) % 2 # binomial(1, mutations.sum(), beta)
 			elif method == 1: # recombination
 				if rec_bar:
-					raise NotImplemented("Recombination barriers not implemented")
+					raise NotImplementedError("Recombination barriers not implemented")
 				else:
 					donors = np.random.multinomial(len(_loci), population/float(population.sum()))
 				donors = np.repeat(np.arange(donors.shape[0]), donors)
