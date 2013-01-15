@@ -1,12 +1,14 @@
 from argparse import ArgumentParser, FileType
 from os.path import exists
+import params
+
 
 def create_parser():
 	parser = ArgumentParser()
-	parser.add_argument("--params",
+	parser.add_argument("--params_file",
 		type=str,
 		metavar="filename",
-		default="params.py",
+		default="params.json",
 		help="parameters filename")
 	parser.add_argument("--log_file",
 		type=str,
@@ -92,20 +94,6 @@ def parse_args(parser):
 	return args
 
 
-def load_params_file(filename):
-	params = {}
-	if filename and exists(filename):
-		fin = open(filename)
-		for line in fin:
-			line = line.strip()
-			if line:
-				k,v = line.split('=')
-				k,v = k.strip(), eval(v.strip())
-				params[k] = v
-		fin.close()
-	return params
-
-
 def str2(arg):
 	if isinstance(arg, str):
 		return "'"+arg+"'"
@@ -113,20 +101,13 @@ def str2(arg):
 		return str(arg)
 
 
-def save_params_file(filename, params_dict):
-	fout = open(filename, 'w')
-	for k,v in params_dict.items():
-		fout.write(str(k) + " = " + str2(v) + "\n")
-	fout.close()
-
-
 def args_and_params():	
 	args = parse_args(create_parser())
-	params = load_params_file(args.params)
+	parameters = params.load(args.params_file)
 	args = vars(args)
 	args = { k: v for k,v in args.items() if v != None }
-	params.update(args)
-	return params
+	parameters.update(args)
+	return parameters
 
 if __name__ == '__main__':
 	args_and_params()

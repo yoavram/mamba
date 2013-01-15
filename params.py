@@ -1,30 +1,21 @@
-pop_size = 10 ** 5
-num_loci = 1000
-s = 0.01
-mu = 0.003
-r = 0.00006
-pi = 0
-tau = 1
-phi = 0
-rho = 1
-rb = False
-envch_str = 0
-envch_rate = 1./100
+import json
 
-tick_interval = 10
-stats_interval = 1
-ticks = 10
+def load(filename):
+	if not filename:
+		raise ValueError("filename cannot be an empty string")
+	with open(filename, 'r') as f:
+		d = json.load(f)
+	return d
 
-job_name = 'test'
-
-log_dir = 'log'
-log_ext = '.log'
-
-ser_dir = 'serialization'
-ser_ext = '.ser'
-
-output_dir = 'output'
-output_ext = '.csv'
-
-params_dir = 'params'
-params_ext = '.py'
+def save(filename, params):
+	if not filename:
+		raise ValueError("filename cannot be an empty string")
+	if not isinstance(params, dict):
+		raise TypeError("params must be a dict")
+	if  not params:
+		raise ValueError("params cannot be an empty dict")	
+	with open(filename, 'w') as f:
+		# extra arguments are for pretty print
+		# see http://docs.python.org/2/library/json.html
+		json.dump(params, f, sort_keys=True, indent=4, separators=(',', ': '))
+	return filename
