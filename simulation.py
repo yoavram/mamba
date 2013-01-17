@@ -84,11 +84,10 @@ def run(ticks=10, tick_interval=1):
 		if changes[tick]:
 			target_genome = environmental_change(target_genome, num_loci, envch_str)
 		fitness, mutation_rates, recombination_rates, nums = update(genomes, target_genome, s, mu ,r)
-		
 		if stats_interval != 0 and tick % stats_interval == 0:
 			df = tabularize(population, nums, fitness, mutation_rates, recombination_rates, tick)
 			header = False if tick > 0 else True
-			df.to_csv(output_file, header=header, mode='a', index_label='genome')
+			df.to_csv(output_file, header=header, mode='a', index_label='index')
 		
 		population, genomes = step(population, genomes, target_genome, fitness, mutation_rates, recombination_rates, num_loci, nums)
 		
@@ -147,11 +146,12 @@ def serialize(population, genomes, target_genome):
 
 def tabularize(population, nums, fitness, mutation_rates, recombination_rates, tick):
 	df = pd.DataFrame(data={
-		'tick': pd.Series([tick] * population.shape[0], index=nums),
-		'population': pd.Series(population, index=nums),
-		'fitness': pd.Series(fitness, index=nums),
-		'mutation_rates': pd.Series(mutation_rates, index=nums),
-		'recombination_rates': pd.Series(recombination_rates, index=nums)
+		'genome': pd.Series([str(n) for n in nums]),
+		'tick': pd.Series([tick] * population.shape[0]),
+		'population': pd.Series(population),
+		'fitness': pd.Series(fitness),
+		'mutation_rates': pd.Series(mutation_rates),
+		'recombination_rates': pd.Series(recombination_rates)
 		})
 	return df
 
