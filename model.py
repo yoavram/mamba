@@ -119,7 +119,7 @@ def draw_environmental_changes(ticks, envch_rate, envch_start=False):
 def environmental_change(target_genome, num_loci, envch_str):
 	changed_loci = choose(num_loci, envch_str)
 	target_genome[changed_loci] = (target_genome[changed_loci] + 1) % 2
-
+	return target_genome
 
 def choose(n, k):
  	return random.sample(xrange(n), k)

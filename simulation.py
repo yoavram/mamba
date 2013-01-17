@@ -78,6 +78,7 @@ def run(ticks=10, tick_interval=1):
 	population = create_population(pop_size, genomes.shape[0])
 
 	changes = draw_environmental_changes(ticks + 1, envch_rate, envch_start)
+	logger.debug("Number of environmental changes is %d" % changes.sum())
 	
 	logger.info("Starting simulation with %d ticks", ticks)
 	tick = 0 # so that '--ticks=-1' will work, that is, you could start a simulation without any ticks
