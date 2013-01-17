@@ -2,6 +2,8 @@ import numpy as np
 import random
 from math import floor
 from scipy.spatial.distance import cdist, hamming
+import cython_load
+import model_c
 
 # TODO see where range can be chaged to arange and arange to xrange (generator) http://www.jesshamrick.com/2012/04/29/the-demise-of-for-loops/
 
@@ -71,8 +73,17 @@ def genome_to_num(genome, num_loci):
 	return genome[:num_loci].nonzero()[0]
 
 
+def genome_to_num_w_mods(genome, num_loci):
+	return np.concatenate((genome[:num_loci].nonzero()[0], genome[num_loci:]))
+
 def genomes_to_nums(genomes, num_loci):
-	return np.array([genome_to_num(g, num_loci) for g in genomes])
+	nums = [genome_to_num(g, num_loci) for g in genomes]
+	return nums
+
+
+def genomes_to_nums_w_mods(genomes, num_loci):
+	nums = [genome_to_num_w_mods(g, num_loci) for g in genomes]
+	return nums
 
 
 def find_row_nums(nums, target):

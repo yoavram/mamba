@@ -13,12 +13,14 @@ import gzip
 import pandas as pd
 import numpy as np
 
-from model import drift, selection, create_target_genome, genomes_to_nums, genome_to_num
+from model import drift, selection, create_target_genome
 from model import create_mutation_rates_with_modifiers as create_muation_rates
 from model import create_recombination_rates_with_modifiers as create_recombination_rates
 from model import create_mutation_free_population as create_population
 from model import mutation_recombination
 from model import hamming_fitness_genomes as create_fitness
+from model import genomes_to_nums_w_mods as genomes_to_nums
+#from model import genomes_to_nums
 from model import draw_environmental_changes, environmental_change
 
 # utility functions
