@@ -13,12 +13,14 @@ import gzip
 import pandas as pd
 import numpy as np
 
-from model import drift, selection, create_target_genome, genomes_to_nums, genome_to_num
+from model import drift, selection, create_target_genome
 from model import create_mutation_rates_with_modifiers as create_muation_rates
 from model import create_recombination_rates_with_modifiers as create_recombination_rates
 from model import create_mutation_free_population as create_population
 from model import mutation_recombination
 from model import hamming_fitness_genomes as create_fitness
+from model import genomes_to_nums_w_mods as genomes_to_nums
+#from model import genomes_to_nums
 from model import draw_environmental_changes, environmental_change
 
 # utility functions
@@ -76,6 +78,7 @@ def run(ticks=10, tick_interval=1):
 	population = create_population(pop_size, genomes.shape[0])
 
 	changes = draw_environmental_changes(ticks + 1, envch_rate, envch_start)
+	logger.debug("Number of environmental changes is %d" % changes.sum())
 	
 	logger.info("Starting simulation with %d ticks", ticks)
 	tick = 0 # so that '--ticks=-1' will work, that is, you could start a simulation without any ticks
@@ -84,11 +87,10 @@ def run(ticks=10, tick_interval=1):
 		if changes[tick]:
 			target_genome = environmental_change(target_genome, num_loci, envch_str)
 		fitness, mutation_rates, recombination_rates, nums = update(genomes, target_genome, s, mu ,r)
-		
 		if stats_interval != 0 and tick % stats_interval == 0:
 			df = tabularize(population, nums, fitness, mutation_rates, recombination_rates, tick)
 			header = False if tick > 0 else True
-			df.to_csv(output_file, header=header, mode='a', index_label='genome')
+			df.to_csv(output_file, header=header, mode='a', index_label='index')
 		
 		population, genomes = step(population, genomes, target_genome, fitness, mutation_rates, recombination_rates, num_loci, nums)
 		
@@ -147,11 +149,12 @@ def serialize(population, genomes, target_genome):
 
 def tabularize(population, nums, fitness, mutation_rates, recombination_rates, tick):
 	df = pd.DataFrame(data={
-		'tick': pd.Series([tick] * population.shape[0], index=nums),
-		'population': pd.Series(population, index=nums),
-		'fitness': pd.Series(fitness, index=nums),
-		'mutation_rates': pd.Series(mutation_rates, index=nums),
-		'recombination_rates': pd.Series(recombination_rates, index=nums)
+		'genome': pd.Series([str(n) for n in nums]),
+		'tick': pd.Series([tick] * population.shape[0]),
+		'population': pd.Series(population),
+		'fitness': pd.Series(fitness),
+		'mutation_rates': pd.Series(mutation_rates),
+		'recombination_rates': pd.Series(recombination_rates)
 		})
 	return df
 
