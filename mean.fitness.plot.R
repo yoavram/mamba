@@ -1,18 +1,16 @@
 library(ggplot2)
 library(plyr)
+library(rjson)
+library(tools)
 
 load.params <- function(filename) {
-  f <- as.data.frame(read.table(paste("params/",filename,".py", sep=""),header=F,sep='='))
-  row.names(f) <- gsub(" ", "", f$V1)
-  f$V1 <- NULL
-  params <- as.data.frame(t(f), row.names=NULL)
-  row.names(f) <- NULL  
+  params <- fromJSON(file=paste("params/",filename,".json", sep=""))
   return(params)
 }
 
 plot.mean.fitness <- function(filename, save.to.file=T) {
   params <- load.params(filename)
-  data <- read.csv(paste('output/',filename, '.csv.gz', sep=""),header=T)
+  data <- read.csv(paste('output/', filename, '.csv.gz', sep=""),header=T)
   
   df <- ddply(data, .(tick, fitness), summarize, 
               count = sum(population)
@@ -25,12 +23,16 @@ plot.mean.fitness <- function(filename, save.to.file=T) {
   p <- p + xlab('Generations') + ylab("Log Mean Fitness")
   p <- p + geom_hline(y=-as.numeric(as.character(params$mu)), colour="blue")
   
-  if (save.to.file) ggsave(filename=paste("plots/",filename,".png", sep=""), p)
+  if (save.to.file) {
+    plot.filename <- paste("plots/",filename,".png", sep="")
+    dir.create(dirname(plot.filename), showWarnings = FALSE)
+    ggsave(filename=plot.filename, plot=p)
+  }
   
   return(p)
 }
 
-filename <- 'test_2013-Jan-13_15-15-57-873492'
+filename <- "test/test_2013-Jan-17_11-18-15-581376"
 plot.mean.fitness(filename,T)
 
 files = dir(path="output",pattern=".*.csv.gz")
