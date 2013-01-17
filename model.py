@@ -191,7 +191,7 @@ def mutation_recombination(population, genomes, mutation_rates, recombination_ra
 	if len(new_genomes) > 0:
 		for key, new_genome in new_genomes.items():
 			n = genome_to_num(new_genome, num_loci)
-			index = find_row_nums(nums, n)
+			index = model_c.find_row_nums(nums, n)
 			if index != -1:
 				new_genomes.pop(key)
 				population[index] += new_counts.pop(key)
