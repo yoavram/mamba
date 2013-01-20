@@ -23,5 +23,5 @@
 module load gcc/gcc461
 module load python/python-2.7.2
 
-python simulation.py --r ${r} --s ${s} --mu ${mu} --tau ${tau} --pi ${pi} --phi ${phi} --rho ${rho} --console --ticks ${ticks} --pop_size ${pop_size} --tick_interval ${tick_interval} --stats_interval ${stats_interval}
+smt run params.json r=${r} s=${s} mu=${mu} tau=${tau} pi=${pi} phi=${phi} rho=${rho} ticks=${ticks} pop_size=${pop_size} tick_interval=${tick_interval} stats_interval=${stats_interval} console=false debug=false
 
