@@ -78,6 +78,24 @@ Analysis is performed with R 2.15.2 with *ggplot2* 0.9.2.1 and *plyr*.
 
 The code is hosted on [github]. 
 
+Simulations can run using [Sumatra](http://pypi.python.org/pypi/Sumatra). 
+To set it up, run the following from the `mamba` folder (the same one to which you cloned the repository):
+
+```
+smt init mamba
+smt configure --executable=python --main=simulation.py --datapath=output
+```
+And to run simulations use:
+``` 
+smt run params.json <param=value>
+```
+where `params.json` can be changed to another parameter file in JSON format, and you can override the parameters in it by giving additional `param=value` pairs (make sure there are no spaces around the `=` sign).
+For example:
+```
+smt run msb.json ticks=5
+```
+will run a simulation with parameters from `msb.json` but the `ticks` parameter will be set to `5`, no matter what `msb.json` says.
+
 [Yoav Ram]: http://www.yoavram.com/
 [Hadany Evolutionary Theory Lab in Tel-Aviv]: http://sites.google.com/site/hadanylab/
 [proevolutionsimulation]: http://proevolutionsimulation.googlecode.com/
