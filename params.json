@@ -1,5 +1,8 @@
 {
+    "console": true,
+    "debug": true,
     "envch_rate": 0.01,
+    "envch_start": false,
     "envch_str": 0,
     "job_name": "test",
     "log_dir": "log",
@@ -10,6 +13,7 @@
     "output_ext": ".csv",
     "params_dir": "params",
     "params_ext": ".json",
+    "params_file": "params.json",
     "phi": 0,
     "pi": 0,
     "pop_size": 100000,
