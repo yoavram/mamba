@@ -1,5 +1,7 @@
 from argparse import ArgumentParser, FileType
 from os.path import exists
+from sys import argv
+
 import params
 
 
@@ -102,12 +104,17 @@ def str2(arg):
 
 
 def args_and_params():	
-	args = parse_args(create_parser())
-	parameters = params.load(args.params_file)
-	args = vars(args)
-	args = { k: v for k,v in args.items() if v != None }
-	parameters.update(args)
+	n_args = len(argv)
+	if n_args == 2 and not argv[1].startswith('-'):
+		parameters = params.load(argv[1])
+	else:	
+		args = parse_args(create_parser())
+		parameters = params.load(args.params_file)
+		args = vars(args)
+		args = { k: v for k,v in args.items() if v != None }
+		parameters.update(args)
 	return parameters
+
 
 if __name__ == '__main__':
 	d = args_and_params()
