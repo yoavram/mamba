@@ -6,6 +6,7 @@
 from time import clock
 from os import makedirs, rename
 from os.path import sep, exists, dirname
+from datetime import datetime
 import pickle
 import gzip
 
@@ -22,20 +23,32 @@ from model import genomes_to_nums_w_mods as genomes_to_nums
 #from model import genomes_to_nums
 from model import draw_environmental_changes, environmental_change
 
-from args import make_path
-import args
-import log
-
 # utility functions
+
+def make_path(filename):
+	path = dirname(filename)
+	if not exists(path):
+		print("Creating path: %s" % path)
+		makedirs(path)
+	return exists(path)
+
 
 ## Setting up the simulation infrastructure
 
+# time and date as a unique id
+date_time = datetime.now().strftime('%Y-%b-%d_%H-%M-%S-%f')
+
 # load parameters to global namespace
+import args, params
 args_and_params = args.args_and_params()
-params_filename = args.create_params_file(args_and_params)
 globals().update(args_and_params)
+args_and_params['datetime'] = date_time
+params_filename = params_dir + sep + job_name + sep + job_name + '_' + date_time + params_ext
+make_path(params_filename)
+params.save(params_filename, args_and_params)
 
 # load logging
+import log
 log_filename = log_dir + sep + job_name + sep + job_name + '_' + date_time + log_ext
 make_path(log_filename)
 log.init(log_filename, console, debug)

@@ -1,7 +1,5 @@
 from argparse import ArgumentParser, FileType
-from os.path import exists, sep, dirname
-from datetime import datetime
-
+from os.path import exists
 import params
 
 
@@ -103,31 +101,14 @@ def str2(arg):
 		return str(arg)
 
 
-def make_path(filename):
-	path = dirname(filename)
-	if not exists(path):
-		print("Creating path: %s" % path)
-		makedirs(path)
-	return exists(path)
-
-
 def args_and_params():	
 	args = parse_args(create_parser())
 	parameters = params.load(args.params_file)
 	args = vars(args)
 	args = { k: v for k,v in args.items() if v != None }
 	parameters.update(args)
-	# time and date as a unique id
-	date_time = datetime.now().strftime('%Y-%b-%d_%H-%M-%S-%f')
-	parameters['date_time'] = date_time
 	return parameters
 
-
-def create_params_file(p):
-	params_filename = p['params_dir'] + sep + p['job_name'] + sep + p['job_name'] + '_' + p['date_time'] + p['params_ext']
-	make_path(params_filename)
-	return params.save(params_filename, p)
-
 if __name__ == '__main__':
-	p = args_and_params()
-	print create_params_file(p)
+	d = args_and_params()
+	print params.to_string(d)
