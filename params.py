@@ -19,3 +19,12 @@ def save(filename, params):
 		# see http://docs.python.org/2/library/json.html
 		json.dump(params, f, sort_keys=True, indent=4, separators=(',', ': '))
 	return filename
+
+def to_string(params):
+	if not isinstance(params, dict):
+		raise TypeError("params must be a dict")
+	if  not params:
+		raise ValueError("params cannot be an empty dict")	
+	# extra arguments are for pretty print
+	# see http://docs.python.org/2/library/json.html
+	return json.dumps(params, sort_keys=True, indent=4, separators=(',', ': '))

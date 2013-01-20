@@ -110,4 +110,5 @@ def args_and_params():
 	return parameters
 
 if __name__ == '__main__':
-	args_and_params()
+	d = args_and_params()
+	print params.to_string(d)
