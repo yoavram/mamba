@@ -7,14 +7,16 @@
 #$ -l lilach,h_rt=48:00:00,mem_free=1G
 
 #$ -v r=0.0
-#$ -v s=0.01
+#$ -v s=0.1
 #$ -v mu=0.003
 #$ -v tau=1
 #$ -v pi=0
 #$ -v phi=0
 #$ -v rho=1
 #$ -v pop_size=100000
-#$ -v ticks=1000
+#$ -v envch_rate=0.0
+#$ -v envch_str=0
+#$ -v ticks=500
 #$ -v tick_interval=100
 #$ -v stats_interval=10
 
