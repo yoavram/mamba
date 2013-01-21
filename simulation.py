@@ -35,27 +35,25 @@ def make_path(filename):
 
 ## Setting up the simulation infrastructure
 
-# time and date as a unique id
-date_time = datetime.now().strftime('%Y-%b-%d_%H-%M-%S-%f')
-
 # load parameters to global namespace
 import args, params
 args_and_params = args.args_and_params()
+if not 'sumatra_label' in args_and_params:
+	args_and_params['sumatra_label'] = datetime.now().strftime('%Y-%b-%d_%H-%M-%S-%f')
 globals().update(args_and_params)
-args_and_params['datetime'] = date_time
-params_filename = params_dir + sep + job_name + sep + job_name + '_' + date_time + params_ext
+params_filename = params_dir + sep + job_name + sep + sumatra_label + params_ext
 make_path(params_filename)
 params.save(params_filename, args_and_params)
 
 # load logging
 import log
-log_filename = log_dir + sep + job_name + sep + job_name + '_' + date_time + log_ext
+log_filename = log_dir + sep + job_name + sep + sumatra_label + log_ext
 make_path(log_filename)
 log.init(log_filename, console, debug)
 logger = log.get_logger('simulation')
 
 # log initial stuff
-logger.info("Simulation ID: %s", date_time)
+logger.info("Simulation ID: %s", sumatra_label)
 logger.info("Logging to %s", log_filename)
 logger.info("Parametes from file and command line: %s", args_and_params)
 logger.info("Parameters saved to file %s", params_filename)
@@ -65,7 +63,7 @@ def run(ticks=10, tick_interval=1):
 	tic = clock()
 
 	# output temporary file
-	output_tmp_filename = output_dir + sep + job_name + sep + 'tmp' + sep + job_name + '_' + date_time + output_ext + '.gz'
+	output_tmp_filename = output_dir + sep + job_name + sep + 'tmp' + sep + sumatra_label + output_ext + '.gz'
 	make_path(output_tmp_filename)
 	logger.info("Saving temporary output to %s", output_tmp_filename)
 	output_file = gzip.open(output_tmp_filename, 'wb')
@@ -107,7 +105,7 @@ def run(ticks=10, tick_interval=1):
 	
 	# output file
 	output_file.close()
-	output_filename = output_dir + sep + job_name +  sep + job_name + '_' + date_time + output_ext + '.gz'
+	output_filename = output_dir + sep + job_name +  sep + sumatra_label + output_ext + '.gz'
 	make_path(output_filename)
 	rename(output_tmp_filename, output_filename)	
 	logger.info("Saved output to %s", output_filename)
@@ -138,7 +136,7 @@ def clear(population, genomes):
 
 
 def serialize(population, genomes, target_genome):
-	filename = ser_dir + sep + job_name + sep + job_name + '_' + date_time + ser_ext + '.gz'
+	filename = ser_dir + sep + job_name + sep + sumatra_label + ser_ext + '.gz'
 	make_path(filename)
 	fout = gzip.open(filename, "wb")
 	pickle.dump((population, genomes, target_genome), fout)
