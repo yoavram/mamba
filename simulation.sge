@@ -2,7 +2,7 @@
 #$ -V
 #$ -cwd
 #$ -j y
-#$ -N mamba
+#$ -N test
 #$ -q yoavram.q 
 #$ -l lilach,h_rt=48:00:00,mem_free=1G
 
