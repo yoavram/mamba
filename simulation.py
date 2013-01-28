@@ -41,13 +41,13 @@ args_and_params = args.args_and_params()
 if not 'sumatra_label' in args_and_params:
 	args_and_params['sumatra_label'] = datetime.now().strftime('%Y-%b-%d_%H-%M-%S-%f')
 globals().update(args_and_params)
-params_filename = params_dir + sep + job_name + sep + sumatra_label  + params_ext
+params_filename = output_dir + sep + sumatra_label + sep + sumatra_label + params_ext
 make_path(params_filename)
 params.save(params_filename, args_and_params)
 
 # load logging
 import log
-log_filename = log_dir + sep + job_name + sep + sumatra_label + log_ext
+log_filename = output_dir + sep + sumatra_label + sep + sumatra_label + log_ext
 make_path(log_filename)
 log.init(log_filename, console, debug)
 logger = log.get_logger('simulation')
@@ -105,7 +105,7 @@ def run(ticks=10, tick_interval=1):
 	
 	# output file
 	output_file.close()
-	output_filename = output_dir + sep + job_name +  sep + sumatra_label + sep + sumatra_label + output_ext + '.gz'
+	output_filename = output_dir + sep + sumatra_label + sep + sumatra_label + output_ext + '.gz'
 	make_path(output_filename)
 	rename(output_tmp_filename, output_filename)	
 	logger.info("Saved output to %s", output_filename)
@@ -136,7 +136,7 @@ def clear(population, genomes):
 
 
 def serialize(population, genomes, target_genome):
-	filename = ser_dir + sep + job_name + sep + sumatra_label + ser_ext + '.gz'
+	filename = output_dir + sep + sumatra_label + sep + sumatra_label + ser_ext + '.gz'
 	make_path(filename)
 	fout = gzip.open(filename, "wb")
 	pickle.dump((population, genomes, target_genome), fout)
