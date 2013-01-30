@@ -21,7 +21,7 @@ from model import mutation_recombination
 from model import hamming_fitness_genomes as create_fitness
 from model import genomes_to_nums_w_mods as genomes_to_nums
 #from model import genomes_to_nums
-from model import draw_environmental_changes, environmental_change
+from model import draw_environmental_changes, environmental_change, invasion
 
 # utility functions
 
@@ -68,6 +68,7 @@ def run(ticks=10, tick_interval=1):
 	logger.info("Saving temporary output to %s", output_tmp_filename)
 	output_file = gzip.open(output_tmp_filename, 'wb')
 
+	# init population
 	target_genome = create_target_genome(num_loci)
 	modifiers = np.array([pi, tau, phi, rho])
 	genomes = np.concatenate((target_genome, modifiers))
@@ -96,6 +97,10 @@ def run(ticks=10, tick_interval=1):
 
 		if tick_interval != 0 and tick % tick_interval == 0:
 			logger.debug("Tick %d", tick)
+		if in_tick == tick:
+			logger.debug("Invading resident population")
+			modifiers = [in_pi, in_tau, in_phi, in_rho]
+			population, genomes = invasion(population, genomes, modifiers, in_rate, num_loci)
 
 	toc = clock()
 	logger.info("Simulation finished, %d ticks, time elapsed %.3f seconds",tick, (toc-tic))
