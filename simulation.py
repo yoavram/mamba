@@ -150,9 +150,16 @@ def serialize(population, genomes, target_genome):
 	return filename
 
 
+def array_to_str(num):
+	return ' '.join(map(str, num))
+
 def tabularize(population, nums, fitness, mutation_rates, recombination_rates, tick):
 	df = pd.DataFrame(data={
-		'genome': pd.Series([str(n) for n in nums]),
+		'genome': pd.Series([array_to_str(n[:-4]) for n in nums]),
+		'pi': pd.Series([n[-4] for n in nums]),
+		'tau': pd.Series([n[-3] for n in nums]),
+		'phi': pd.Series([n[-2] for n in nums]),
+		'rho': pd.Series([n[-1] for n in nums]),
 		'tick': pd.Series([tick] * population.shape[0]),
 		'population': pd.Series(population),
 		'fitness': pd.Series(fitness),
