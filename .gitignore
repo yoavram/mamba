@@ -40,3 +40,6 @@ Rprof.out
 params
 log
 analysis
+
+# sumatra
+.smt
