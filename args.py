@@ -28,6 +28,14 @@ def create_parser():
 		type=float,
 		metavar="float",
 		help="recombination rate")
+	parser.add_argument( "--in_rate",
+		type=float,
+		metavar="float",
+		help="invasion rate")
+	parser.add_argument( "--in_tick",
+		type=int,
+		metavar="int",
+		help="invasion tick")
 	parser.add_argument( "--pi",
 		type=int,
 		metavar="int",

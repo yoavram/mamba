@@ -4,6 +4,8 @@
     "envch_rate": 0.01,
     "envch_start": false,
     "envch_str": 0,
+    "in_rate": 0.0,
+    "in_tick": 0,
     "job_name": "test",
     "log_dir": "log",
     "log_ext": ".log",
