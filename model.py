@@ -121,18 +121,19 @@ def environmental_change(target_genome, num_loci, envch_str):
 	target_genome[changed_loci] = (target_genome[changed_loci] + 1) % 2
 	return target_genome
 
+
 def choose(n, k):
  	return random.sample(xrange(n), k)
 
 
 def invasion(population, genomes, modifiers, rate, num_loci):
-	pop2 = population.copy()
-	pop2 *= rate
-	population -= pop2
-	gen2 = genomes.copy()
-	gen2[:, num_loci:] = np.array(modifiers)
-	population = np.concatenate((population, pop2),axis=0)
-	genomes = np.concatenate((genomes, gen2),axis=0)
+	invading_population = population.copy()
+	invading_population *= rate
+	population -= invading_population
+	invading_genomes = genomes.copy()
+	invading_genomes[:, num_loci:] = np.array(modifiers)
+	population = np.concatenate((population, invading_population),axis=0)
+	genomes = np.concatenate((genomes, invading_genomes),axis=0)
 	return population, genomes
 
 
