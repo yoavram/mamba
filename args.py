@@ -52,6 +52,22 @@ def create_parser():
 		type=float,
 		metavar="float",
 		help="hyper-recombination rate increase")
+	parser.add_argument( "--in_pi",
+		type=int,
+		metavar="int",
+		help="invader hypermutaion threshold")
+	parser.add_argument( "--in_tau",
+		type=float,
+		metavar="float",
+		help="invader hypermutaion rate increase")
+	parser.add_argument( "--in_phi",
+		type=int,
+		metavar="int",
+		help="invader hyper-recombination threshold")
+	parser.add_argument( "--in_rho",
+		type=float,
+		metavar="float",
+		help="invader hyper-recombination rate increase")
 	parser.add_argument( "--ticks",
 		type=int,
 		metavar="integer",
