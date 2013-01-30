@@ -1,5 +1,4 @@
 ## TODO
-# invasion
 # realtime plotting?
 # recombination barriers
 
