@@ -2,15 +2,16 @@ library(ggplot2)
 library(plyr)
 library(rjson)
 library(tools)
+library(stringr)
 
 load.params <- function(filename) {
-  params <- fromJSON(file=paste("params/",filename,".json", sep=""))
+  params <- fromJSON(file=str_c('output/', filename, '/', filename, ".json"))
   return(params)
 }
 
 plot.mean.fitness <- function(filename, save.to.file=T) {
   params <- load.params(filename)
-  data <- read.csv(paste('output/', filename, '.csv.gz', sep=""),header=T)
+  data <- read.csv(str_c('output/', filename, '/', filename, '.csv.gz'),header=T)
   
   df <- ddply(data, .(tick, fitness), summarize, 
               count = sum(population)
@@ -24,7 +25,7 @@ plot.mean.fitness <- function(filename, save.to.file=T) {
   p <- p + geom_hline(y=-as.numeric(as.character(params$mu)), colour="blue")
   
   if (save.to.file) {
-    plot.filename <- paste("plots/",filename,".png", sep="")
+    plot.filename <- str_c('output/', filename, '/', filename, ".png")
     dir.create(dirname(plot.filename), showWarnings = FALSE)
     ggsave(filename=plot.filename, plot=p)
   }
@@ -32,9 +33,6 @@ plot.mean.fitness <- function(filename, save.to.file=T) {
   return(p)
 }
 
-filename <- "test/test_2013-Jan-17_11-18-15-581376"
-plot.mean.fitness(filename,T)
-
-files = dir(path="output",pattern=".*.csv.gz")
-files = unlist(lapply(lapply(files,file_path_sans_ext),file_path_sans_ext))
+files <- dir(path="output/",pattern="*")
+files <- files[files!='tmp']
 lapply(files, plot.mean.fitness)
