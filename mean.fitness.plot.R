@@ -20,7 +20,10 @@ plot.mean.fitness <- function(filename, save.to.file=T) {
                mean.fitness = weighted.mean(fitness, count)
   )
   p <- qplot(x=tick, y=log(mean.fitness), data=df2, geom=c("point","line"))
-  p <- p + ggtitle(paste(filename, paste("pop",params$pop_size,"s",params$s,"mu",params$mu,"r",params$r,"pi",params$pi,"tau",params$tau,"phi",params$phi,"rho",params$rho,"r"),sep="\n"))
+  title <- str_c(filename,"\n", "pop_size",params$pop_size,"s",params$s,"mu",params$mu,"r",params$r, "in_rate", params$in_rate, "in_tick", params$in_tick, "\n",
+                 "resident:","pi",params$pi,"tau",params$tau,"phi",params$phi,"rho",params$rho, "\n",
+                 "invader:","pi",params$in_pi,"tau",params$in_tau,"phi",params$in_phi,"rho",params$in_rho, sep=" " )
+  p <- p + ggtitle(title)
   p <- p + xlab('Generations') + ylab("Log Mean Fitness")
   p <- p + geom_hline(y=-as.numeric(as.character(params$mu)), colour="blue")
   
