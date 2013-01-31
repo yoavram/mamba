@@ -29,4 +29,4 @@
 module load gcc/gcc461
 module load python/python-2.7.2
 
-smt run --tag=$JOB_NAME params.json r=${r} s=${s} mu=${mu} tau=${tau} pi=${pi} phi=${phi} rho=${rho} ticks=${ticks} pop_size=${pop_size} tick_interval=${tick_interval} stats_interval=${stats_interval} console=false debug=false job_name=$JOB_NAME
+smt run --tag=$JOB_NAME params.json r=${r} s=${s} mu=${mu} tau=${tau} pi=${pi} phi=${phi} rho=${rho} ticks=${ticks} pop_size=${pop_size} tick_interval=${tick_interval} stats_interval=${stats_interval} in_rate=${in_rate} in_tick=${in_tick} in_pi=${in_pi} in_tau=${in_tau} in_phi=${in_phi} in_rho=${in_rho} console=false debug=false job_name=$JOB_NAME
