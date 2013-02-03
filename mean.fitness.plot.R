@@ -64,3 +64,4 @@ plot.tau.frequency <- function(filename, save.to.file=T) {
 files <- dir(path="output/",pattern="*")
 files <- files[files!='tmp']
 lapply(files, plot.mean.fitness)
+lapply(files, plot.tau.frequency)
