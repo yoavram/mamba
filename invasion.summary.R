@@ -1,6 +1,7 @@
 source("common.R")
 
 parse.invasion <- function(filename) {
+  print(filename)
   params <- load.params(filename)
   if (params$in_rate == 0) {
     return(NULL)
@@ -16,9 +17,8 @@ parse.invasion <- function(filename) {
   return(df)
 }
 
-invasion.summary(files) {
-  df <- adply(files, 1, parse.invasion)
-  df <- subset(df, pi.data == in_pi & tau.data == in_tau & phi.data == in_phi & rho.data == in_rho)
+invasion.summary <- function(data) {
+  df <- subset(data, pi.data == in_pi & tau.data == in_tau & phi.data == in_phi & rho.data == in_rho)
   df.summary <- ddply(df, .(pi,tau,phi,rho,in_pi,in_tau,in_phi,in_rho,in_rate,mu,r,rb,pop_size,num_loci,in_tick,envch_str,envch_start,envch_rate,ticks), summarize,
               num.simulations = length(frequency),
               mean.frequency = mean(frequency),
@@ -32,4 +32,7 @@ invasion.summary(files) {
   )
   return(df.summary)
 }
+
 files <- load.files.list()
+df <- adply(files, 1, parse.invasion)
+df <- invasion.summary(df)
