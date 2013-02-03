@@ -1,17 +1,8 @@
-library(ggplot2)
-library(plyr)
-library(rjson)
-library(tools)
-library(stringr)
+source("common.R")
 
-load.params <- function(filename) {
-  params <- fromJSON(file=str_c('output/', filename, '/', filename, ".json"))
-  return(params)
-}
-
-plot.mean.fitness <- function(filename, save.to.file=T) {
+plot.mean.fitness <- function(filename, return.plot=T, save.to.file=T) {
   params <- load.params(filename)
-  data <- read.csv(str_c('output/', filename, '/', filename, '.csv.gz'),header=T)
+  data <- load.data(filename)
   
   df <- ddply(data, .(tick, fitness), summarize, 
               count = sum(population)
@@ -33,12 +24,16 @@ plot.mean.fitness <- function(filename, save.to.file=T) {
     ggsave(filename=plot.filename, plot=p)
   }
   
-  return(p)
+  if (return.plot){
+    return(p)
+  } else{
+    return(NULL)
+  }
 }
 
-plot.tau.frequency <- function(filename, save.to.file=T) {
+plot.tau.frequency <- function(filename, return.plot=T, save.to.file=T) {
   params <- load.params(filename)
-  data <- read.csv(str_c('output/', filename, '/', filename, '.csv.gz'),header=T)
+  data <- load.data(filename)
   data$tau <- factor(data$tau)
   df <- ddply(data, .(tick, tau), summarize, 
               frequency = sum(population)/params$pop_size
@@ -57,11 +52,13 @@ plot.tau.frequency <- function(filename, save.to.file=T) {
     dir.create(dirname(plot.filename), showWarnings = FALSE)
     ggsave(filename=plot.filename, plot=p)
   }
-  
-  return(p)
+  if (return.plot){
+    return(p)
+  } else{
+    return(NULL)
+  }
 }
 
-files <- dir(path="output/",pattern="*")
-files <- files[files!='tmp']
-lapply(files, plot.mean.fitness)
-lapply(files, plot.tau.frequency)
+files <- load.files.list()
+lapply(files, plot.mean.fitness, return.plot=F, save.to.file=T)
+lapply(files, plot.tau.frequency, return.plot=F, save.to.file=T))
