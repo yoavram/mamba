@@ -34,7 +34,7 @@ invasion.summary <- function(data) {
 }
 
 files <- load.files.list()
-df <- adply(files[1:2], 1, parse.invasion)
+df <- adply(files, 1, parse.invasion)
 df <- invasion.summary(df)
 df$envch_rate<-factor(df$envch_rate)
 qplot(x=envch_rate,y=num.simulations,data=df,facets=in_pi~in_tau,geom="bar",stat="identity")
