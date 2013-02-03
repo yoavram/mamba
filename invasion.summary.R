@@ -19,13 +19,13 @@ parse.invasion <- function(filename) {
 
 invasion.summary <- function(data) {
   df <- subset(data, pi.data == in_pi & tau.data == in_tau & phi.data == in_phi & rho.data == in_rho)
-  df.summary <- ddply(df, .(pi,tau,phi,rho,in_pi,in_tau,in_phi,in_rho,in_rate,mu,r,rb,pop_size,num_loci,in_tick,envch_str,envch_start,envch_rate,ticks), summarize,
+  df.summary <- ddply(df, .(pi,tau,phi,rho,in_pi,in_tau,in_phi,in_rho,in_rate,mu,s,r,rb,pop_size,num_loci,in_tick,envch_str,envch_start,envch_rate,ticks), summarize,
               num.simulations = length(frequency),
               mean.frequency = mean(frequency),
               sd.frequency = sd(frequency),            
               sucesses = sum(frequency > in_rate)
   )
-  df.summary <- ddply(df.summary, .(pi,tau,phi,rho,in_pi,in_tau,in_phi,in_rho,in_rate,mu,r,rb,pop_size,num_loci,in_tick,envch_str,envch_start,envch_rate,ticks), transform,
+  df.summary <- ddply(df.summary, .(pi,tau,phi,rho,in_pi,in_tau,in_phi,in_rho,in_rate,mu,s,r,rb,pop_size,num_loci,in_tick,envch_str,envch_start,envch_rate,ticks), transform,
               se.frequency = sd.frequency/sqrt(num.simulations),
               fixation.probability = sucesses/num.simulations,
               p.value = binom.test(x=sucesses, n=num.simulations, p=unique(in_rate))$p.value
@@ -34,5 +34,8 @@ invasion.summary <- function(data) {
 }
 
 files <- load.files.list()
-df <- adply(files, 1, parse.invasion)
+df <- adply(files[1:2], 1, parse.invasion)
 df <- invasion.summary(df)
+df$envch_rate<-factor(df$envch_rate)
+qplot(x=envch_rate,y=num.simulations,data=df,facets=in_pi~in_tau,geom="bar",stat="identity")
+qplot(x=envch_rate,y=mean.frequency,data=df,facets=in_pi~in_tau,geom="bar",stat="identity")
