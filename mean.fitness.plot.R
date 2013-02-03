@@ -28,7 +28,32 @@ plot.mean.fitness <- function(filename, save.to.file=T) {
   p <- p + geom_hline(y=-as.numeric(as.character(params$mu)), colour="blue")
   
   if (save.to.file) {
-    plot.filename <- str_c('output/', filename, '/', filename, ".png")
+    plot.filename <- str_c('output/', filename, '/mean-fitness.', filename, ".png")
+    dir.create(dirname(plot.filename), showWarnings = FALSE)
+    ggsave(filename=plot.filename, plot=p)
+  }
+  
+  return(p)
+}
+
+plot.tau.frequency <- function(filename, save.to.file=T) {
+  params <- load.params(filename)
+  data <- read.csv(str_c('output/', filename, '/', filename, '.csv.gz'),header=T)
+  data$tau <- factor(data$tau)
+  df <- ddply(data, .(tick, tau), summarize, 
+              frequency = sum(population)/params$pop_size
+  )
+  
+  p <- qplot(x=tick, y=frequency, data=df, geom="line", color=tau, group=tau)
+  title <- str_c(filename,"\n", "pop_size",params$pop_size,"s",params$s,"mu",params$mu,"r",params$r, "in_rate", params$in_rate, "in_tick", params$in_tick, "\n",
+                 "resident:","pi",params$pi,"tau",params$tau,"phi",params$phi,"rho",params$rho, "\n",
+                 "invader:","pi",params$in_pi,"tau",params$in_tau,"phi",params$in_phi,"rho",params$in_rho, sep=" " )
+  p <- p + ggtitle(title)
+  p <- p + xlab('Generations') + ylab("Frequency")
+  p <- p + geom_vline(x=as.numeric(as.character(params$in_tick)), colour="black", size=0.4)
+
+  if (save.to.file) {
+    plot.filename <- str_c('output/', filename, '/tau-freq.', filename, ".png")
     dir.create(dirname(plot.filename), showWarnings = FALSE)
     ggsave(filename=plot.filename, plot=p)
   }
