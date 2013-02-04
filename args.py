@@ -137,8 +137,16 @@ def args_and_params():
 		args = vars(args)
 		args = { k: v for k,v in args.items() if v != None }
 		parameters.update(args)
+	# this is a workaround for sumatra bug (https://groups.google.com/forum/?fromgroups=#!topic/sumatra-users/OIuBWxJF_W0)
+	string_to_boolean('console')
+	string_to_boolean('debug')
+	string_to_boolean('rb')
+	string_to_boolean('envch_start')
 	return parameters
 
+def string_to_boolean(parameters, field):
+	if field in parameters and (isinstance(parameters[field], unicode) or isinstance(parameters[field], str)):
+		parameters[field] = parameters[field].lower() == 'true'
 
 if __name__ == '__main__':
 	d = args_and_params()
