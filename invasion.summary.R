@@ -1,8 +1,12 @@
 source("common.R")
 
 parse.invasion <- function(filename) {
+  print(filename)
   params <- load.params(filename)
-  if (is.null(params) | params$in_rate == 0) {
+  if (is.null(params) | length(params) == 0) {
+    return(NULL)
+  }
+  if (params$in_rate == 0) {
     return(NULL)
   }
   data <- load.data(filename)
@@ -36,6 +40,7 @@ invasion.summary <- function(data) {
 }
 
 files <- load.files.list()
+params <- load.params(files[1]) # patch for unclear bug (reproduce by commenting out this line, cleaning the workspace and source the file)
 df <- adply(files, 1, parse.invasion)
 df <- invasion.summary(df)
 df$envch_rate<-factor(df$envch_rate)
