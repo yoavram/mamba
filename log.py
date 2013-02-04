@@ -23,7 +23,7 @@ def init(log_filename="tmp.log", console=True, debug=False):
 		logging.root.addHandler(ch)
 
 	# file 
-	if isinstance(log_filename, str) and len(log_filename) > 0:
+	if (isinstance(log_filename, str) or isinstance(log_filename, unicode)) and len(log_filename) > 0:
 		fh = logging.FileHandler(log_filename, mode='w')
 		fh.setLevel(FILE_LEVEL)
 		fh.setFormatter(formatter)
