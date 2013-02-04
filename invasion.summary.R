@@ -1,12 +1,14 @@
 source("common.R")
 
 parse.invasion <- function(filename) {
-  print(filename)
   params <- load.params(filename)
-  if (params$in_rate == 0) {
+  if (is.null(params) | params$in_rate == 0) {
     return(NULL)
   }
   data <- load.data(filename)
+  if (is.null(data)) {
+    return(NULL)
+  } 
   data <- subset(data, tick==max(data$tick))
   stopifnot(length(unique(data$tick))==1)
   df <- ddply(data, .(tick, tau, pi, rho, phi), summarize, 
