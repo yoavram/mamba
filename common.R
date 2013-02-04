@@ -5,13 +5,23 @@ library(tools)
 library(stringr)
 
 load.params <- function(filename) {
-  params <- fromJSON(file=str_c('output/', filename, '/', filename, ".json"))
-  return(params)
+  filepath <- str_c('output/', filename, '/', filename, ".json")
+  if (file.exists(filepath)) {
+    params <- fromJSON(file=filepath)
+    return(params)
+  } else {
+    return(NULL)
+  }
 }
 
 load.data <- function(filename) {
-  data <- read.csv(str_c('output/', filename, '/', filename, '.csv.gz'),header=T)
-  return(data)
+  filepath <- str_c('output/', filename, '/', filename, '.csv.gz')
+  if (file.exists(filepath)) {
+    data <- read.csv(filepath,header=T)
+    return(data)
+  } else {
+    return(NULL)
+  }
 }
 
 load.files.list <- function() {
