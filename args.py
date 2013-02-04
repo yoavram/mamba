@@ -138,10 +138,10 @@ def args_and_params():
 		args = { k: v for k,v in args.items() if v != None }
 		parameters.update(args)
 	# this is a workaround for sumatra bug (https://groups.google.com/forum/?fromgroups=#!topic/sumatra-users/OIuBWxJF_W0)
-	#string_to_boolean(parameters,'console')
-	#string_to_boolean(parameters,'debug')
-	#string_to_boolean(parameters,'rb')
-	#string_to_boolean(parameters,'envch_start')
+	string_to_boolean(parameters,'console')
+	string_to_boolean(parameters,'debug')
+	string_to_boolean(parameters,'rb')
+	string_to_boolean(parameters,'envch_start')
 	return parameters
 
 def string_to_boolean(parameters, field):
