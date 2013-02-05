@@ -26,6 +26,6 @@ load.data <- function(filename) {
 
 load.files.list <- function() {
   files <- dir(path="output/",pattern="*")
-  files <- files[files!='tmp']
+  # TODO
   return(files)
 }
