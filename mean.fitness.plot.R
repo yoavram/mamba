@@ -2,7 +2,10 @@ source("common.R")
 
 plot.mean.fitness <- function(filename, return.plot=T, save.to.file=T) {
   params <- load.params(filename)
-  if (is.null(params) | params$in_rate == 0) {
+  if (is.null(params)) {
+    return(NULL)
+  }
+  if (params$in_rate == 0) {
     return(NULL)
   }
   data <- load.data(filename)
@@ -67,4 +70,4 @@ plot.tau.frequency <- function(filename, return.plot=T, save.to.file=T) {
 
 files <- load.files.list()
 lapply(files, plot.mean.fitness, return.plot=F, save.to.file=T)
-lapply(files, plot.tau.frequency, return.plot=F, save.to.file=T))
+lapply(files, plot.tau.frequency, return.plot=F, save.to.file=T)
