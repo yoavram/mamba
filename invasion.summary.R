@@ -16,8 +16,10 @@ parse.invasion <- function(filename) {
   data <- subset(data, tick==max(data$tick))
   stopifnot(length(unique(data$tick))==1)
   df <- ddply(data, .(tick, tau, pi, rho, phi), summarize, 
-              frequency = sum(population)/params$pop_size
+              frequency = sum(population)
   )
+  df$frequency <- df$frequency/params$pop_size
+  
   df <- cbind(df, sumatra_label=filename)
   df <- merge(x=df, y=params, by="sumatra_label", suffixes=c(".data",""))
   return(df)
