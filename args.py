@@ -12,6 +12,11 @@ def create_parser():
 		metavar="filename",
 		default="params.json",
 		help="parameters filename")
+	parser.add_argument("--job_name",
+		type=str,
+		metavar="string",
+		default="test",
+		help="A general name for the simulation")
 	parser.add_argument("--log_file",
 		type=str,
 		metavar="filename",
