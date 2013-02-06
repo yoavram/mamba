@@ -99,7 +99,7 @@ def run(ticks=10, tick_interval=1):
 
 		if tick_interval != 0 and tick % tick_interval == 0:
 			logger.debug("Tick %d", tick)
-		if in_tick == tick:
+		if in_tick == tick and in_rate > 0:
 			logger.debug("Invading resident population")
 			modifiers = [in_pi, in_tau, in_phi, in_rho]
 			population, genomes = invasion(population, genomes, modifiers, in_rate, num_loci)
