@@ -24,9 +24,14 @@ load.data <- function(jobname, filename) {
   }
 }
 
-load.files.list <- function() {
-  files <- dir(path="output/",pattern="*")
-  # TODO
+load.jobnames.list <- function(pattern="*") {
+  files <- dir(path="output/",pattern=pattern)
+  return(files)
+}
+
+load.files.list <- function(jobname) {
+  files <- dir(path=str_c("output/",jobname,'/'),pattern="*.json")
+  files <- file_path_sans_ext(files)
   return(files)
 }
 

@@ -79,11 +79,17 @@ plot.tau.frequency <- function(jobname, filename, return.plot=T, save.to.file=T)
   }
 }
 
-process.all.files <- function() {
-  files <- load.files.list()
+process.one.jobname <- function(jobname) {
+  files <- load.files.list(jobname)
   l1 <- lapply(files, plot.mean.fitness, return.plot=F, save.to.file=T)
   l2 <- lapply(files, plot.tau.frequency, return.plot=F, save.to.file=T)
   return(c(l1,l2))
+}
+
+process.all.files <- function() {
+  jobnames <- load.files.list()
+  ret <- lapply(jobnames, process.one.jobname)
+  return(ret)
 }
 
 process.one.file <- function(jobname, filename) {
@@ -97,7 +103,7 @@ process.one.file <- function(jobname, filename) {
 args <- load.cmd.args()
 if (length(args) == 0) {
   cat("Processing all output files\n")
-  ret <- process.all.files
+  ret <- process.all.files()
   cat(ret)
 } else {
   jobname <- args[1]
