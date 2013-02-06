@@ -1,15 +1,18 @@
 source("common.R")
 
-parse.invasion <- function(filename) {
+parse.invasion <- function(jobname, filename) {
   print(filename)
-  params <- load.params(filename)
-  if (is.null(params) | length(params) == 0) {
+  params <- load.params(jobname, filename)
+  if (is.null(params)) {
+    return(NULL)
+  }
+  if (length(params) == 0) {
     return(NULL)
   }
   if (params$in_rate == 0) {
     return(NULL)
   }
-  data <- load.data(filename)
+  data <- load.data(jobname, filename)
   if (is.null(data)) {
     return(NULL)
   } 
@@ -41,10 +44,21 @@ invasion.summary <- function(data) {
   return(df.summary)
 }
 
-files <- load.files.list()
-params <- load.params(files[1]) # patch for unclear bug (reproduce by commenting out this line, cleaning the workspace and source the file)
-df <- adply(files, 1, parse.invasion)
-df <- invasion.summary(df)
-df$envch_rate<-factor(df$envch_rate)
-qplot(x=envch_rate,y=num.simulations,data=df,facets=in_pi~in_tau,geom="bar",stat="identity")
-qplot(x=envch_rate,y=mean.frequency,data=df,facets=in_pi~in_tau,geom="bar",stat="identity")
+process.one.jobname <- function(jobname) {
+  files <- load.files.list(jobname)
+  params <- load.params(jobname, files[1]) 
+  df <- adply(files, 1, parse.invasion, jobname=jobname)
+  df <- invasion.summary(df)
+  df$envch_rate<-factor(df$envch_rate)
+  p1 <- qplot(x=envch_rate,y=num.simulations,data=df,facets=in_pi~in_tau,geom="bar",stat="identity")
+  p2 <- qplot(x=envch_rate,y=mean.frequency,data=df,facets=in_pi~in_tau,geom="bar",stat="identity")
+  return(c(p1,p2))
+}
+
+args <- load.cmd.args()
+if (length(args) == 0) {
+  jobnames <- load.jobnames.list()
+} else {
+  jobnames <- args
+}
+lapply(jobnames, process.one.jobname)
