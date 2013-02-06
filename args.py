@@ -14,8 +14,6 @@ def create_parser():
 		help="parameters filename")
 	parser.add_argument("--job_name",
 		type=str,
-		metavar="string",
-		default="test",
 		help="A general name for the simulation")
 	parser.add_argument("--log_file",
 		type=str,
@@ -126,7 +124,7 @@ def parse_args(parser):
 
 
 def str2(arg):
-	if isinstance(arg, str):
+	if isinstance(arg, str) or isinstance(arg, unicode):
 		return "'"+arg+"'"
 	else:
 		return str(arg)
