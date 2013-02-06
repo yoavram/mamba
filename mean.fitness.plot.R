@@ -5,9 +5,6 @@ plot.mean.fitness <- function(jobname, filename, return.plot=T, save.to.file=T) 
   if (is.null(params)) {
     return(NULL)
   }
-  if (params$in_rate == 0) {
-    return(NULL)
-  }
   data <- load.data(jobname, filename)
   if (is.null(data)) {
     return(NULL)
@@ -105,7 +102,7 @@ if (length(args) == 0) {
   cat("Processing all output files\n")
   ret <- process.all.files()
   cat(ret)
-} else if (length(argas) == 1) {
+} else if (length(args) == 1) {
   jobname <- args[1]
   cat(str_c("Processing a single jobname: ", jobname, "\n"))
   ret <- process.one.jobname(jobname)
