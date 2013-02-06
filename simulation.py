@@ -57,7 +57,7 @@ logger = log.get_logger('simulation')
 # log initial stuff
 logger.info("Simulation ID: %s", sumatra_label)
 logger.info("Logging to %s", log_filename)
-logger.info("Parametes from file and command line: %s", args_and_params)
+logger.info("Parametes from file and command line: %s", params.to_string(args_and_params, short=True))
 logger.info("Parameters saved to file %s", params_filename)
 
 
