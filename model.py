@@ -169,8 +169,8 @@ def mutation_recombination(population, genomes, mutation_rates, recombination_ra
 			if len(_loci) == 0:
 				continue
 			if method == 0: # mutation
-				# no beneficial mutations
-				new_alleles = (target_genome[_loci] + 1) % 2 # binomial(1, mutations.sum(), beta)
+				allele_change = np.random.binomial(1, beta, len(_loci))
+				new_alleles = (target_genome[_loci] + allele_change) % 2 # binomial(1, mutations.sum(), beta)
 			elif method == 1: # recombination
 				if rec_bar:
 					raise NotImplementedError("Recombination barriers not implemented")
