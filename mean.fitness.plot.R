@@ -114,5 +114,4 @@ if (length(args) == 0) {
   filename <- args[2]
   cat(str_c("Processing a single file: ", jobname, filename, "\n"))
   ret <- process.one.file(jobname, filename)
-  cat(ret)
 }
