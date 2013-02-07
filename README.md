@@ -68,7 +68,17 @@ The simulation stops when:
 
 The simulation is implemented in Python (after an attempt at implementing it in R which resulted in a slow simulation). It is highly dependent on NumPy, and all `model.py` funcitons were thouroughly tested for efficiency using IPython notebook `%timeit` magic against different implementations, including using *cython* and *numba*.
 
-The is written with Python v.2.7.3, (EPD 7.3-2) 64-bit on Windows 7. The model uses *NumPy* 1.6.2, *SciPy* 0.11.0, the simulation uses *pandas* 0.10.0. The simulation managed with *Sumatra* 0.4.0 and ran on an *SGE* cluster. 
+The simulation is written  on Windows 7 with `Python 2.7.3 |EPD 7.3-2 (64-bit)| (default, Apr 12 2012, 15:20:16) [MSC v.1500 64 bit (AMD64)] on win32` and runs on either an Ubuntu PC with `Python 2.7.3 (default, Aug  1 2012, 05:14:39) [GCC 4.6.3] on linux2` or on a Linux cluster with `Python 2.7.2 (default, Feb 29 2012, 14:04:58) [GCC 4.1.2 20080704 (Red Hat 4.1.2-51)] on linux2`.
+
+Selected modules and packages:
+- logging 0.5.1.2
+- json 2.0.9
+- scipy 0.11.0
+- pandas 0.10.1
+- numpy 1.6.2
+- Cython 0.18
+
+I tried managing the simulation managed with *Sumatra* 0.4.0 but it has some problems running on a cluster.
 
 The results are saved using GZiped CSV files.
 
