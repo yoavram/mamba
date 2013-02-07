@@ -19,10 +19,12 @@ plot.mean.fitness <- function(jobname, filename, return.plot=T, save.to.file=T) 
   df2 <- ddply(df, .(tick), summarize, 
                mean.fitness = weighted.mean(fitness, count)
   )
+  mu <- as.numeric(as.character(params$mu))
+  s <- as.numeric(as.character(params$s))
   p <- qplot(x=tick, y=log(mean.fitness), data=df2, geom=c("point","line"))
   p <- p + ggtitle(title)
   p <- p + xlab('Generations') + ylab("Log Mean Fitness")
-  p <- p + geom_hline(y=-as.numeric(as.character(params$mu)), colour="blue")
+  p <- p + geom_hline(y=c(-mu, log((1-s)*exp(-mu))), colour="blue")
   
   if (save.to.file) {
     plot.filename <- str_c('output/', jobname, '/mean-fitness.', filename, ".png")
