@@ -186,7 +186,7 @@ def mutation_recombination(population, genomes, mutation_rates, recombination_ra
 					new_counts[key] += 1
 				else:
 					new_genome = genomes[strain, :].copy()				
-					new_genome[locus] = new_allele # xor target_genom[locus]
+					new_genome[locus] = new_allele
 					new_counts[key] = 1
 					new_genomes[key] = new_genome
 
