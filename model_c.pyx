@@ -27,7 +27,7 @@ def mutation_by_mutation_load(np.ndarray[DTYPE_INT_t, ndim=1] population, np.nda
 @cython.boundscheck(False)
 @cython.wraparound(False)
 def find_row_nums(list nums, np.ndarray[DTYPE_INT_t, ndim=1] target):
-	cdef np.ndarray[DTYPE_INT_t, ndim=1] n
+	cdef np.ndarray[DTYPE_FLOAT_t, ndim=1] n
 	cdef int i
 	for i,n in enumerate(nums):
 		if arr_equal(n, target):
@@ -36,7 +36,7 @@ def find_row_nums(list nums, np.ndarray[DTYPE_INT_t, ndim=1] target):
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
-def arr_equal(np.ndarray[DTYPE_INT_t, ndim=1] a1, np.ndarray[DTYPE_INT_t, ndim=1] a2):
+def arr_equal(np.ndarray[DTYPE_FLOAT_t, ndim=1] a1, np.ndarray[DTYPE_INT_t, ndim=1] a2):
 	try:
 		a1, a2 = np.asarray(a1), np.asarray(a2)
 	except:

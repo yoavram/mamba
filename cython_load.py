@@ -3,6 +3,7 @@
 # http://conference.scipy.org/proceedings/SciPy2009/paper_1/full_text.pdf
 # http://simula.no/research/sc/publications/Simula.SC.578/simula_pdf_file
 # http://conference.scipy.org/proceedings/SciPy2009/paper_2/full_text.pdf
+# http://stackoverflow.com/questions/6034390/compiling-with-cython-and-mingw-produces-gcc-error-unrecognized-command-line-o
 import os
 import numpy
 import pyximport
