@@ -23,6 +23,8 @@ for (filename in files) {
 }
 
 df <- ddply(data, .(sumatra_label), transform, first.click=first.ratchet.click(jobname, sumatra_label))
+save(df, "msdb/dataframe.RData")
 p <- ggplot(df, aes(x=first.click, fill=pi+tau))
-p + stat_bin() + facet_grid(facets=tau+r~pop_size, scales="free_y") + scale_fill_continuous()
+p <- p + stat_bin() + facet_grid(facets=tau+r~pop_size, scales="free_y") + scale_fill_continuous()
+ggsave("msdb/histogram.pdf")
 
