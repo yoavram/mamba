@@ -1,0 +1,33 @@
+#!/bin/bash
+#$ -V
+#$ -cwd
+#$ -j y
+#$ -o /dev/null
+#$ -N msdb
+#$ -q yoavram.q 
+#$ -l lilach,h_rt=48:00:00,mem_free=1G
+
+#$ -v r=0.0
+#$ -v s=0.01
+#$ -v mu=0.003
+#$ -v tau=1
+#$ -v pi=0
+#$ -v phi=0
+#$ -v rho=1
+#$ -v pop_size=100
+#$ -v envch_rate=0.0
+#$ -v envch_str=0
+#$ -v ticks=100000
+#$ -v tick_interval=1000
+#$ -v stats_interval=100
+#$ -v in_rate=0.0
+#$ -v in_tick=0
+#$ -v in_pi=0
+#$ -v in_tau=1
+#$ -v in_phi=0
+#$ -v in_rho=1
+
+module load gcc/gcc461
+module load python/python-2.7.2
+
+python simulation.py --params_file=msdb.json --r=${r} --s=${s} --mu=${mu} --tau=${tau} --pi=${pi} --phi=${phi} --rho=${rho} --ticks=${ticks} --pop_size=${pop_size} --tick_interval=${tick_interval} --stats_interval=${stats_interval} --in_rate=${in_rate} --in_tick=${in_tick} --in_pi=${in_pi} --in_tau=${in_tau} --in_phi=${in_phi} --in_rho=${in_rho} --console --debug --job_name=$JOB_NAME
