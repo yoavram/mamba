@@ -17,9 +17,9 @@
 #$ -v pop_size=100
 #$ -v envch_rate=0.0
 #$ -v envch_str=0
-#$ -v ticks=100000
-#$ -v tick_interval=1000
-#$ -v stats_interval=100
+#$ -v ticks=5000
+#$ -v tick_interval=500
+#$ -v stats_interval=5
 #$ -v in_rate=0.0
 #$ -v in_tick=0
 #$ -v in_pi=0
