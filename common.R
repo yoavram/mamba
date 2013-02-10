@@ -3,6 +3,7 @@ library(plyr)
 library(rjson)
 library(tools)
 library(stringr)
+library(gridExtra)
 
 load.params <- function(jobname, filename) {
   filepath <- str_c('output/', jobname, '/', filename, ".json")
