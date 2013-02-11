@@ -123,7 +123,7 @@ def step(population, genomes, target_genome, fitness, mutation_rates, recombinat
 	population = selection(population, fitness)
 	population, genomes = clear(population, genomes)
 	fitness, mutation_rates, recombination_rates, nums = update(genomes, target_genome, s, mu ,r)
-	population, genomes = mutation_recombination(population, genomes, mutation_rates, recombination_rates, num_loci, target_genome, nums, rb)
+	population, genomes = mutation_recombination(population, genomes, mutation_rates, recombination_rates, num_loci, target_genome, nums, betarb)
 	return population, genomes
 
 
