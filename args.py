@@ -31,6 +31,10 @@ def create_parser():
 		type=float,
 		metavar="float",
 		help="recombination rate")
+	parser.add_argument( "--beta",
+		type=float,
+		metavar="float",
+		help="beneficial to deleterious mutations ratio")
 	parser.add_argument( "--in_rate",
 		type=float,
 		metavar="float",
