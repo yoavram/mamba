@@ -123,7 +123,7 @@ def run(ticks=10, tick_interval=1):
 def step(population, genomes, target_genome, fitness, mutation_rates, recombination_rates, num_loci, nums):
 	population = drift(population)
 	population = selection(population, fitness)
-	population, genomes = mutation_recombination(population, genomes, mutation_rates, recombination_rates, num_loci, target_genome, nums, rb)
+	population, genomes = mutation_recombination(population, genomes, mutation_rates, recombination_rates, num_loci, target_genome, nums, beta, rb)
 	return population, genomes
 
 

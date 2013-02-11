@@ -137,7 +137,7 @@ def invasion(population, genomes, modifiers, rate, num_loci):
 	return population, genomes
 
 
-def mutation_recombination(population, genomes, mutation_rates, recombination_rates, num_loci, target_genome, nums, rec_bar=False):
+def mutation_recombination(population, genomes, mutation_rates, recombination_rates, num_loci, target_genome, nums, beta, rec_bar=False):
 	total_rates = mutation_rates + recombination_rates
 	prob_mu = mutation_rates/total_rates
 	popultation_rates = population * total_rates
@@ -169,8 +169,8 @@ def mutation_recombination(population, genomes, mutation_rates, recombination_ra
 			if len(_loci) == 0:
 				continue
 			if method == 0: # mutation
-				# no beneficial mutations
-				new_alleles = (target_genome[_loci] + 1) % 2 # binomial(1, mutations.sum(), beta)
+				allele_change = np.random.binomial(1, 1 - beta, len(_loci))
+				new_alleles = (target_genome[_loci] + allele_change) % 2 
 			elif method == 1: # recombination
 				if rec_bar:
 					raise NotImplementedError("Recombination barriers not implemented")
