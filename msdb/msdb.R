@@ -1,25 +1,13 @@
 source("common.R")
 
-first.ratchet.click <- function(jobname, filename) {
-  data <- load.data(jobname, filename)
-  
-  df <- ddply(data, .(tick), summarize, min.fitness=min(fitness), max.fitness=max(fitness))
-  first.click <- min(which(df$max.fitness<1))
+first.ratchet.click <- function(agg.data) {
+  first.click <- min(which(agg.data$max.fitness<1))
   if (is.infinite(first.click)){
-    first.click = max(df$tick)
+    first.click = max(agg.data$tick)
   } else {
-    first.click <- df$tick[first.click]
+    first.click <- agg.data$tick[first.click]
   }
   return(first.click)
-}
-
-jobname <- "msdb"
-files <- load.files.list(jobname)
-
-data <- NULL
-for (filename in files) {
-  params <- data.frame(load.params(jobname, filename))
-  data <- rbind(data, params)
 }
 
 plot.first.click.distr <- function(df, title='') {
@@ -36,12 +24,33 @@ plot.first.click.distr <- function(df, title='') {
   return(q)
 }
 
-df <- ddply(data, .(sumatra_label), transform, first.click=first.ratchet.click(jobname, sumatra_label))
-save(df, file="msdb/no_beneficials.RData")
+plot.fitness <- function(data) {
+  metled <- melt(data, id.vars="tick")
+  p <- ggplot(melted, aes(x=tick, y=value, group=variable)) +
+    geom_line(colour=variable) +
+    coord_cartesian(xlim=c(0,1000)) + 
+    scale_color_brewer(palette="Set1")
+  return(p)
+}
 
-r0 <- plot.first.click.distr(subset(df,pop_size!=5000 & r==0), "r=0")
-r0.003 <- plot.first.click.distr(subset(df,pop_size!=5000 & r==0.003), "r=0.003")
+aggregate.fitness <- function(data) {
+  df <- ddply(data, .(tick, fitness), summarize,
+    count = sum(population)
+  )
+  df2 <- ddply(df, .(tick), summarize,
+    mean.fitness = weighted.mean(fitness, count),
+    mean.sq.fitness = weighted.mean(fitness^2, count),               
+    min.fitness = min(fitness),
+    max.fitness = max(fitness)
+  )
+  df2$var.fitness <- df2$mean.sq.fitness - df2$mean.fitness^2
+  return(df2)
+}
 
-pdf("msdb/no_beneficials.pdf",paper="a4")
-grid.arrange(r0,r0.003, ncol=1)
-dev.off()
+jobname <- "shaw2011"
+files <- load.files.list(jobname)
+data <- load.data(jobname, files[1])
+fitness <- aggregate.fitness(data)
+qplot(x=tick,y=mean.fitness,data=fitness,geom="line")
+qplot(x=tick,y=var.fitness,data=fitness,geom="line")
+first.ratchet.click(agg.data=fitness)
