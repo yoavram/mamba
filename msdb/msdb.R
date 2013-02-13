@@ -47,10 +47,14 @@ aggregate.fitness <- function(data) {
   return(df2)
 }
 
-jobname <- "shaw2011"
-files <- load.files.list(jobname)
-data <- load.data(jobname, files[1])
+files <- load.files.list("shaw2011")
+
+library(Rsge)
+sge.options(sge.qsub.options="-cwd -V -l lilach")
+sge.options(sge.remove.files=T)
+
+res <- sge.parLapply(files, function(filename) {
+data <- load.data("shaw2011", filename)
 fitness <- aggregate.fitness(data)
-qplot(x=tick,y=mean.fitness,data=fitness,geom="line")
-qplot(x=tick,y=var.fitness,data=fitness,geom="line")
-first.ratchet.click(agg.data=fitness)
+write.csv(fitness, file=paste0("output/shaw2011/fitness.", filename, ".csv"))
+}, njobs=500, global.savelist=c("aggregate.fitness","load.data"), packages=c("stringr","plyr"))
