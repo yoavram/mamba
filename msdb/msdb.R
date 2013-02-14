@@ -47,14 +47,32 @@ aggregate.fitness <- function(data) {
   return(df2)
 }
 
-files <- load.files.list("shaw2011")
+sge.aggregate.fitness <- function() {
+  files <- load.files.list("shaw2011")
+  
+  library(Rsge)
+  sge.options(sge.qsub.options="-cwd -V -l lilach")
+  sge.options(sge.remove.files=T)
+  
+  res <- sge.parLapply(files, function(filename) {
+  data <- load.data("shaw2011", filename)
+  fitness <- aggregate.fitness(data)
+  write.csv(fitness, file=paste0("output/shaw2011/fitness.", filename, ".csv"))
+  }, njobs=500, global.savelist=c("aggregate.fitness","load.data"), packages=c("stringr","plyr"))
+}
 
 library(Rsge)
-sge.options(sge.qsub.options="-cwd -V -l lilach")
-sge.options(sge.remove.files=T)
+files = load.files.list("shaw2011")
 
-res <- sge.parLapply(files, function(filename) {
-data <- load.data("shaw2011", filename)
-fitness <- aggregate.fitness(data)
-write.csv(fitness, file=paste0("output/shaw2011/fitness.", filename, ".csv"))
-}, njobs=500, global.savelist=c("aggregate.fitness","load.data"), packages=c("stringr","plyr"))
+fitness.data <- sge.apply(as.array(files[1:10]), 1, function(filename) {
+  params <- load.params("shaw2011", filename)
+  data <- load.fitness.data("shaw2011", filename)
+  data <- cbind(data,params)
+  return(data)
+  }, 
+  global.savelist=c("load.fitness.data","load.params"),
+  packages=c("stringr","plyr"),
+  cluster=FALSE,
+  njobs=500)
+fitness.data <- do.call("rbind", fitness.data)
+write.csv(fitness.data, file=paste0("ijee2013/fitness.data", datetime.string()))
