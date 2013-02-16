@@ -48,6 +48,8 @@ aggregate.fitness <- function(data) {
 }
 
 sge.aggregate.fitness <- function() {
+  # this is used to take output of the simulation and create a table of fitness population
+  # aggregates, such as min max mean variance, for each tick.
   files <- load.files.list("shaw2011")
   
   library(Rsge)
@@ -55,24 +57,59 @@ sge.aggregate.fitness <- function() {
   sge.options(sge.remove.files=T)
   
   res <- sge.parLapply(files, function(filename) {
-  data <- load.data("shaw2011", filename)
-  fitness <- aggregate.fitness(data)
-  write.csv(fitness, file=paste0("output/shaw2011/fitness.", filename, ".csv"))
-  }, njobs=500, global.savelist=c("aggregate.fitness","load.data"), packages=c("stringr","plyr"))
+    outname <- paste0("output/shaw2011/fitness.", filename, ".csv")
+    if (!file.exists(outname)) {
+      data <- load.data("shaw2011", filename)
+      fitness <- aggregate.fitness(data)
+      write.csv(fitness, file=outname)
+    }
+  }, 
+  njobs=500, 
+  global.savelist=c("aggregate.fitness","load.data"), 
+  packages=c("stringr","plyr"))
 }
 
-library(Rsge)
-files = load.files.list("shaw2011")
+combine.fitness <- function() {
+  # this code is used to take the fitness aggregates files and combine them into one file
+  # adding all the params so that the new file can be used with ddply to calculate and
+  # plot fitness statistics
+  
+  #library(Rsge)
+  files = load.files.list("shaw2011")
+  
+  sge.options(sge.qsub.options="-cwd -V -l lilach")
+  sge.options(sge.remove.files=T)
+  
+  fitness.data <- sge.parLapply(files, function(filename) {
+    params <- load.params("shaw2011", filename)
+    data <- load.fitness.data("shaw2011", filename)
+    if (is.null(data)) {
+      return(NULL)
+    }
+    if (nrow(data) != 1001) {
+      return(NULL)
+    }
+    data <- cbind(data,params)
+    return(data)
+    }, 
+    global.savelist=c("load.fitness.data","load.params"),
+    packages=c("stringr","plyr", "rjson"),
+    cluster=FALSE,
+    njobs=500)
+  
+  fitness.data <- do.call("rbind", fitness.data)
+  save(fitness.data, file=paste0("ijee2013/fitness.data.", datetime.string(), ".RData"))
 
-fitness.data <- sge.apply(as.array(files[1:10]), 1, function(filename) {
-  params <- load.params("shaw2011", filename)
-  data <- load.fitness.data("shaw2011", filename)
-  data <- cbind(data,params)
-  return(data)
-  }, 
-  global.savelist=c("load.fitness.data","load.params"),
-  packages=c("stringr","plyr"),
-  cluster=FALSE,
-  njobs=500)
-fitness.data <- do.call("rbind", fitness.data)
-write.csv(fitness.data, file=paste0("ijee2013/fitness.data", datetime.string()))
+}
+## this code generates a plot from the fitness.data
+
+plot.mean.fitness <- function(fitness.data) {
+  p <- ggplot(fitness.data,aes(x=tick, y=mean.fitness))
+  p2 <- p + 
+    geom_point(mapping=aes(group=factor(pop_size), color=factor(beta), alpha=factor(r))) + 
+    facet_grid(facets=tau~pi)
+  return(p2)
+}
+
+
+                                                                                    
