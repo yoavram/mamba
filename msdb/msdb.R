@@ -82,6 +82,9 @@ combine.fitness <- function() {
   
   fitness.data <- sge.parLapply(files, function(filename) {
     params <- load.params("shaw2011", filename)
+    if (is.null(params)) {
+      return(NULL)
+    }
     data <- load.fitness.data("shaw2011", filename)
     if (is.null(data)) {
       return(NULL)
@@ -90,7 +93,7 @@ combine.fitness <- function() {
       return(NULL)
     }
     data <- cbind(data,params)
-    return(data)
+      return(data)
     }, 
     global.savelist=c("load.fitness.data","load.params"),
     packages=c("stringr","plyr", "rjson"),
@@ -111,5 +114,5 @@ plot.mean.fitness <- function(fitness.data) {
   return(p2)
 }
 
-
+combine.fitness()
                                                                                     
