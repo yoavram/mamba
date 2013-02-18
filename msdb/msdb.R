@@ -47,6 +47,33 @@ aggregate.fitness <- function(data) {
   return(df2)
 }
 
+aggregate.mutation.rate <- function(data) {
+  df <- ddply(data, .(tick, mutation_rates), summarize,
+              count = sum(population)
+  )
+  df2 <- ddply(df, .(tick), summarize,
+               mean.mutation.rate = weighted.mean(mutation_rates, count),
+               mean.sq.mutation.rate = weighted.mean(mutation_rates^2, count),               
+               min.mutation.rate = min(mutation_rates),
+               max.mutation.rate = max(mutation_rates)
+  )
+  df2$var.mutation.rate <- df2$mean.sq.mutation.rate - df2$mean.mutation.rate^2
+  return(df2)
+}
+
+plot.fitness.and.mutation.rate.for.single.run(filename) {
+  library(reshape2)
+  data<-load.data("shaw2011", filename)
+  df.mu<-aggregate.mutation.rate(data)
+  df.fitness<-aggregate.fitness(data)
+  melt.mu <- melt(data=df.mu, measure.vars=c("mean.mutation.rate","max.mutation.rate", "min.mutation.rate"))
+  melt.fitness<- melt(data=df.fitness, measure.vars=c("mean.fitness","max.fitness", "min.fitness"))
+  q1=qplot(tick,value,data=melt.mu, color=variable, size=1)
+  q2=qplot(tick,value,data=melt.fitness, color=variable, size=1)
+  return(grid.arrange(q1,q2,main=filename))
+}
+
+
 sge.aggregate.fitness <- function() {
   # this is used to take output of the simulation and create a table of fitness population
   # aggregates, such as min max mean variance, for each tick.
@@ -106,13 +133,35 @@ combine.fitness <- function() {
 }
 ## this code generates a plot from the fitness.data
 
-plot.mean.fitness <- function(fitness.data) {
-  p <- ggplot(fitness.data,aes(x=tick, y=mean.fitness))
+plot.mean.fitness <- function(mean.fitness) {
+  p <- ggplot(mean.fitness, aes(x=tick, y=mean.fitness))
   p2 <- p + 
-    geom_point(mapping=aes(group=factor(pop_size), color=factor(beta), alpha=factor(r))) + 
-    facet_grid(facets=tau~pi)
+    geom_point(mapping=aes(group=factor(pop_size), color=factor(pop_size), alpha=factor(r)), size=1) + 
+    facet_grid(facets=pi+tau~beta)
   return(p2)
 }
 
-combine.fitness()
+plot.max.fitness <- function(mean.fitness) {
+  p <- ggplot(mean.fitness, aes(x=tick, y=max.fitness))
+  p2 <- p + geom_point(aes(color=paste0('Tau',as.character(tau),'Pi',as.character(pi)))) + 
+    facet_grid(r~beta) + 
+    scale_color_brewer(palette="Set1", name="Mutator") +
+    geom_hline(yintercept)
+  return(p2)
+}
+
+mean.fitness.data <- function(filename) {
+  load(paste0("ijee2013/",filename,".RData"))
+  fitness.mean <- ddply(fitness.data, .(pop_size, beta, r, pi, tau, tick), summarize,
+                        N = length(mean.fitness),
+                        mean.fitness = mean(mean.fitness),
+                        max.fitness = mean(max.fitness),
+                        min.fitness = mean(min.fitness),
+                        var.fitness = mean(var.fitness)
+  )
+  write.csv(fitness.mean, file=paste0("ijee2013/mean.",filename,".csv"))
+  return(fitness.mean)
+}
+
+
                                                                                     
