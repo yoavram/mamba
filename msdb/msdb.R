@@ -157,7 +157,7 @@ combine.fitness <- function() {
     njobs=500)
   
   fitness.data <- do.call("rbind", fitness.data)
-  save(fitness.data, file=paste0("ijee2013/fitness.data.", datetime.string(), ".RData"))
+  save(fitness.data, file=paste0("msdb/fitness.data.", datetime.string(), ".RData"))
 
 }
 ## this code generates a plot from the fitness.data
@@ -180,7 +180,7 @@ plot.max.fitness <- function(mean.fitness) {
 }
 
 mean.fitness.data <- function(filename) {
-  load(paste0("ijee2013/",filename,".RData"))
+  load(paste0("msdb/",filename,".RData"))
   fitness.mean <- ddply(fitness.data, .(pop_size, beta, r, pi, tau, tick), summarize,
                         N = length(mean.fitness),
                         mean.fitness = mean(mean.fitness),
@@ -188,9 +188,9 @@ mean.fitness.data <- function(filename) {
                         min.fitness = mean(min.fitness),
                         var.fitness = mean(var.fitness)
   )
-  write.csv(fitness.mean, file=paste0("ijee2013/mean.",filename,".csv"))
+  write.csv(fitness.mean, file=paste0("msdb/mean.",filename,".csv"))
   return(fitness.mean)
 }
 
-
+sge.aggregate.fitness()
                                                                                     
