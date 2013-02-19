@@ -109,15 +109,15 @@ sge.aggregate.fitness <- function() {
     data <- NULL
     if (!file.exists(fitness.outname)) {
       data <- load.data("shaw2011", filename)
-      fitness <- aggregate.fitness(data)
-      write.csv(fitness, file=fitness.outname)
+      fitness.df <- aggregate.fitness(data)
+      write.csv(fitness.df, file=fitness.outname)
     }
     if (!file.exists(mutation.rate.outname)) {
       if (is.null(data)) {
         data <- load.data("shaw2011", filename)
       }
-      mutation.rate.outname <- aggregate.mutation.rate(data)
-      write.csv(fitness, file=mutation.rate.outname)
+      mutation.rate.df <- aggregate.mutation.rate(data)
+      write.csv(mutation.rate.df, file=mutation.rate.outname)
     }
   }, 
   njobs=500, 
