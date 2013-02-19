@@ -1,25 +1,13 @@
 source("common.R")
 
-first.ratchet.click <- function(jobname, filename) {
-  data <- load.data(jobname, filename)
-  
-  df <- ddply(data, .(tick), summarize, min.fitness=min(fitness), max.fitness=max(fitness))
-  first.click <- min(which(df$max.fitness<1))
+first.ratchet.click <- function(agg.data) {
+  first.click <- min(which(agg.data$max.fitness<1))
   if (is.infinite(first.click)){
-    first.click = max(df$tick)
+    first.click = max(agg.data$tick)
   } else {
-    first.click <- df$tick[first.click]
+    first.click <- agg.data$tick[first.click]
   }
   return(first.click)
-}
-
-jobname <- "msdb"
-files <- load.files.list(jobname)
-
-data <- NULL
-for (filename in files) {
-  params <- data.frame(load.params(jobname, filename))
-  data <- rbind(data, params)
 }
 
 plot.first.click.distr <- function(df, title='') {
@@ -36,12 +24,173 @@ plot.first.click.distr <- function(df, title='') {
   return(q)
 }
 
-df <- ddply(data, .(sumatra_label), transform, first.click=first.ratchet.click(jobname, sumatra_label))
-save(df, file="msdb/no_beneficials.RData")
+plot.fitness <- function(data) {
+  metled <- melt(data, id.vars="tick")
+  p <- ggplot(melted, aes(x=tick, y=value, group=variable)) +
+    geom_line(colour=variable) +
+    coord_cartesian(xlim=c(0,1000)) + 
+    scale_color_brewer(palette="Set1")
+  return(p)
+}
 
-r0 <- plot.first.click.distr(subset(df,pop_size!=5000 & r==0), "r=0")
-r0.003 <- plot.first.click.distr(subset(df,pop_size!=5000 & r==0.003), "r=0.003")
+aggregate.fitness <- function(data) {
+  df <- ddply(data, .(tick, fitness), summarize,
+    count = sum(population)
+  )
+  df2 <- ddply(df, .(tick), summarize,
+    mean.fitness = weighted.mean(fitness, count),
+    mean.sq.fitness = weighted.mean(fitness^2, count),               
+    min.fitness = min(fitness),
+    max.fitness = max(fitness)
+  )
+  df2$var.fitness <- df2$mean.sq.fitness - df2$mean.fitness^2
+  return(df2)
+}
 
-pdf("msdb/no_beneficials.pdf",paper="a4")
-grid.arrange(r0,r0.003, ncol=1)
-dev.off()
+aggregate.mutation.rate <- function(data) {
+  df <- ddply(data, .(tick, mutation_rates), summarize,
+              count = sum(population)
+  )
+  df2 <- ddply(df, .(tick), summarize,
+               mean.mutation.rate = weighted.mean(mutation_rates, count),
+               mean.sq.mutation.rate = weighted.mean(mutation_rates^2, count),               
+               min.mutation.rate = min(mutation_rates),
+               max.mutation.rate = max(mutation_rates)
+  )
+  df2$var.mutation.rate <- df2$mean.sq.mutation.rate - df2$mean.mutation.rate^2
+  return(df2)
+}
+
+plot.fitness.and.mutation.rate.for.single.run <- function(filename) {
+  library(reshape2)
+  data<-load.data("shaw2011", filename)
+  df.mu<-aggregate.mutation.rate(data)
+  df.fitness<-aggregate.fitness(data)
+  melt.mu <- melt(data=df.mu, measure.vars=c("mean.mutation.rate","max.mutation.rate", "min.mutation.rate"))
+  melt.fitness<- melt(data=df.fitness, measure.vars=c("mean.fitness","max.fitness", "min.fitness"))
+  q1=qplot(tick,log(value),data=melt.mu, color=variable, size=I(1.5), geom="point")
+  q2=qplot(tick,log(value),data=melt.fitness, color=variable, size=I(1.5), geom="point")
+  q3=grid.arrange(q1,q2,main=filename)
+  return(q3)
+}
+
+
+plot.fitness.jitter <- function(data) {
+  pop.size <- sum(subset(data, tick==0)$population)
+  d <- subset(data, tick==1 | (tick%%500==0 & tick>0))
+  dd <- ddply(d, .(tick, fitness), summarize, frequency=sum(population)/pop.size)
+  q <- 
+    qplot(tick, log(fitness), data=dd, group=tick,size=frequency, geom=c("jitter"))
+  return(q)
+}
+
+plot.fitness.histogram.timeseries <- function(data) {
+  pop.size <- sum(subset(data, tick==0)$population)
+  d <- subset(data, tick==1 | (tick%%1000==0 & tick>0))
+  dd <- ddply(d, .(tick, fitness), summarize, frequency=sum(population)/pop.size)
+  p <- ggplot(dd,aes(x=log(fitness), y=frequency, fill=factor(tick))) + 
+    geom_density(stat="identity", alpha=.7, color=0, position = "identity") +
+    scale_fill_brewer(palette="Set1")
+  return(p)
+}
+
+sge.aggregate.fitness <- function() {
+  # this is used to take output of the simulation and create a table of fitness population
+  # aggregates, such as min max mean variance, for each tick.
+  files <- load.files.list("shaw2011")
+  
+  library(Rsge)
+  sge.options(sge.qsub.options="-cwd -V -l lilach")
+  sge.options(sge.remove.files=T)
+  
+  res <- sge.parLapply(files, function(filename) {
+    fitness.outname <- paste0("output/shaw2011/fitness.", filename, ".csv")
+    mutation.rate.outname <- paste0("output/shaw2011/mutation.rate.", filename, ".csv")
+    data <- NULL
+    if (!file.exists(fitness.outname)) {
+      data <- load.data("shaw2011", filename)
+      fitness <- aggregate.fitness(data)
+      write.csv(fitness, file=fitness.outname)
+    }
+    if (!file.exists(mutation.rate.outname)) {
+      if (is.null(data)) {
+        data <- load.data("shaw2011", filename)
+      }
+      mutation.rate.outname <- aggregate.mutation.rate(data)
+      write.csv(fitness, file=mutation.rate.outname)
+    }
+  }, 
+  njobs=500, 
+  global.savelist=c("aggregate.fitness","aggregate.mutation.rate","load.data"), 
+  packages=c("stringr","plyr"))
+}
+
+combine.fitness <- function() {
+  # this code is used to take the fitness aggregates files and combine them into one file
+  # adding all the params so that the new file can be used with ddply to calculate and
+  # plot fitness statistics
+  
+  #library(Rsge)
+  files = load.files.list("shaw2011")
+  
+  sge.options(sge.qsub.options="-cwd -V -l lilach")
+  sge.options(sge.remove.files=T)
+  
+  fitness.data <- sge.parLapply(files, function(filename) {
+    params <- load.params("shaw2011", filename)
+    if (is.null(params)) {
+      return(NULL)
+    }
+    data <- load.fitness.data("shaw2011", filename)
+    if (is.null(data)) {
+      return(NULL)
+    }
+    if (nrow(data) != 1001) {
+      return(NULL)
+    }
+    data <- cbind(data,params)
+      return(data)
+    }, 
+    global.savelist=c("load.fitness.data","load.params"),
+    packages=c("stringr","plyr", "rjson"),
+    cluster=FALSE,
+    njobs=500)
+  
+  fitness.data <- do.call("rbind", fitness.data)
+  save(fitness.data, file=paste0("ijee2013/fitness.data.", datetime.string(), ".RData"))
+
+}
+## this code generates a plot from the fitness.data
+
+plot.mean.fitness <- function(mean.fitness) {
+  p <- ggplot(mean.fitness, aes(x=tick, y=mean.fitness))
+  p2 <- p + 
+    geom_point(mapping=aes(group=factor(pop_size), color=factor(pop_size), alpha=factor(r)), size=1) + 
+    facet_grid(facets=pi+tau~beta)
+  return(p2)
+}
+
+plot.max.fitness <- function(mean.fitness) {
+  p <- ggplot(mean.fitness, aes(x=tick, y=max.fitness))
+  p2 <- p + geom_point(aes(color=paste0('Tau',as.character(tau),'Pi',as.character(pi)))) + 
+    facet_grid(r~beta) + 
+    scale_color_brewer(palette="Set1", name="Mutator") +
+    geom_hline(yintercept)
+  return(p2)
+}
+
+mean.fitness.data <- function(filename) {
+  load(paste0("ijee2013/",filename,".RData"))
+  fitness.mean <- ddply(fitness.data, .(pop_size, beta, r, pi, tau, tick), summarize,
+                        N = length(mean.fitness),
+                        mean.fitness = mean(mean.fitness),
+                        max.fitness = mean(max.fitness),
+                        min.fitness = mean(min.fitness),
+                        var.fitness = mean(var.fitness)
+  )
+  write.csv(fitness.mean, file=paste0("ijee2013/mean.",filename,".csv"))
+  return(fitness.mean)
+}
+
+
+                                                                                    

@@ -25,6 +25,16 @@ load.data <- function(jobname, filename) {
   }
 }
 
+load.fitness.data <- function(jobname, filename) {
+  filepath <- str_c('output/', jobname, '/fitness.', filename, '.csv')
+  if (file.exists(filepath)) {
+    data <- read.csv(filepath,header=T)
+    return(data)
+  } else {
+    return(NULL)
+  }
+}
+
 load.jobnames.list <- function(pattern="*") {
   files <- dir(path="output/",pattern=pattern)
   return(files)
@@ -39,4 +49,8 @@ load.files.list <- function(jobname) {
 load.cmd.args <- function() {
   args <- commandArgs(trailingOnly = TRUE)
   return(args)
+}
+
+datetime.string <- function() {
+  return(format(Sys.time(), "%d_%m_%Y-%H_%M_%S"))
 }
