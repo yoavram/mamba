@@ -3,13 +3,13 @@
 #$ -cwd
 #$ -j y
 #$ -o /dev/null
-#$ -N msdb
+#$ -N shaw2011
 #$ -q yoavram.q 
 #$ -l lilach,h_rt=48:00:00,mem_free=1G
 
 #$ -v r=0.0
-#$ -v s=0.01
-#$ -v mu=0.003
+#$ -v s=0.02
+#$ -v mu=0.1
 #$ -v tau=1
 #$ -v pi=0
 #$ -v phi=0
@@ -17,9 +17,9 @@
 #$ -v pop_size=100
 #$ -v envch_rate=0.0
 #$ -v envch_str=0
-#$ -v ticks=100000
-#$ -v tick_interval=1000
-#$ -v stats_interval=100
+#$ -v ticks=5000
+#$ -v tick_interval=500
+#$ -v stats_interval=5
 #$ -v in_rate=0.0
 #$ -v in_tick=0
 #$ -v in_pi=0
