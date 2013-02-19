@@ -24,6 +24,7 @@ pip-log.txt
 # History files
 .Rhistory
 .RData
+core
 # Example code in package build process
 *-Ex.R
 
