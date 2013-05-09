@@ -18,9 +18,9 @@ from model import create_recombination_rates_with_modifiers as create_recombinat
 from model import create_mutation_free_population as create_population
 from model import mutation_recombination
 from model import hamming_fitness_genomes as create_fitness
+from model import draw_environmental_changes, environmental_change, invasion
 from model import genomes_to_nums_w_mods as genomes_to_nums
 #from model import genomes_to_nums
-from model import draw_environmental_changes, environmental_change, invasion
 
 # utility functions
 
@@ -71,10 +71,12 @@ def run(ticks=10, tick_interval=1):
 	output_file = gzip.open(output_tmp_filename, 'wb')
 
 	# init population
+	genomes_dict = dict()
 	target_genome = create_target_genome(num_loci)
 	modifiers = np.array([pi, tau, phi, rho])
-	genomes = np.concatenate((target_genome, modifiers))
+	genomes = np.concatenate((target_genome.copy(), modifiers))
 	genomes.resize( (1, genomes.shape[0]) )
+	genomes_dict[buffer(target_genome)] = 0
 	
 	population = create_population(pop_size, genomes.shape[0])
 
@@ -93,7 +95,7 @@ def run(ticks=10, tick_interval=1):
 			header = False if tick > 0 else True
 			df.to_csv(output_file, header=header, mode='a', index_label='index')
 		
-		population, genomes = step(population, genomes, target_genome, fitness, mutation_rates, recombination_rates, num_loci, nums, beta, rb)
+		population, genomes = step(population, genomes, target_genome, fitness, mutation_rates, recombination_rates, num_loci, nums, genomes_dict, beta, rb)
 		
 		if tick_interval != 0 and tick % tick_interval == 0:
 			logger.debug("Tick %d", tick)
@@ -118,12 +120,12 @@ def run(ticks=10, tick_interval=1):
 	return population, genomes, target_genome, filename
 
 
-def step(population, genomes, target_genome, fitness, mutation_rates, recombination_rates, num_loci, nums, beta, rb):
+def step(population, genomes, target_genome, fitness, mutation_rates, recombination_rates, num_loci, nums, genomes_dict, beta, rb):
 	population = drift(population)
 	population = selection(population, fitness)
-	population, genomes = clear(population, genomes)
+	population, genomes, genomes_dict = clear(population, genomes, genomes_dict)
 	fitness, mutation_rates, recombination_rates, nums = update(genomes, target_genome, s, mu ,r)
-	population, genomes = mutation_recombination(population, genomes, mutation_rates, recombination_rates, num_loci, target_genome, nums, beta, rb)
+	population, genomes, genomes_dict = mutation_recombination(population, genomes, mutation_rates, recombination_rates, num_loci, target_genome, genomes_dict, beta, rb)
 	return population, genomes
 
 
@@ -135,11 +137,12 @@ def update(genomes, target_genome, s, mu ,r):
 	return fitness, mutation_rates, recombination_rates, nums
 
 
-def clear(population, genomes):
+def clear(population, genomes, genomes_dict):
 	non_zero = population > 0
 	population = population[non_zero]
 	genomes = genomes[non_zero]
-	return population, genomes
+	genomes_dict = {buffer(g):i for i,g in enumerate(genomes)}
+	return population, genomes, genomes_dict
 
 
 def serialize(population, genomes, target_genome):

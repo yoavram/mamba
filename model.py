@@ -137,7 +137,7 @@ def invasion(population, genomes, modifiers, rate, num_loci):
 	return population, genomes
 
 
-def mutation_recombination(population, genomes, mutation_rates, recombination_rates, num_loci, target_genome, nums, beta, rec_bar=False):
+def mutation_recombination(population, genomes, mutation_rates, recombination_rates, num_loci, target_genome, genomes_dict, beta, rec_bar=False):
 	total_rates = mutation_rates + recombination_rates
 	prob_mu = mutation_rates/total_rates
 	events = np.random.binomial(n=population, p=total_rates, size=population.shape)
@@ -191,14 +191,14 @@ def mutation_recombination(population, genomes, mutation_rates, recombination_ra
 
 	if len(new_genomes) > 0:
 		for key, new_genome in new_genomes.items():
-			n = genome_to_num(new_genome, num_loci)
-			index = model_c.find_row_nums(nums, n)
+			index = genomes_dict.get(buffer(new_genome), -1)
 			if index != -1:
 				new_genomes.pop(key)
 				population[index] += new_counts.pop(key)
-
 	if len(new_genomes) > 0:
 		population = np.append(population, new_counts.values())
+		base_index = genomes.shape[0]
 		genomes = np.vstack((genomes, new_genomes.values()))
-
-	return population, genomes
+		for i,g in enumerate(new_genomes.values()):
+			genomes_dict[buffer(g)] = base_index + i
+	return population, genomes, genomes_dict
