@@ -130,7 +130,7 @@ combine.fitness <- function() {
   # adding all the params so that the new file can be used with ddply to calculate and
   # plot fitness statistics
   
-  #library(Rsge)
+  library(Rsge)
   files = load.files.list("shaw2011")
   
   sge.options(sge.qsub.options="-cwd -V -l lilach")
@@ -162,16 +162,16 @@ combine.fitness <- function() {
 }
 ## this code generates a plot from the fitness.data
 
-plot.mean.fitness <- function(mean.fitness) {
-  p <- ggplot(mean.fitness, aes(x=tick, y=mean.fitness))
+plot.mean.fitness <- function(fitness.mean) {
+  p <- ggplot(fitness.mean, aes(x=tick, y=mean.fitness))
   p2 <- p + 
     geom_point(mapping=aes(group=factor(pop_size), color=factor(pop_size), alpha=factor(r)), size=1) + 
     facet_grid(facets=pi+tau~beta)
   return(p2)
 }
 
-plot.max.fitness <- function(mean.fitness) {
-  p <- ggplot(mean.fitness, aes(x=tick, y=max.fitness))
+plot.max.fitness <- function(fitness.mean) {
+  p <- ggplot(fitness.mean, aes(x=tick, y=max.fitness))
   p2 <- p + geom_point(aes(color=paste0('Tau',as.character(tau),'Pi',as.character(pi)))) + 
     facet_grid(r~beta) + 
     scale_color_brewer(palette="Set1", name="Mutator") +
@@ -192,5 +192,5 @@ mean.fitness.data <- function(filename) {
   return(fitness.mean)
 }
 
-sge.aggregate.fitness()
+combine.fitness()
                                                                                     
