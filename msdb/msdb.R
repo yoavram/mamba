@@ -192,5 +192,4 @@ mean.fitness.data <- function(filename) {
   return(fitness.mean)
 }
 
-sge.aggregate.fitness()
-                                                                                    
+combine.fitness()                                                                                    
