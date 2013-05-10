@@ -192,5 +192,9 @@ mean.fitness.data <- function(filename) {
   return(fitness.mean)
 }
 
+<<<<<<< HEAD
 combine.fitness()
                                                                                     
+=======
+combine.fitness()                                                                                    
+>>>>>>> 1f95e72d010658ce6d9cc8c7fe6208ea4efaeeea
