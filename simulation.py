@@ -103,9 +103,17 @@ def run(ticks=10, tick_interval=1):
 			logger.debug("Invading resident population")
 			modifiers = [in_pi, in_tau, in_phi, in_rho]
 			population, genomes = invasion(population, genomes, modifiers, in_rate, num_loci)
-
+		if in_rate > 0 and tick > in_tick and calc_invader_rate(population, genomes, modifiers, num_loci) == 1:
+			logger.info("Invader reached fixation")
+			break
 	toc = clock()
 	logger.info("Simulation finished, %d ticks, time elapsed %.3f seconds",tick, (toc-tic))
+
+	# win or lose?
+	if in_rate > 0:
+		invader_final_rate = calc_invader_rate(population, genomes, modifiers, num_loci)
+		args_and_params["in_final_rate"] = invader_final_rate
+		params.save(params_filename, args_and_params)
 
 	# serialization
 	filename = serialize(population, genomes, target_genome)
@@ -153,6 +161,13 @@ def serialize(population, genomes, target_genome):
 	fout.close()
 	logger.info("Serialized population to %s", filename)
 	return filename
+
+
+def  calc_invader_rate(population, genomes, modifiers, num_loci):
+	invader_indices = (genomes[:, num_loci:] == modifiers).all(axis=1)
+	invader_count = population[invader_indices].sum()
+	total_count = population.sum()
+	return invader_count / float(total_count)
 
 
 def array_to_str(num):
