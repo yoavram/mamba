@@ -103,8 +103,12 @@ def run(ticks=10, tick_interval=1):
 			logger.debug("Invading resident population")
 			modifiers = [in_pi, in_tau, in_phi, in_rho]
 			population, genomes = invasion(population, genomes, modifiers, in_rate, num_loci)
-		if in_rate > 0 and tick > in_tick and calc_invader_rate(population, genomes, modifiers, num_loci) == 1:
-			logger.info("Invader reached fixation")
+		invader_rate  = calc_invader_rate(population, genomes, modifiers, num_loci)
+		if in_rate > 0 and tick > in_tick and (invader_rate == 1 or invader_rate  == 0):
+			if invader_rate == 1:
+				logger.info("Invader reached fixation")
+			elif invader_rate == 0:
+				logger.info("Invader reached extinction")
 			break
 	toc = clock()
 	logger.info("Simulation finished, %d ticks, time elapsed %.3f seconds",tick, (toc-tic))
