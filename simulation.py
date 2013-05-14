@@ -117,6 +117,7 @@ def run(ticks=10, tick_interval=1):
 	if in_rate > 0:
 		invader_final_rate = calc_invader_rate(population, genomes, modifiers, num_loci)
 		args_and_params["in_final_rate"] = invader_final_rate
+		args_and_params["final_tick"] = tick
 		params.save(params_filename, args_and_params)
 
 	# serialization
