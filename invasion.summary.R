@@ -1,64 +1,39 @@
-source("common.R")
+library(ggplot2)
+library(plyr)
 
-parse.invasion <- function(jobname, filename) {
-  print(filename)
-  params <- load.params(jobname, filename)
-  if (is.null(params)) {
-    return(NULL)
-  }
-  if (length(params) == 0) {
-    return(NULL)
-  }
-  if (params$in_rate == 0) {
-    return(NULL)
-  }
-  data <- load.data(jobname, filename)
-  if (is.null(data)) {
-    return(NULL)
-  } 
-  data <- subset(data, tick==max(data$tick))
-  stopifnot(length(unique(data$tick))==1)
-  df <- ddply(data, .(tick, tau, pi, rho, phi), summarize, 
-              frequency = sum(population)
-  )
-  df$frequency <- df$frequency/params$pop_size
-  
-  df <- cbind(df, sumatra_label=filename)
-  df <- merge(x=df, y=params, by="sumatra_label", suffixes=c(".data",""))
-  return(df)
-}
 
-invasion.summary <- function(data) {
-  df <- subset(data, pi.data == in_pi & tau.data == in_tau & phi.data == in_phi & rho.data == in_rho)
-  df.summary <- ddply(df, .(pi,tau,phi,rho,in_pi,in_tau,in_phi,in_rho,in_rate,mu,s,r,rb,pop_size,num_loci,in_tick,envch_str,envch_start,envch_rate,ticks), summarize,
-              num.simulations = length(frequency),
-              mean.frequency = mean(frequency),
-              sd.frequency = sd(frequency),            
-              sucesses = sum(frequency > in_rate)
-  )
-  df.summary <- ddply(df.summary, .(pi,tau,phi,rho,in_pi,in_tau,in_phi,in_rho,in_rate,mu,s,r,rb,pop_size,num_loci,in_tick,envch_str,envch_start,envch_rate,ticks), transform,
-              se.frequency = sd.frequency/sqrt(num.simulations),
-              fixation.probability = sucesses/num.simulations,
-              p.value = binom.test(x=sucesses, n=num.simulations, p=unique(in_rate))$p.value
-  )
-  return(df.summary)
-}
+df <- read.csv("output/invasion_18_05_2013.csv.gz")
+df$in_tau <- factor(df$in_tau)
+df$in_pi <- factor(df$in_pi)
+df$r <- factor(df$r)
 
-process.one.jobname <- function(jobname) {
-  files <- load.files.list(jobname)
-  params <- load.params(jobname, files[1]) 
-  df <- adply(files, 1, parse.invasion, jobname=jobname)
-  df <- invasion.summary(df)
-  df$envch_rate<-factor(df$envch_rate)
-  p1 <- qplot(x=envch_rate,y=num.simulations,data=df,facets=in_pi~in_tau,geom="bar",stat="identity")
-  p2 <- qplot(x=envch_rate,y=mean.frequency,data=df,facets=in_pi~in_tau,geom="bar",stat="identity")
-  return(c(p1,p2))
-}
+summary(df$final_tick)
+qplot(df$final_tick)
+qplot(df$in_final_rate)
 
-args <- load.cmd.args()
-if (length(args) == 0) {
-  jobnames <- load.jobnames.list()
-} else {
-  jobnames <- args
-}
-lapply(jobnames, process.one.jobname)
+q=ggplot(df,aes(x=r,y=in_final_rate,color=in_pi,group=in_pi))
+q1=q+geom_jitter()+facet_grid(in_rho~in_phi)
+q1
+
+agg.df <- ddply(df, .(in_phi,in_pi,in_tau,in_rho,r), summarize,
+                N = length(in_final_rate),
+                mean.tick = mean(final_tick, na.rm=T),
+                mean.invasion = mean(in_final_rate,na.rm=T),
+                sd.invasion = sd(in_final_rate,na.rm=T),
+                se.invasion = sd(in_final_rate,na.rm=T)/sqrt(length(in_final_rate)))
+
+q=ggplot(agg.df,aes(x=r,y=N, group=in_pi))
+q2=q+facet_grid(facets=in_rho~in_phi)
+q3=q2+geom_bar(aes(fill=in_pi), stat="identity", position="dodge")
+q3
+
+dodge <- position_dodge(width=0.9)
+q=ggplot(agg.df,aes(x=r,y=mean.invasion-0.5, group=in_pi, ymin=mean.invasion-0.5-se.invasion,ymax=mean.invasion-0.5+se.invasion))
+q2=q + facet_grid(facets=in_rho~in_phi)
+q3=q2 + geom_bar(aes(fill=in_pi), stat="identity", position=dodge, width=0.9)
+q4=q3 + coord_cartesian(ylim=c(0-0.5,1-0.5))
+q5=q4+geom_errorbar(position=dodge, width=0.3)
+q6=q5+scale_y_continuous(breaks=c(-0.5,-0.25,0,0.25,0.5), labels=c(0,0.25,0.5,0.75,1))
+q7=q6+labs(x="recombination rate", y="mean invasion sucess")
+q8=q7+scale_fill_brewer(palette="Set1", name="invader", labels=c("CM","SIM","NM"))
+q8
