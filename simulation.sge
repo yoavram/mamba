@@ -3,8 +3,7 @@
 #$ -cwd
 #$ -j y
 #$ -o /dev/null
-#$ -N test
-#$ -q yoavram.q 
+#$ -N invasion
 #$ -l lilach,h_rt=48:00:00,mem_free=1G
 
 #$ -v r=0.0
@@ -15,13 +14,13 @@
 #$ -v phi=0
 #$ -v rho=1
 #$ -v pop_size=100000
-#$ -v envch_rate=0.0
-#$ -v envch_str=0
-#$ -v ticks=500
-#$ -v tick_interval=100
-#$ -v stats_interval=10
-#$ -v in_rate=0.0
-#$ -v in_tick=0
+#$ -v envch_rate=0.002
+#$ -v envch_str=4
+#$ -v ticks=1000000
+#$ -v tick_interval=1000
+#$ -v stats_interval=100
+#$ -v in_rate=0.5
+#$ -v in_tick=500
 #$ -v in_pi=0
 #$ -v in_tau=1
 #$ -v in_phi=0
@@ -30,4 +29,4 @@
 module load gcc/gcc461
 module load python/python-2.7.2
 
-python simulation.py --r=${r} --s=${s} --mu=${mu} --tau=${tau} --pi=${pi} --phi=${phi} --rho=${rho} --ticks=${ticks} --pop_size=${pop_size} --tick_interval=${tick_interval} --stats_interval=${stats_interval} --in_rate=${in_rate} --in_tick=${in_tick} --in_pi=${in_pi} --in_tau=${in_tau} --in_phi=${in_phi} --in_rho=${in_rho} --console --debug --job_name=$JOB_NAME
+python simulation.py --envch_rate=${envch_rate} --envch_str=${envch_str} --r=${r} --s=${s} --mu=${mu} --tau=${tau} --pi=${pi} --phi=${phi} --rho=${rho} --ticks=${ticks} --pop_size=${pop_size} --tick_interval=${tick_interval} --stats_interval=${stats_interval} --in_rate=${in_rate} --in_tick=${in_tick} --in_pi=${in_pi} --in_tau=${in_tau} --in_phi=${in_phi} --in_rho=${in_rho} --console --debug --job_name=$JOB_NAME

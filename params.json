@@ -2,7 +2,7 @@
     "beta": 0.1,
     "console": true,
     "debug": true,
-    "envch_rate": 0.01,
+    "envch_rate": 0.0,
     "envch_start": false,
     "envch_str": 0,
     "in_phi": 0,
