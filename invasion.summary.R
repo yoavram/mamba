@@ -1,6 +1,8 @@
 library(ggplot2)
 library(plyr)
 
+theme_set(theme_gray(base_size = 26))
+
 fname <- "output/invasion_26_05_2013"
 df <- read.csv(paste0(fname,".csv.gz"))
 df <- df[df$r < 0.3,]
@@ -41,6 +43,7 @@ agg.df.all <- ddply(df, .(beta, mu, in_phi,in_pi,in_tau,in_rho,r, envch_str), su
                 se.tick = sd(final_tick, na.rm=T)/sqrt(length(final_tick)),
                 mean.invasion = mean(in_final_rate,na.rm=T),                
                 se.invasion = sd(in_final_rate,na.rm=T)/sqrt(length(in_final_rate)))
+write.csv(agg.df.all, file=paste0(fname, '.csv'))
 
 agg.df <- subset(agg.df.all, beta < 1 & mu == 0.003 & envch_str == 4 & in_tau != 20 & in_tau != 1)# & in_tau!=20)
 
@@ -63,20 +66,19 @@ q8=q7+scale_fill_brewer(palette="Set1", name="invader")
 q8
 
 ggsave(filename=paste0(fname,'.pdf'), plot=q8, height=8.27, width=11.69)
-write.csv(agg.df, file=paste0(fname, '.csv'))
 
 # SIM ADVANTAGE WITH RECOMBINATION
-q=ggplot(subset(agg.df, in_phi=='NR' & as.numeric(in_tau) <= 10), aes(x=r,y=mean.invasion-0.5, group=in_pi, ymin=mean.invasion-0.5-2*se.invasion,ymax=mean.invasion-0.5+2*se.invasion))
+q=ggplot(subset(agg.df, beta<1 & in_pi!='NM' & in_phi=='NR' & as.numeric(in_tau) <= 10), aes(x=r,y=mean.invasion-0.5, group=in_pi, ymin=mean.invasion-0.5-2*se.invasion,ymax=mean.invasion-0.5+2*se.invasion))
 q2=q + facet_grid(facets=in_tau~.)#, labeller=function(var,val) {return(paste0('X',val))})
 q3=q2 + geom_bar(aes(fill=in_pi), stat="identity", position=dodge, width=0.9)
 q4=q3 + coord_cartesian(ylim=c(0-0.25,1-0.6))
 q5=q4 + geom_errorbar(position=dodge, width=0.3)
 q6=q5 + scale_y_continuous(breaks=c(-0.5,-0.25,0,0.25,0.5), labels=c(0,0.25,0.5,0.75,1))
 q7=q6 + labs(x="recombination rate", y="mean invasion success")
-q8=q7 + scale_fill_brewer(palette="Set1", name="invader")
+q8=q7 + scale_fill_manual(values=c('#E41A1C', '#4DAF4A'), name="invader")
 q8
 
-ggsave(filename=paste0(fname,'_SIM_with_r.pdf'), plot=q8, width=8.27, height=11.69)
+ggsave(filename=paste0(fname,'_SIM_with_r.tiff'), plot=q8, width=8.27, height=11.69, dpi=100)
 
 # beta=1
 agg.df.beta1 <- subset(agg.df.all, beta == 1 & in_tau != 1)
@@ -101,8 +103,8 @@ ggsave(filename=paste0(fname,'_beta_1.pdf'), plot=q8, height=8.27, width=11.69)
 
 # SPECIFIC COMPARISON FOR LILACH'S TALK
 
-df.lilach <- subset(agg.df, (in_tau==5 | in_tau==10) & envch_str==4)
-df.lilach <- subset(agg.df, (in_pi=='SIM' & in_phi=='NR') | (in_pi=='SIM' & in_phi=='SIR') | (in_pi=='NM' & in_phi=='SIR'))
+df.lilach <- subset(agg.df.all, (in_tau==2 | in_tau==5 | in_tau==10) & envch_str==4 & beta<1)
+df.lilach <- subset(df.lilach, (in_pi=='SIM' & in_phi=='NR') | (in_pi=='SIM' & in_phi=='SIR') | (in_pi=='NM' & in_phi=='SIR'))
 df.lilach$invader <- factor(paste(df.lilach$in_pi, df.lilach$in_phi))
 
 q = ggplot(df.lilach, aes(x=invader, y=mean.invasion-0.5, group=in_pi, ymin=mean.invasion-0.5-2*se.invasion,ymax=mean.invasion-0.5+2*se.invasion))
@@ -110,9 +112,10 @@ q2 = q + facet_grid(facets=in_tau~r)
 q3 = q2 + geom_bar(aes(fill=invader), stat="identity", position=dodge, width=0.9)
 q4=q3 + coord_cartesian(ylim=c(0-0.25,1-0.5))
 q5=q4+geom_errorbar(position=dodge, width=0.3)
-q6=q5+scale_y_continuous(breaks=c(-0.5,-0.25,0,0.25,0.5), labels=c(0,0.25,0.5,0.75,1))
+q6=q5+scale_y_continuous(breaks=c(-0.5,-0.25,0,0.25), labels=c(0,0.25,0.5,0.75))
 q7=q6+labs(y="mean invasion success")
-q8=q7+scale_fill_brewer(palette="Set1")
-q8
+q8=q7+scale_fill_manual(values=c('#FF7F00', '#4DAF4A', '#377EB8'))
+q9=q8+scale_x_discrete(name="",labels=c())
+q9
 
-ggsave(filename=paste0(fname, "_sim_sir.pdf"), plot=q8, height=8.27, width=11.69)
+ggsave(filename=paste0(fname, "_sim_sir.tiff"), plot=q9, height=8.27, width=11.69, dpi=100)
