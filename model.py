@@ -2,8 +2,8 @@ import numpy as np
 import random
 from math import floor
 from scipy.spatial.distance import cdist, hamming
-import cython_load
-import model_c
+#import cython_load
+#import model_c
 
 # TODO see where range can be chaged to arange and arange to xrange (generator) http://www.jesshamrick.com/2012/04/29/the-demise-of-for-loops/
 
