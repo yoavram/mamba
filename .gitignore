@@ -40,7 +40,6 @@ serialization
 Rprof.out
 params
 log
-analysis
 RunSgeJob*
 Rsge_*
 # sumatra
