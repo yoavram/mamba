@@ -102,11 +102,15 @@ def create_parser():
 	parser.add_argument( "--rb",
 		action='store_true',
 		default=False,
-		help="use recombination barriers")
+		help="NOT IMPLEMENTED use recombination barriers")
 	parser.add_argument( "--debug",
 		action='store_false',
 		default=True,
 		help="production mode"),
+	parser.add_argument( "--adapt",
+		action='store_true',
+		default=False,
+		help="run until population has adapted")
 	parser.add_argument( "--console",
 		action='store_false',
 		default=True,
