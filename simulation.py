@@ -20,7 +20,6 @@ from model import mutation_recombination
 from model import hamming_fitness_genomes as create_fitness
 from model import draw_environmental_changes, environmental_change, invasion
 from model import genomes_to_nums_w_mods as genomes_to_nums
-#from model import genomes_to_nums
 
 # utility functions
 
@@ -93,6 +92,11 @@ def run(ticks=10, tick_interval=1):
 			target_genome = environmental_change(target_genome, num_loci, envch_str)
 			assert tg_hash != hash(target_genome.tostring())
 		fitness, mutation_rates, recombination_rates, nums = update(genomes, target_genome, s, mu ,r)
+		if adapt:
+			adapted = population[fitness == 1].sum() / float(pop_size)
+			if adapted > 0.99:
+				logger.info("Population has reached %.2f adaptation" % adapted)
+				break
 		if stats_interval != 0 and tick % stats_interval == 0:
 			df = tabularize(population, nums, fitness, mutation_rates, recombination_rates, tick)
 			header = False if tick > 0 else True
@@ -113,6 +117,7 @@ def run(ticks=10, tick_interval=1):
 			elif invader_rate == 0:
 				logger.info("Invader reached extinction")
 			break
+
 	toc = clock()
 	logger.info("Simulation finished, %d ticks, time elapsed %.3f seconds",tick, (toc-tic))
 
