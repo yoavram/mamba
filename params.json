@@ -1,4 +1,5 @@
 {
+    "adapt": false,
     "beta": 0.1,
     "console": true,
     "debug": true,
