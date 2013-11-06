@@ -94,7 +94,8 @@ def run(ticks=10, tick_interval=1):
 		fitness, mutation_rates, recombination_rates, nums = update(genomes, target_genome, s, mu ,r)
 		if adapt:
 			adapted = population[fitness == 1].sum() / float(pop_size)
-			if adapted > 0.99:
+			if tick % tick_interval == 0: print "adapted: %.2f" % adapted #DEBUG
+			if adapted > 0.5:
 				logger.info("Population has reached %.2f adaptation" % adapted)
 				break
 		if stats_interval != 0 and tick % stats_interval == 0:
@@ -125,6 +126,11 @@ def run(ticks=10, tick_interval=1):
 	if in_rate > 0:
 		invader_final_rate = calc_invader_rate(population, genomes, modifiers, num_loci)
 		args_and_params["in_final_rate"] = invader_final_rate
+		args_and_params["final_tick"] = tick
+		params.save(params_filename, args_and_params)
+
+	# adaptation time
+	if adapt:
 		args_and_params["final_tick"] = tick
 		params.save(params_filename, args_and_params)
 
