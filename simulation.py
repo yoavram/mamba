@@ -94,7 +94,6 @@ def run(ticks=10, tick_interval=1):
 		fitness, mutation_rates, recombination_rates, nums = update(genomes, target_genome, s, mu ,r)
 		if adapt:
 			adapted = population[fitness == 1].sum() / float(pop_size)
-			if tick % tick_interval == 0: print "adapted: %.2f" % adapted #DEBUG
 			if adapted > 0.5:
 				logger.info("Population has reached %.2f adaptation" % adapted)
 				break
