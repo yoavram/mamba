@@ -170,16 +170,22 @@ def mutation_recombination(population, genomes, mutation_rates, recombination_ra
 			if method == 0: # mutation
 				allele_change = np.random.binomial(1, 1 - beta, len(_loci))
 				new_alleles = (target_genome[_loci] + allele_change) % 2 
-			elif method == 1: # recombination
-				if rec_bar:
-					raise NotImplementedError("Recombination barriers not implemented")
-				else:
-					donors = np.random.multinomial(len(_loci), population/float(population.sum()))
+			elif method == 1: # recombination	
+				# donors is an array where index is strain and value is number of times it donates 		
+				donors = np.random.multinomial(len(_loci), population/float(population.sum()))
+				# now donors is an array where index is event index and value is strain
 				donors = np.repeat(np.arange(donors.shape[0]), donors)
+				recipient_modifiers = genomes[strain, num_loci:]
 				new_alleles = genomes[donors, _loci]
-
 			for i, locus in enumerate(_loci):
 				new_allele = new_alleles[i]
+				if method == 1 and rec_bar:
+					donor_modifiers = genomes[donors[i], num_loci:]
+					if (donor_modifiers != recipient_modifiers).any():
+						#logger.debug("Donor rejected: recipient %s donor %s", str(recipient_modifiers), str(donor_modifiers))
+						continue
+					#else:
+					#	logger.debug("Donor accepted: recipient %s donor %s", str(recipient_modifiers), str(donor_modifiers))
 				key = (strain, locus, new_allele)
 				if key in new_counts:
 					new_counts[key] += 1
