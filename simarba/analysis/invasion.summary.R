@@ -19,16 +19,6 @@ dtt[,in_tau:=as.factor(in_tau)]
 dtt[,pop_size:=as.factor(pop_size)]
 
 
-g = ggplot(data=dtt, mapping=aes(x=r,y=y)) + facet_grid(drop=T,facets=pop_size+envch_str~in_tau) +
-  labs(y="invader rate", x="recombination rate")
-g1 = g + geom_line(aes(color=in_pi,group=in_pi))
-g2 = g1  + geom_errorbar(aes(ymax=ymax,ymin=ymin), position="dodge", width=0.2) + 
-  scale_color_brewer("invader", palette="Set1") +
-  theme(axis.text.x = element_text(angle = 270, hjust = 1))
-g2
-
-ggsave(filename=paste0("invasion_",today,".png"), plot=g2)
-
 # Figure 1
 g = ggplot(data=dtt[in_pi!="NM" & in_tau!=100 & pop_size==1e6 & envch_str==4], mapping=aes(x=r, y=y, ymin=ymin, ymax=ymax, group=in_pi)) + 
   facet_grid(facets=in_tau~., labeller = label_bquote(tau == .(x))) +
