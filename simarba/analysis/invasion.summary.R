@@ -29,7 +29,7 @@ g2
 
 ggsave(filename=paste0("invasion_",today,".png"), plot=g2)
 
-
+# Figure 1
 g = ggplot(data=dtt[in_pi!="NM" & in_tau!=100 & pop_size==1e6 & envch_str==4], mapping=aes(x=r, y=y, ymin=ymin, ymax=ymax, group=in_pi)) + 
   facet_grid(facets=in_tau~., labeller = label_bquote(tau == .(x))) +
   scale_color_brewer("Invader", palette="Set1", guide = FALSE) +
