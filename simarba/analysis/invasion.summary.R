@@ -45,46 +45,49 @@ dtt[,in_rho:=as.factor(in_rho)]
 dtt[,pop_size:=as.factor(pop_size)]
 
 # Figure 1
-g = ggplot(data=dtt[in_phi==1000 & in_pi!="NM" & in_tau!=100 & pop_size==1e6 & envch_str==4 & beta<1], mapping=aes(x=r, y=y, ymin=ymin, ymax=ymax, group=in_pi)) +
+data=dtt[in_phi=="NR" & in_pi!="NM" & in_tau!=100 & pop_size==1e6 & envch_str==4 & beta<1]
+g = ggplot(mapping=aes(x=r, y=y, ymin=ymin, ymax=ymax, group=in_pi), data=data) +
   theme_bw() +
   facet_grid(facets=in_tau~., labeller = label_bquote(tau == .(x))) +
-  scale_color_brewer("Invader", palette="Set1", guide = FALSE) +
   theme(text = element_text(size=16), axis.text = element_text(size=11), axis.text.x = element_text(angle = 45, hjust = 1)) +
   labs(x="Recombination rate", y="Fixation Probability\n") + 
   geom_errorbar(aes(color=in_pi), size=0.5, width=0.2) + 
   geom_line(aes(color=in_pi, linetype=in_pi), size=1) + 
   geom_hline(y=0.5, color="black", linestyle="dashed") + 
-  scale_y_continuous(limits=c(0.1,0.9), breaks=c(0.25,0.5,0.75)) + 
-  scale_linetype_manual("Invader", values=c("dashed","solid"), guide = FALSE)
+  scale_y_continuous(limits=c(0.1,0.9), breaks=c(0.25,0.5,0.75))
+g = g + scale_color_brewer("", palette="Set1") + #, guide = FALSE) +
+  scale_linetype_manual("", values=c("dashed","solid")) #, guide = FALSE)
 g
 ggsave(filename=paste0("invasion_SIMvsCM_pop_1e6_", today, ".png"), plot=g, width=4, height=6)
 
 # Figure 2: beta
-g = ggplot(data=dtt[in_phi==1000 & in_pi!="NM" & in_tau!=100 & pop_size==1e5 & envch_str==4 & in_tau!=20], mapping=aes(x=r, y=y, ymin=ymin, ymax=ymax, group=in_pi)) + 
+data=dtt[in_phi=="NR" & in_pi!="NM" & in_tau!=100 & pop_size==1e5 & envch_str==4 & in_tau!=20]
+g = ggplot(mapping=aes(x=r, y=y, ymin=ymin, ymax=ymax, group=in_pi), data=data) + 
   theme_bw() +  
-  facet_grid(facets=in_tau~beta, labeller = tau_label) +
-  scale_color_brewer("Invader", palette="Set1", guide = FALSE) +
+  facet_grid(facets=in_tau~beta, labeller = tau_label) +  
   theme(text = element_text(size=16), axis.text = element_text(size=11), axis.text.x = element_text(angle = 45, hjust = 1)) +
   labs(x="Recombination rate", y="Fixation Probability\n") + 
   geom_errorbar(aes(color=in_pi), size=0.5, width=0.2) + 
   geom_line(aes(color=in_pi, linetype=in_pi), size=1) + 
   geom_hline(y=0.5, color="black", linestyle="dashed") + 
-  scale_y_continuous(limits=c(0.0,1.0), breaks=c(0,0.25,0.5,0.75,1)) + 
+  scale_y_continuous(limits=c(0.0,1.0), breaks=c(0,0.25,0.5,0.75,1)) 
+g = g + scale_color_brewer("Invader", palette="Set1", guide = FALSE) +
   scale_linetype_manual("Invader", values=c("dashed","solid","dotted"), guide = FALSE)
 g
 ggsave(filename=paste0("invasion_SIMvsCMvsNM_pop_1e5_", today, ".png"), plot=g, width=4, height=6)
 
 # Figure 3: pop size
-g = ggplot(data=dtt[in_phi==1000 & in_pi!="NM" & in_tau!=100 & envch_str==4 & in_tau!=20 & beta<1], mapping=aes(x=r, y=y, ymin=ymin, ymax=ymax, group=in_pi)) + 
+data=dtt[in_phi=="NR" & in_pi!="NM" & in_tau!=100 & envch_str==4 & in_tau!=20 & beta<1]
+g = ggplot(mapping=aes(x=r, y=y, ymin=ymin, ymax=ymax, group=in_pi), data=data) + 
   theme_bw() +
-  facet_grid(facets=in_tau~pop_size, labeller = tau_label) +
-  scale_color_brewer("Invader", palette="Set1", guide = FALSE) +
+  facet_grid(facets=in_tau~pop_size, labeller = tau_label) +  
   theme(text = element_text(size=16), axis.text = element_text(size=11), axis.text.x = element_text(angle = 45, hjust = 1)) +
   labs(x="Recombination rate", y="Fixation Probability\n") + 
   geom_errorbar(aes(color=in_pi), size=0.5, width=0.2) + 
   geom_line(aes(color=in_pi, linetype=in_pi), size=1) + 
   geom_hline(y=0.5, color="black", linestyle="dashed") + 
-  scale_y_continuous(limits=c(0.0,1.0), breaks=c(0,0.25,0.5,0.75,1)) + 
+  scale_y_continuous(limits=c(0.0,1.0), breaks=c(0,0.25,0.5,0.75,1))
+g = g + scale_color_brewer("Invader", palette="Set1", guide = FALSE) +  
   scale_linetype_manual("Invader", values=c("dashed","solid","dotted"), guide = FALSE)
 g
 ggsave(filename=paste0("invasion_SIMvsCMvsNM_pop_sizes_", today, ".png"), plot=g, width=4, height=6)
@@ -120,5 +123,3 @@ g = g +  scale_color_brewer("", palette="Set1") + #, guide = FALSE) +
   scale_linetype_manual("", values=c("dashed","solid","dotted"))#, guide = FALSE)
 g
 ggsave(filename=paste0("invasion_combined_tau_5_pop_sizes_", today, ".png"), plot=g, width=6, height=6)
-
-
