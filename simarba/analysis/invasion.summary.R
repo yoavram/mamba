@@ -123,3 +123,20 @@ g = g +  scale_color_brewer("", palette="Set1") + #, guide = FALSE) +
   scale_linetype_manual("", values=c("dashed","solid","dotted"))#, guide = FALSE)
 g
 ggsave(filename=paste0("invasion_combined_tau_5_pop_sizes_", today, ".png"), plot=g, width=6, height=6)
+
+
+# Figure S1: pop size
+data = dtt[in_pi != "NM" & beta<1 & in_phi=="NR" & r==0 & in_tau != 20 & in_tau != 100]
+g = ggplot(mapping=aes(x=pop_size, y=y, ymin=ymin, ymax=ymax, group=in_pi), data=data) + 
+  theme_bw() +
+  facet_grid(facets=in_tau~envch_str, labeller = tau_label) +
+  theme(text = element_text(size=16), axis.text = element_text(size=11), axis.text.x = element_text(angle = 45, hjust = 1)) +
+  labs(x="Population size", y="Fixation Probability\n") + 
+  geom_errorbar(aes(color=in_pi), size=0.5, width=0.2) + 
+  geom_line(aes(color=in_pi, linetype=in_pi), size=1) + 
+  geom_hline(y=0.5, color="black", linestyle="dashed") + 
+  scale_y_continuous(limits=c(0.0,1.0), breaks=c(0,0.25,0.5,0.75,1))
+g = g +  scale_color_brewer("", palette="Set1", guide = FALSE) +
+  scale_linetype_manual("", values=c("dashed","solid","dotted"), guide = FALSE)
+g
+ggsave(filename=paste0("invasion_SIMvsCM_r_0", today, ".png"), plot=g, width=4, height=6)
