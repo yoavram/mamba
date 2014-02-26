@@ -3,6 +3,9 @@ tau_label = function(variable,value){
   if (variable=='in_tau') {
     quoted <- substitute(tau==.(x))
   } 
+  else if (variable=='tau') {
+    quoted <- substitute(tau==.(x))
+  } 
   else if (variable=='beta') {
     quoted <- substitute(beta==.(x))
   }
