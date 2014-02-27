@@ -33,7 +33,7 @@ df3 = subset(df3, select=-c(adapt))
 
 dt = rbind(df1, df2, df3)
 
-dtt = dt[rb==F & pop_size<1e8 & s==0.1, mean_se(in_final_rate), by="pi,tau,rho,phi,r,pop_size,envch_str,in_pi,in_tau,in_rho,in_phi,in_rate,beta,rb,mu,s,envch_start"]
+dtt = dt[pop_size<1e8 & s==0.1, mean_se(in_final_rate), by="pi,tau,rho,phi,r,pop_size,envch_str,in_pi,in_tau,in_rho,in_phi,in_rate,beta,rb,mu,s,envch_start"]
 dim(dtt)
 
 dtt[,r:=as.factor(r)]
@@ -48,7 +48,7 @@ dtt[,in_rho:=as.factor(in_rho)]
 dtt[,pop_size:=as.factor(pop_size)]
 
 # Figure 1
-data=dtt[in_phi=="NR" & in_pi!="NM" & in_tau!=100 & pop_size==1e6 & envch_str==4 & beta<1]
+data=dtt[rb==F & in_phi=="NR" & in_pi!="NM" & in_tau!=100 & pop_size==1e6 & envch_str==4 & beta<1]
 g = ggplot(mapping=aes(x=r, y=y, ymin=ymin, ymax=ymax, group=in_pi), data=data) +
   theme_bw() +
   facet_grid(facets=in_tau~., labeller = label_bquote(tau == .(x))) +
@@ -64,7 +64,7 @@ g
 ggsave(filename=paste0("invasion_SIMvsCM_pop_1e6_", today, ".png"), plot=g, width=4, height=6)
 
 # Figure 2: beta
-data=dtt[in_phi=="NR" & in_pi!="NM" & in_tau!=100 & pop_size==1e5 & envch_str==4 & in_tau!=20]
+data=dtt[rb==F & in_phi=="NR" & in_pi!="NM" & in_tau!=100 & pop_size==1e5 & envch_str==4 & in_tau!=20]
 g = ggplot(mapping=aes(x=r, y=y, ymin=ymin, ymax=ymax, group=in_pi), data=data) + 
   theme_bw() +  
   facet_grid(facets=in_tau~beta, labeller = tau_label) +  
@@ -80,7 +80,7 @@ g
 ggsave(filename=paste0("invasion_SIMvsCMvsNM_pop_1e5_", today, ".png"), plot=g, width=4, height=6)
 
 # Figure 3: pop size
-data=dtt[in_phi=="NR" & in_pi!="NM" & in_tau!=100 & envch_str==4 & in_tau!=20 & beta<1]
+data=dtt[rb==F & in_phi=="NR" & in_pi!="NM" & in_tau!=100 & envch_str==4 & in_tau!=20 & beta<1]
 g = ggplot(mapping=aes(x=r, y=y, ymin=ymin, ymax=ymax, group=in_pi), data=data) + 
   theme_bw() +
   facet_grid(facets=in_tau~pop_size, labeller = tau_label) +  
@@ -96,7 +96,7 @@ g
 ggsave(filename=paste0("invasion_SIMvsCMvsNM_pop_sizes_", today, ".png"), plot=g, width=4, height=6)
 
 #Figure 4: recombinator
-data = dtt[in_phi!="NR" & in_pi=="NM" & envch_str==4 & beta<1 & in_rho!=100 & in_rho!=20 & pop_size != 1e7]
+data = dtt[rb==F & in_phi!="NR" & in_pi=="NM" & envch_str==4 & beta<1 & in_rho!=100 & in_rho!=20 & pop_size != 1e7]
 g = ggplot(mapping=aes(x=r, y=y, ymin=ymin, ymax=ymax, group=in_phi), data=data) + 
   theme_bw() +
   facet_grid(facets=in_rho~pop_size, labeller = tau_label) +
@@ -112,7 +112,7 @@ g
 ggsave(filename=paste0("invasion_SIRvsCR_pop_sizes_", today, ".png"), plot=g, width=5, height=6)
 
 #Figure 5: recombinator+mutator
-data = dtt[envch_str==4 & beta<1 & in_tau==5 & pop_size!=1e7]
+data = dtt[rb==F & envch_str==4 & beta<1 & in_tau==5 & pop_size!=1e7]
 g = ggplot(mapping=aes(x=r, y=y, ymin=ymin, ymax=ymax, group=in_pi), data=data) + 
   theme_bw() +
   facet_grid(facets=pop_size~in_phi, labeller = tau_label) +
@@ -129,7 +129,7 @@ ggsave(filename=paste0("invasion_combined_tau_5_pop_sizes_", today, ".png"), plo
 
 
 # Figure S1: pop size
-data = dtt[in_pi != "NM" & beta<1 & in_phi=="NR" & r==0 & in_tau != 20 & in_tau != 100]
+data = dtt[rb==F & in_pi != "NM" & beta<1 & in_phi=="NR" & r==0 & in_tau != 20 & in_tau != 100]
 g = ggplot(mapping=aes(x=pop_size, y=y, ymin=ymin, ymax=ymax, group=in_pi), data=data) + 
   theme_bw() +
   facet_grid(facets=in_tau~envch_str, labeller = tau_label) +
@@ -143,3 +143,19 @@ g = g +  scale_color_brewer("", palette="Set1", guide = FALSE) +
   scale_linetype_manual("", values=c("dashed","solid","dotted"), guide = FALSE)
 g
 ggsave(filename=paste0("invasion_SIMvsCM_r_0", today, ".png"), plot=g, width=4, height=6)
+
+# Figure RB
+data=dtt[in_phi=="NR" & in_tau!=100 & pop_size==1e6 & envch_str==4 & beta<1]
+g = ggplot(mapping=aes(x=r, y=y, ymin=ymin, ymax=ymax, group=in_pi), data=data) +
+  theme_bw() +
+  facet_grid(facets=in_tau~rb, labeller = tau_label) +
+  theme(text = element_text(size=16), axis.text = element_text(size=11), axis.text.x = element_text(angle = 45, hjust = 1)) +
+  labs(x="Recombination rate", y="Fixation Probability\n") + 
+  geom_errorbar(aes(color=in_pi), size=0.5, width=0.2) + 
+  geom_line(aes(color=in_pi, linetype=in_pi), size=1) + 
+  geom_hline(y=0.5, color="black", linestyle="dashed") + 
+  scale_y_continuous(limits=c(0.1,0.9), breaks=c(0.25,0.5,0.75))
+g = g + scale_color_brewer("", palette="Set1") + #, guide = FALSE) +
+  scale_linetype_manual("", values=c("dashed","solid", "dotted")) #, guide = FALSE)
+g
+#ggsave(filename=paste0("invasion_SIMvsCM_pop_1e6_", today, ".png"), plot=g, width=4, height=6)
