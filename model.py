@@ -138,6 +138,7 @@ def invasion(population, genomes, modifiers, rate, num_loci):
 
 
 def mutation_recombination(population, genomes, mutation_rates, recombination_rates, num_loci, target_genome, genomes_dict, beta, rec_bar=False):
+	pop_size = population.sum()
 	total_rates = mutation_rates + recombination_rates
 	prob_mu = mutation_rates / total_rates
 	events = np.random.binomial(n=population, p=total_rates, size=population.shape)
@@ -179,13 +180,15 @@ def mutation_recombination(population, genomes, mutation_rates, recombination_ra
 				new_alleles = genomes[donors, _loci]
 			for i, locus in enumerate(_loci):
 				new_allele = new_alleles[i]
+				# deal with recombination barriers
 				if method == 1 and rec_bar:
 					donor_modifiers = genomes[donors[i], num_loci:]
 					if (donor_modifiers != recipient_modifiers).any():
 						#logger.debug("Donor rejected: recipient %s donor %s", str(recipient_modifiers), str(donor_modifiers))
-						continue
+						# reject donor allele, replace with original allele
+						new_allele = genomes[strain, locus]
 					#else:
-					#	logger.debug("Donor accepted: recipient %s donor %s", str(recipient_modifiers), str(donor_modifiers))
+						#logger.debug("Donor accepted: recipient %s donor %s", str(recipient_modifiers), str(donor_modifiers))
 				key = (strain, locus, new_allele)
 				if key in new_counts:
 					new_counts[key] += 1
@@ -207,4 +210,5 @@ def mutation_recombination(population, genomes, mutation_rates, recombination_ra
 		genomes = np.vstack((genomes, new_genomes.values()))
 		for i,g in enumerate(new_genomes.values()):
 			genomes_dict[buffer(g)] = base_index + i
+	assert population.sum() == pop_size, "Population size is %d instead of %d" % (population.sum(), pop_size)
 	return population, genomes, genomes_dict

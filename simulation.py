@@ -86,7 +86,6 @@ def run(ticks=10, tick_interval=1):
 	tick = 0 # so that '--ticks=-1' will work, that is, you could start a simulation without any ticks
 
 	for tick in range(ticks + 1):
-		assert population.sum() == pop_size, "Population size is %d instead of %d" % (population.sum(), pop_size)
 		if changes[tick]:
 			logger.debug("Environmental change at tick %d" % tick)
 			tg_hash = hash(target_genome.tostring())
@@ -105,7 +104,7 @@ def run(ticks=10, tick_interval=1):
 			df.to_csv(output_file, header=header, mode='a', index_label='index')
 		
 		population, genomes = step(population, genomes, target_genome, fitness, mutation_rates, recombination_rates, num_loci, nums, genomes_dict, beta, rb)
-		
+
 		if tick_interval != 0 and tick % tick_interval == 0:
 			logger.debug("Tick %d", tick)
 		if in_tick == tick and in_rate > 0:
