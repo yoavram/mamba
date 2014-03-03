@@ -86,14 +86,16 @@ def run(ticks=10, tick_interval=1):
 	tick = 0 # so that '--ticks=-1' will work, that is, you could start a simulation without any ticks
 
 	for tick in range(ticks + 1):
+		assert population.sum() == pop_size, "Population size is %d instead of %d" % (population.sum(), pop_size)
 		if changes[tick]:
 			logger.debug("Environmental change at tick %d" % tick)
 			tg_hash = hash(target_genome.tostring())
 			target_genome = environmental_change(target_genome, num_loci, envch_str)
 			assert tg_hash != hash(target_genome.tostring())
 		fitness, mutation_rates, recombination_rates, nums = update(genomes, target_genome, s, mu ,r)
+
 		if adapt:
-			adapted = population[fitness == 1].sum() / float(pop_size)
+			adapted = population[fitness == 1].sum() / float(population.sum())
 			if adapted > 0.5:
 				logger.info("Population has reached %.2f adaptation" % adapted)
 				break
