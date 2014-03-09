@@ -29,7 +29,7 @@ setwd("simarba/analysis/")
 df1 = fread("invasion_summary_2013-11-17.csv")
 df2 = fread("invasionbig_summary_2013-11-20.csv")
 df2 = subset(df2, select=-c(adapt))
-df3 = fread("invasion_rb_summary_2013-11-19.csv")
+df3 = fread("invasion_rb_summary_2014-03-09.csv")
 df3 = subset(df3, select=-c(adapt))
 
 dt = rbind(df1, df2, df3)
@@ -162,7 +162,7 @@ g = g +  scale_color_brewer("", palette="Set1", guide = FALSE) +
 g
 ggsave(filename=paste0("invasion_SIMvsCM_r_0", today, ".png"), plot=g, width=4, height=6)
 
-# Figure RB
+# Figure S2 RB
 data=dtt[in_phi=="NR" & in_tau!=100 & pop_size==1e6 & envch_str==4 & beta<1]
 g = ggplot(mapping=aes(x=r, y=y, ymin=ymin, ymax=ymax, group=in_pi), data=data) +
   theme_bw() +
@@ -176,8 +176,7 @@ g = ggplot(mapping=aes(x=r, y=y, ymin=ymin, ymax=ymax, group=in_pi), data=data) 
 g = g + scale_color_brewer("", palette="Set1") + #, guide = FALSE) +
   scale_linetype_manual("", values=c("dashed","solid", "dotted")) #, guide = FALSE)
 g
-#ggsave(filename=paste0("invasion_SIMvsCM_pop_1e6_", today, ".png"), plot=g, width=4, height=6)
-
+ggsave(filename=paste0("invasion_RB_SIMvsCM_pop_1e6_", today, ".png"), plot=g, width=6, height=6)
 
 
 #Figure 5 - heatmap
