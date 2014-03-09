@@ -31,8 +31,10 @@ df2 = fread("invasionbig_summary_2013-11-20.csv")
 df2 = subset(df2, select=-c(adapt))
 df3 = fread("invasion_rb_summary_2014-03-09.csv")
 df3 = subset(df3, select=-c(adapt))
+df4 = fread("invasion_beta_summary_2014-03-09.csv")
+df4 = subset(df4, select=-c(adapt))
 
-dt = rbind(df1, df2, df3)
+dt = rbind(df1, df2, df3,df4)
 
 dtt = dt[pop_size<1e8 & s==0.1, mean_se(in_final_rate), by="pi,tau,rho,phi,r,pop_size,envch_str,in_pi,in_tau,in_rho,in_phi,in_rate,beta,rb,mu,s,envch_start"]
 dim(dtt)
@@ -65,10 +67,10 @@ g
 ggsave(filename=paste0("invasion_SIMvsCM_pop_1e6_", today, ".png"), plot=g, width=4, height=6)
 
 # Figure 2: beta
-data=dtt[rb==F & r!=0.3 & in_phi=="NR" & in_pi!="NM" & in_tau!=100 & pop_size==1e5 & envch_str==4 & in_tau!=20]
+data=dtt[rb==F & r!=0.3 & in_phi=="NR" & in_pi!="NM" & in_tau!=100 & envch_str==4 & in_tau!=20 & pop_size!=1e7]
 g = ggplot(mapping=aes(x=r, y=y, ymin=ymin, ymax=ymax, group=in_pi), data=data) + 
   theme_bw() +  
-  facet_grid(facets=in_tau~beta, labeller = tau_label) +  
+  facet_grid(facets=in_tau~pop_size+beta, labeller = tau_label) +  
   theme(text = element_text(size=16), axis.text = element_text(size=11), axis.text.x = element_text(angle = 45, hjust = 1)) +
   labs(x="Recombination rate", y="Fixation Probability\n") + 
   geom_errorbar(aes(color=in_pi), size=0.5, width=0.2) + 
@@ -78,7 +80,7 @@ g = ggplot(mapping=aes(x=r, y=y, ymin=ymin, ymax=ymax, group=in_pi), data=data) 
 g = g + scale_color_brewer("Invader", palette="Set1", guide = FALSE) +
   scale_linetype_manual("Invader", values=c("dashed","solid","dotted"), guide = FALSE)
 g
-ggsave(filename=paste0("invasion_SIMvsCMvsNM_pop_1e5_", today, ".png"), plot=g, width=4, height=6)
+ggsave(filename=paste0("invasion_SIMvsCMvsNM_pop_1e5_1e6_", today, ".png"), plot=g, width=6, height=6)
 
 # Figure 3: pop size
 data=dtt[rb==F & in_phi=="NR" & in_pi!="NM" & in_tau!=100 & envch_str==4 & in_tau!=20 & beta<1]
