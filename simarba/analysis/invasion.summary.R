@@ -33,8 +33,10 @@ df3 = fread("invasion_rb_summary_2014-03-09.csv")
 df3 = subset(df3, select=-c(adapt))
 df4 = fread("invasion_beta_summary_2014-03-09.csv")
 df4 = subset(df4, select=-c(adapt))
+df5 = fread("invasion_asex_summary_2014-03-09.csv")
+df5 = subset(df5, select=-c(adapt))
 
-dt = rbind(df1, df2, df3,df4)
+dt = rbind.data.frame(df5, df1, df2, df3, df4)
 
 dtt = dt[pop_size<1e8 & s==0.1, mean_se(in_final_rate), by="pi,tau,rho,phi,r,pop_size,envch_str,in_pi,in_tau,in_rho,in_phi,in_rate,beta,rb,mu,s,envch_start"]
 dim(dtt)
@@ -197,3 +199,20 @@ ann_text <- data.frame(in_tau="5", r="0.003",
                            in_pi="NM", in_phi="NR")
 g = g + geom_text(data=ann_text,label="\nControl", size=8, color="gray50")
 ggsave(filename=paste0("invasion_invasion_combined_heatmap_N_1e6_", today, ".png"), plot=g, width=7, height=6)
+
+# Figure 5 - asexuals vs recombinators
+data=dtt[rb==F & r==1e-16 & envch_str==4 & beta<1]
+data[,eff_r:=factor(as.numeric(as.character(data$in_rho))*as.numeric(as.character(data$r)))]
+g = ggplot(mapping=aes(x=eff_r, y=y, ymin=ymin, ymax=ymax, group=in_pi), data=data) +
+  theme_bw() +
+  facet_grid(facets=.~in_phi, labeller = tau_label) +
+  theme(text = element_text(size=16), axis.text = element_text(size=11), axis.text.x = element_text(angle = 45, hjust = 1)) +
+  labs(x="Modifier's Recombination Rate", y="Fixation Probability\n") + 
+  geom_errorbar(aes(color=in_pi), size=0.5, width=0.2) + 
+  geom_line(aes(color=in_pi, linetype=in_pi), size=1) + 
+  geom_hline(y=0.5, color="black", linestyle="dashed") + 
+  scale_y_continuous(limits=c(0.1,0.9), breaks=c(0.25,0.5,0.75))
+g = g + scale_color_brewer("", palette="Set1", guide = FALSE) +
+  scale_linetype_manual("", values=c("dashed","solid","dotted"), guide = FALSE)
+g
+ggsave(filename=paste0("invasion_SIMvsCMvsNM_asexuals_", today, ".png"), plot=g, width=5, height=6)
