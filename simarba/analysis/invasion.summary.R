@@ -1,4 +1,7 @@
-tau_label = function(variable,value){
+library(data.table)
+library(ggplot2)
+
+tau_label = function(variable,value) {
   value <- as.character(value)  
   if (variable=='in_tau') {
     quoted <- substitute(tau==.(x))
@@ -26,14 +29,14 @@ tau_label = function(variable,value){
 today = Sys.Date()
 setwd("simarba/analysis/")
 
-df1 = fread("invasion_summary_2013-11-17.csv")
-df2 = fread("invasionbig_summary_2013-11-20.csv")
+df1 = fread("../invasion_summary_2013-11-17.csv")
+df2 = fread("../invasionbig_summary_2013-11-20.csv")
 df2 = subset(df2, select=-c(adapt))
-df3 = fread("invasion_rb_summary_2014-03-09.csv")
+df3 = fread("../invasion_rb_summary_2014-03-24.csv")
 df3 = subset(df3, select=-c(adapt))
-df4 = fread("invasion_beta_summary_2014-03-09.csv")
+df4 = fread("../invasion_beta_summary_2014-03-09.csv")
 df4 = subset(df4, select=-c(adapt))
-df5 = fread("invasion_asex_summary_2014-03-09.csv")
+df5 = fread("../invasion_asex_summary_2014-03-09.csv")
 df5 = subset(df5, select=-c(adapt))
 
 dt = rbind.data.frame(df5, df1, df2, df3, df4)
@@ -101,10 +104,10 @@ g
 ggsave(filename=paste0("invasion_SIMvsCMvsNM_pop_sizes_", today, ".png"), plot=g, width=4, height=6)
 
 #Figure 4: recombinator
-data = dtt[rb==F & in_phi!="NR" & in_pi=="NM" & envch_str==4 & beta<1 & in_rho!=100 & in_rho!=20 & pop_size != 1e7]
+data = dtt[rb==F & r!=1e-16 & in_phi!="NR" & in_pi=="NM" & envch_str==4 & beta<1 & in_rho!=100 & in_rho!=20 & pop_size != 1e7]
 g = ggplot(mapping=aes(x=r, y=y, ymin=ymin, ymax=ymax, group=in_phi), data=data) + 
   theme_bw() +
-  facet_grid(facets=in_rho~pop_size, labeller = tau_label) +
+  facet_grid(facets=in_rho~pop_size)+#, labeller = tau_label) +
   theme(text = element_text(size=16), axis.text = element_text(size=11), axis.text.x = element_text(angle = 45, hjust = 1)) +
   labs(x="Recombination rate", y="Fixation Probability\n") + 
   geom_errorbar(aes(color=in_phi), size=0.5, width=0.2) + 
@@ -117,7 +120,7 @@ g
 ggsave(filename=paste0("invasion_SIRvsCR_pop_sizes_", today, ".png"), plot=g, width=5, height=6)
 
 #Figure 5: recombinator+mutator
-data = dtt[rb==F & envch_str==4 & beta<1 & in_tau==5 & pop_size!=1e7]
+data = dtt[rb==F & r!=1e-16 & envch_str==4 & beta<1 & in_tau==5 & pop_size!=1e7]
 g = ggplot(mapping=aes(x=r, y=y, ymin=ymin, ymax=ymax, group=in_pi), data=data) + 
   theme_bw() +
   facet_grid(facets=pop_size~in_phi, labeller = tau_label) +
@@ -130,11 +133,11 @@ g = ggplot(mapping=aes(x=r, y=y, ymin=ymin, ymax=ymax, group=in_pi), data=data) 
 g = g +  scale_color_brewer("", palette="Set1") + #, guide = FALSE) +
   scale_linetype_manual("", values=c("dashed","solid","dotted"))#, guide = FALSE)
 g
-#ggsave(filename=paste0("invasion_combined_tau_5_pop_sizes_", today, ".png"), plot=g, width=6, height=6)
+ggsave(filename=paste0("invasion_combined_tau_5_pop_sizes_", today, ".png"), plot=g, width=6, height=6)
 
 
 #Figure 5b: recombinator+mutator
-data = dtt[rb==F & envch_str==4 & beta<1 & pop_size==1e6 & in_tau!=100]
+data = dtt[rb==F & r!=1e-16 & envch_str==4 & beta<1 & pop_size==1e6 & in_tau!=100]
 data$in_tau = as.numeric(levels(data$in_tau))[data$in_tau]
 g = ggplot(mapping=aes(x=in_tau, y=y, ymin=ymin, ymax=ymax, group=in_pi), data=data) + 
   theme_bw() +
@@ -148,6 +151,7 @@ g = ggplot(mapping=aes(x=in_tau, y=y, ymin=ymin, ymax=ymax, group=in_pi), data=d
 g = g +  scale_color_brewer("", palette="Set1") + #, guide = FALSE) +
   scale_linetype_manual("", values=c("dashed","solid","dotted"))#, guide = FALSE)
 g
+ggsave(filename=paste0("invasion_combined2_tau_5_pop_sizes_", today, ".png"), plot=g, width=6, height=6)
 
 
 # Figure S1: pop size
@@ -198,7 +202,8 @@ g = g + geom_tile(mapping=aes(fill=y)) +
 ann_text <- data.frame(in_tau="5", r="0.003",
                            in_pi="NM", in_phi="NR")
 g = g + geom_text(data=ann_text,label="\nControl", size=8, color="gray50")
-ggsave(filename=paste0("invasion_invasion_combined_heatmap_N_1e6_", today, ".png"), plot=g, width=7, height=6)
+g
+gsave(filename=paste0("invasion_invasion_combined_heatmap_N_1e6_", today, ".png"), plot=g, width=7, height=6)
 
 # Figure 5 - asexuals vs recombinators
 data=dtt[rb==F & r==1e-16 & envch_str==4 & beta<1]
