@@ -6,22 +6,67 @@ library(data.table)
 
 today = Sys.Date()
 
+## analytic approximation
+integrand1 <- function(s, pop_size, x) {
+  res <- numeric(length = length(x))
+  res[x==1] = 2*pop_size*s * (1 - exp(-2*pop_size*s))
+  res[x!=1] = (1 - exp(-2*pop_size*s*x) - exp(-(1-x)) - exp(-2*pop_size*s))/(x*(1-x))
+  return(res)
+}
+
+integrand2 <- function(s,pop_size,x) {
+  res <- numeric(length = length(x))
+  res[x==0] = 0
+  res[x!=0] = (exp(2*pop_size*s*x) - 1) * (1 - exp(-2*pop_size*s*x))/(x*(1-x))
+  return(res)
+}
+
+fixation_time <- function(s,pop_size,x) {
+  df = data.frame(s=s,x=x,pop_size=pop_size)
+  res = numeric(length = length(x))
+  for(i in seq_along(x)) {
+    s = df[i,]$s
+    pop_size = df[i,]$pop_size
+    x = df[i,]$x
+    J1 = 2/(s*(1 - exp(-2*pop_size*s))) * integrate(function(t) {integrand1(s,pop_size,t)}, lower=x, upper=0.5)$value
+    u = (1-exp(-2*pop_size*s*x))/(1-exp(-2*pop_size*s))
+    J2 = 2/(s*(1-exp(-2*pop_size*s))) * integrate(function(t) {integrand2(s,pop_size,t)}, lower=0, upper=x)$value
+    res[i] =  ( J1 + ((1-u)/u) * J2 )
+  }
+  return(res)
+}
+fixation_time(0.01, 1e5, 1e-5)
+
+
 dt = fread("../adaptation_summary_2014-03-23.csv")
 dt$real.tau = dt$tau
 dt[pi==1000]$real.tau = 1
 
-dtt = dt[, mean_se(final_tick), by="s,beta,pi,tau,r,phi,rho,pop_size,envch_str,mu,num_loci,real.tau"]
+dtt = dt[, mean_se(final_tick), by="s,beta,pi,r,phi,rho,pop_size,envch_str,mu,num_loci,real.tau"]
 
 dtt[,pi:=factor(dtt$pi,levels=c(0,1,1000),labels=c("CM","SIM","NM"))]
 dtt[,phi:=factor(dtt$phi,levels=c(0,1,1000),labels=c("CR","SIR","NR"))]
 
-## analytic approximation
-dtt[, q:= exp(-real.tau*mu/s) * (beta/2) * real.tau*mu * exp(-real.tau*mu) / num_loci]
-dtt[, fp:= (1-exp(-2*s))/(1-exp(-2*pop_size*s))]
-dtt[, approx:=1/(pop_size*fp*q)]
 
-qplot(y=y,x=approx,data=subset(dtt,envch_str==1), color=r) + 
-  geom_abline(intercept=0, slope=1)
+dtt[, appearance_prob:= exp(-real.tau*mu/s) * (beta) * real.tau*mu * exp(-real.tau*mu) / num_loci]
+dtt[, fixation_prob:= (1-exp(-2*s))/(1-exp(-2*pop_size*s))]
+dtt[, fixation_prob0:= 2*s] # just as good because the population is very large
+dtt[, fixation_time:= fixation_time(s,pop_size,1/pop_size)]
+dtt[, adaptation_time:=envch_str*(fixation_time+1/(pop_size*appearance_prob*fixation_prob))]
+
+qplot(y=y, x=adaptation_time, data=dtt, color=factor(real.tau)) + 
+geom_abline(aes(slope=1, intercept=0)) + facet_grid(envch_str~., scales="free")
+
+ggplot(data=subset(dtt, r==0 & phi=='NR'), mapping=aes(x=pop_size*real.tau, color=pi)) + 
+  geom_point(aes(y=y), size=2) + 
+  geom_errorbar(aes(y=y,ymax=ymax, ymin=ymin), width=0.3) +   
+  facet_grid(envch_str~pi, labeller=tau_label, scales="free"  ) +
+  geom_line(aes(y=adaptation_time)) + 
+  scale_color_brewer("Mutator", palette="Set1", guide='none') +
+  scale_y_log10() + scale_x_log10() + 
+  labs(x="Mutational supply", y="Adaptation time")
+
+ggsave(plot=g, filename="adaptation_time_approx.png", width=12, height=8)
 
 # factors
 dtt[,pop_size:=as.factor(pop_size)]
