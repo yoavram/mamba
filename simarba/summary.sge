@@ -1,0 +1,11 @@
+#!/bin/bash
+#$ -V
+#$ -cwd
+#$ -j y
+#$ -N summary
+#$ -l lilach,mem_free=1G
+
+module load R/R215
+
+cd /groups/lilach_hadany/yoavram/workspace/mamba/simarba
+R --vanilla --slave -f summary.R
