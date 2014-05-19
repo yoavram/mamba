@@ -10,7 +10,7 @@ setwd("~/workspace/mamba/simarba")
 today = Sys.Date()
 #setTimeLimit(cpu = 0.5)
 
-jobname = "invasionbig"
+jobname = "invasion"
 
 print(paste("Starting", jobname))
 filenames = list.files(paste0("../output/",jobname), pattern="*.json", full.names=TRUE)
