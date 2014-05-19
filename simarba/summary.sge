@@ -1,5 +1,4 @@
-#!/bin/bash
-#$ -V
+#!/bin/tcsh
 #$ -cwd
 #$ -j y
 #$ -N summary
