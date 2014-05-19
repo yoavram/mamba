@@ -5,7 +5,7 @@ import glob
 import os
 import time
 
-os.chdir("output/invasion")
+os.chdir("output/adaptation")
 files = glob.glob("*.json")
 print "%d files to process in %s" %(len(files), os.getcwd())
 file_dicts = []
