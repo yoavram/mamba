@@ -147,9 +147,8 @@ def run(ticks=10, tick_interval=1):
 	return population, genomes, target_genome, filename
 
 
-def step(population, genomes, target_genome, fitness, mutation_rates, recombination_rates, num_loci, nums, genomes_dict, beta, rb):
-	population = drift(population)
-	population = selection(population, fitness)
+def step(population, genomes, target_genome, fitness, mutation_rates, recombination_rates, num_loci, nums, genomes_dict, beta, rb):	
+	population = selection(population, fitness) # selection includes drift
 	population, genomes, genomes_dict = clear(population, genomes, genomes_dict)
 	fitness, mutation_rates, recombination_rates, nums = update(genomes, target_genome, s, mu ,r)
 	population, genomes, genomes_dict = mutation_recombination(population, genomes, mutation_rates, recombination_rates, num_loci, target_genome, genomes_dict, beta, rb)
