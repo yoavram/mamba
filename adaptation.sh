@@ -1,15 +1,16 @@
 #!/bin/bash
 REP=100
-for r in 0.0 0.00003 0.003 0.03 
+for pop_size in 10000 1000000 100000000
 do
-	for pi in 0 1 1000
+	for r in 0 0.00003 0.0003 0.003
 	do
-		for phi in 1000
-		do
-			for tau in 2 5 10
+		for pi in 0 1
 			do			
-				qsub -t 1-$REP -v pi=$pi -v tau=$tau -v r=$r -v phi=$phi -v rho=$tau adaptation.sge
+				for tau in 2 5 10
+				do			
+					qsub -t 1-$REP -v pop_size=$pop_size -v pi=$pi -v tau=$tau -v r=$r -v phi=$phi -v rho=$tau adaptation.sge
+				done
 			done
-		done
+		qsub -t 1-$REP -v pi=1000 -v tau=1 -v r=$r -v adaptation.sge		
 	done
 done

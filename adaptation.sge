@@ -1,7 +1,6 @@
-#!/bin/bash
-#$ -V
-#$ -o /dev/null
+#!/bin/tcsh
 #$ -cwd
+#$ -o /dev/null
 #$ -j y
 #$ -N adaptation
 #$ -l lilach,h_rt=48:00:00,mem_free=1G
@@ -13,9 +12,9 @@
 #$ -v pi=0
 #$ -v phi=0
 #$ -v rho=1
-#$ -v pop_size=1000000
+#$ -v pop_size=100000
 #$ -v envch_rate=0.0
-#$ -v envch_str=4
+#$ -v envch_str=1
 #$ -v ticks=1000000
 #$ -v tick_interval=1000
 #$ -v stats_interval=10
