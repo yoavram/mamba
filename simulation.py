@@ -80,6 +80,8 @@ def run(ticks=10, tick_interval=1):
 	population = create_population(pop_size, genomes.shape[0])
 
 	changes = draw_environmental_changes(ticks + 1, envch_rate, envch_start)
+	if in_tick >= 0 and in_rate == 0 and adapt:
+		changes[in_tick] = 1
 	logger.debug("Number of environmental changes is %d" % changes.sum())
 	
 	logger.info("Starting simulation with %d ticks", ticks)
@@ -93,7 +95,7 @@ def run(ticks=10, tick_interval=1):
 			assert tg_hash != hash(target_genome.tostring())
 		fitness, mutation_rates, recombination_rates, nums = update(genomes, target_genome, s, mu ,r)
 
-		if adapt:
+		if adapt and in_tick < tick:
 			adapted = population[fitness == 1].sum() / float(population.sum())
 			if adapted > 0.5:
 				logger.info("Population has reached %.2f adaptation" % adapted)
