@@ -18,6 +18,12 @@ tau_label = function(variable,value) {
   else if (variable=='in_rho') {
     quoted <- substitute(rho==.(x))
   }
+  else if (variable=='r') {
+    quoted <- substitute(r==.(x))
+  }
+  else if (variable=='envch_str') {
+    quoted <- substitute(changes==.(x))
+  }
   else{
     quoted <- substitute(.(x))
   }
