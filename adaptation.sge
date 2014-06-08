@@ -15,6 +15,7 @@
 #$ -v pop_size=100000
 #$ -v envch_rate=0.0
 #$ -v envch_str=1
+#$ -v in_tick=500
 #$ -v ticks=1000000
 #$ -v tick_interval=1000
 #$ -v stats_interval=10
