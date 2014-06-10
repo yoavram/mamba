@@ -12,16 +12,16 @@
 #$ -v pi=0
 #$ -v phi=0
 #$ -v rho=1
-#$ -v pop_size=100000
+#$ -v pop_size=1000000
 #$ -v envch_rate=0.0
 #$ -v envch_str=1
-#$ -v in_tick=500
 #$ -v ticks=1000000
 #$ -v tick_interval=1000
 #$ -v stats_interval=10
+#$ -v in_tick=500
 #$ -v beta=0.01
 
 module load gcc/gcc461
 module load python/python-2.7.2
 
-python simulation.py --adapt --envch_start --beta=${beta} --envch_rate=${envch_rate} --envch_str=${envch_str} --r=${r} --s=${s} --mu=${mu} --tau=${tau} --pi=${pi} --phi=${phi} --rho=${rho} --ticks=${ticks} --pop_size=${pop_size} --tick_interval=${tick_interval} --stats_interval=${stats_interval} --in_rate=0 --console --debug --job_name=$JOB_NAME
+python simulation.py --adapt --beta=${beta} --envch_rate=${envch_rate} --envch_str=${envch_str} --r=${r} --s=${s} --mu=${mu} --tau=${tau} --pi=${pi} --phi=${phi} --rho=${rho} --ticks=${ticks} --pop_size=${pop_size} --tick_interval=${tick_interval} --stats_interval=${stats_interval} --in_rate=0.0 --console --debug --job_name=$JOB_NAME
