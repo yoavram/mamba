@@ -33,52 +33,52 @@ tau_label = function(variable,value) {
 
 
 today = Sys.Date()
-setwd("simarba/analysis/")
 
-df1 = fread("../invasion_summary_2013-11-17.csv")
-df2 = fread("../invasionbig_summary_2013-11-20.csv")
-df2 = subset(df2, select=-c(adapt))
-df3 = fread("../invasion_rb_summary_2014-03-24.csv")
-df3 = subset(df3, select=-c(adapt))
-df4 = fread("../invasion_beta_summary_2014-03-09.csv")
-df4 = subset(df4, select=-c(adapt))
-df5 = fread("../invasion_asex_summary_2014-03-09.csv")
-df5 = subset(df5, select=-c(adapt))
+dt = fread("../invasion_summary_2014-06-10.csv")
+dt = dt[r==3e-14 | in_rho<1000]
 
-dt = rbind.data.frame(df5, df1, df2, df3, df4)
+dt[in_tau==1, m.strategy:="NM"]
+dt[in_pi==0 & in_tau>1, m.strategy:="CM"]
+dt[in_pi>0 & in_tau>1, m.strategy:="SIM"]
+dt[,m.strategy:=factor(dt$m.strategy,levels=c("CM","SIM","NM"),labels=c("CM","SIM","NM"))]
+dt[m.strategy=="NM"]$in_pi=0
+qplot(x=m.strategy, data=dt, fill=m.strategy) + scale_fill_brewer(palette="Set1")
+dt[in_rho==1 | in_phi==1000, r.strategy:="NR"]
+dt[in_phi==0 & in_rho>1, r.strategy:="CR"]
+dt[1000>in_phi & in_phi>0 & in_rho>1, r.strategy:="SIR"]
+dt[,r.strategy:=factor(dt$r.strategy,levels=c("CR","SIR","NR"),labels=c("CR","SIR","NR"))]
+dt[r.strategy=="NR"]$in_phi=0
+dt[r.strategy=="NR"]$in_rho=1
+qplot(x=r.strategy, data=dt, fill=r.strategy) + scale_fill_brewer(palette="Set1")
 
-dtt = dt[pop_size<1e8 & s==0.1, mean_se(in_final_rate), by="pi,tau,rho,phi,r,pop_size,envch_str,in_pi,in_tau,in_rho,in_phi,in_rate,beta,rb,mu,s,envch_start"]
-dim(dtt)
+dtt = dt[s==0.1, mean_se(in_final_rate), by="m.strategy,r.strategy,pi,tau,rho,phi,r,pop_size,envch_str,in_pi,in_tau,in_rho,in_phi,in_rate,beta,rb,mu,s,envch_start"]
+print(dim(dtt))
 
 dtt[,r:=as.factor(r)]
-dtt[,pi:=factor(dtt$pi,levels=c(0,1,1000),labels=c("CM","SIM","NM"))]
-dtt[,phi:=factor(dtt$phi,levels=c(0,1,1000),labels=c("CR","SIR","NR"))]
 dtt[,tau:=as.factor(tau)]
 dtt[,rho:=as.factor(rho)]
-dtt[,in_pi:=factor(dtt$in_pi,levels=c(0,1,1000),labels=c("CM","SIM","NM"))]
-dtt[,in_phi:=factor(dtt$in_phi,levels=c(0,1,1000),labels=c("CR","SIR","NR"))]
 dtt[,in_tau:=as.factor(in_tau)]
 dtt[,in_rho:=as.factor(in_rho)]
 dtt[,pop_size:=as.factor(pop_size)]
 
 # Figure 1
-data=dtt[rb==F & in_phi=="NR" & in_pi!="NM" & in_tau!=100 & pop_size==1e6 & envch_str==4 & beta<1]
-g = ggplot(mapping=aes(x=r, y=y, ymin=ymin, ymax=ymax, group=in_pi), data=data) +
+data=dtt[rb==F & r.strategy=="NR" & pop_size==1e4 & envch_str==4 & beta<1]
+g = ggplot(mapping=aes(x=r, y=y, ymin=ymin, ymax=ymax, group=m.strategy), data=data) +
   theme_bw() +
   facet_grid(facets=in_tau~., labeller = label_bquote(tau == .(x))) +
   theme(text = element_text(size=16), axis.text = element_text(size=11), axis.text.x = element_text(angle = 45, hjust = 1)) +
   labs(x="Recombination rate", y="Fixation Probability\n") + 
-  geom_errorbar(aes(color=in_pi), size=0.5, width=0.2) + 
-  geom_line(aes(color=in_pi, linetype=in_pi), size=1) + 
+  geom_errorbar(aes(color=m.strategy), size=0.5, width=0.2) + 
+  geom_line(aes(color=m.strategy, linetype=m.strategy), size=1) + 
   geom_hline(y=0.5, color="black", linestyle="dashed") + 
   scale_y_continuous(limits=c(0.1,0.9), breaks=c(0.25,0.5,0.75))
 g = g + scale_color_brewer("", palette="Set1") + #, guide = FALSE) +
-  scale_linetype_manual("", values=c("dashed","solid")) #, guide = FALSE)
+  scale_linetype_manual("", values=c("dashed","solid","dotted")) #, guide = FALSE)
 g
 ggsave(filename=paste0("invasion_SIMvsCM_pop_1e6_", today, ".png"), plot=g, width=4, height=6)
 
 # Figure 2: beta
-data=dtt[rb==F & r!=0.3 & in_phi=="NR" & in_pi!="NM" & in_tau!=100 & envch_str==4 & in_tau!=20 & pop_size!=1e7]
+data=dtt[rb==F & in_phi=="NR" & in_pi!="NM" & envch_str==4]
 g = ggplot(mapping=aes(x=r, y=y, ymin=ymin, ymax=ymax, group=in_pi), data=data) + 
   theme_bw() +  
   facet_grid(facets=in_tau~pop_size+beta, labeller = tau_label) +  
@@ -94,7 +94,7 @@ g
 ggsave(filename=paste0("invasion_SIMvsCMvsNM_pop_1e5_1e6_", today, ".png"), plot=g, width=6, height=6)
 
 # Figure 3: pop size
-data=dtt[rb==F & in_phi=="NR" & in_pi!="NM" & in_tau!=100 & envch_str==4 & in_tau!=20 & beta<1]
+data=dtt[rb==F & in_phi=="NR" & in_pi!="NM" & envch_str==4 & beta<1]
 g = ggplot(mapping=aes(x=r, y=y, ymin=ymin, ymax=ymax, group=in_pi), data=data) + 
   theme_bw() +
   facet_grid(facets=in_tau~pop_size, labeller = tau_label) +  
@@ -110,7 +110,7 @@ g
 ggsave(filename=paste0("invasion_SIMvsCMvsNM_pop_sizes_", today, ".png"), plot=g, width=4, height=6)
 
 #Figure 4: recombinator
-data = dtt[rb==F & r!=1e-16 & in_phi!="NR" & in_pi=="NM" & envch_str==4 & beta<1 & in_rho!=100 & in_rho!=20 & pop_size != 1e7]
+data = dtt[rb==F & r!=1e-14 & in_phi!="NR" & in_pi=="CM" & in_tau==1 & envch_str==4 & beta<1]
 g = ggplot(mapping=aes(x=r, y=y, ymin=ymin, ymax=ymax, group=in_phi), data=data) + 
   theme_bw() +
   facet_grid(facets=in_rho~pop_size)+#, labeller = tau_label) +
@@ -126,7 +126,7 @@ g
 ggsave(filename=paste0("invasion_SIRvsCR_pop_sizes_", today, ".png"), plot=g, width=5, height=6)
 
 #Figure 5: recombinator+mutator
-data = dtt[rb==F & r!=1e-16 & envch_str==4 & beta<1 & in_tau==5 & pop_size!=1e7]
+data = dtt[rb==F & r!=1e-14 & envch_str==4 & beta<1 & in_tau==5]
 g = ggplot(mapping=aes(x=r, y=y, ymin=ymin, ymax=ymax, group=in_pi), data=data) + 
   theme_bw() +
   facet_grid(facets=pop_size~in_phi, labeller = tau_label) +
