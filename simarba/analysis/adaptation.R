@@ -45,7 +45,7 @@ fixation_prob <- function(s,pop_size,mu,tau,pi) {
   return(res)
 }
 
-dt = fread("../adaptation_summary_2014-06-15.csv")
+dt = fread("../adaptation_summary_2014-06-17.csv")
 
 dtt = dt[phi==0 & rho==1, mean_se(final_tick), by="s,beta,pi,r,phi,rho,pop_size,envch_str,mu,num_loci,tau"]
 
@@ -98,7 +98,7 @@ g = g + scale_color_brewer("Mutator", palette="Set1") +
   stat_smooth(method="lm", se=FALSE) + 
   scale_shape(guide="none") + 
   scale_linetype(guide="none") +
-  geom_line(aes(y=adaptation_time), color="black", size=0.2, linetype='dashed')
+  geom_line(aes(y=adaptation_time), size=0.2, linetype='dashed')
 g
 
 ggsave(filename=paste0("adaptation_NR_",today,".png"), plot=g, width=7, height=6)
