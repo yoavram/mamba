@@ -6,8 +6,9 @@ from time import clock
 from os import makedirs, rename
 from os.path import sep, exists, dirname
 from datetime import datetime
-import pickle
+import cPickle as pickle
 import gzip
+import bz2
 
 import pandas as pd
 import numpy as np
@@ -27,7 +28,10 @@ def make_path(filename):
 	path = dirname(filename)
 	if not exists(path):
 		print("Creating path: %s" % path)
-		makedirs(path)
+		try:
+			makedirs(path)
+		except OSError as e:
+			print("Failed creating path: %s" % e)
 	return exists(path)
 
 
@@ -174,9 +178,10 @@ def clear(population, genomes, genomes_dict):
 
 
 def serialize(population, genomes, target_genome):
-	filename = cat_file_path(ser_ext + '.gz')
+	filename = cat_file_path(ser_ext + '.bz2')
 	make_path(filename)
-	fout = gzip.open(filename, "wb")
+	#fout = gzip.open(filename, "wb")
+	fout = bz2.BZ2File(filename, "wb")
 	pickle.dump((population, genomes, target_genome), fout)
 	fout.close()
 	logger.info("Serialized population to %s", filename)
