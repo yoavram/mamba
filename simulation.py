@@ -141,7 +141,8 @@ def run(ticks=10, tick_interval=1):
 		params.save(params_filename, args_and_params)
 
 	# serialization
-	filename = serialize(population, genomes, target_genome)
+	logger.info("Skipping serialization")
+	#filename = serialize(population, genomes, target_genome)
 	
 	# output file
 	output_file.close()
