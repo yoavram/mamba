@@ -45,26 +45,27 @@ fixation_prob <- function(s,pop_size,mu,tau,pi) {
   return(res)
 }
 
-dt = fread("../adaptation_summary_2014-06-17.csv")
+dt = fread("../adaptation_summary_2014-07-17.csv")
 
 dtt = dt[phi==0 & rho==1, mean_se(final_tick), by="s,beta,pi,r,phi,rho,pop_size,envch_str,mu,num_loci,tau"]
 
 dtt[,pi:=factor(dtt$pi,levels=c(0,1,1000),labels=c("CM","SIM","NM"))]
 dtt[,phi:=factor(dtt$phi,levels=c(0,1,1000),labels=c("CR","SIR","NR"))]
 
-dtt[, appearance_prob:= beta * tau * mu / num_loci]
+dtt[, appearance_prob:= envch_str * beta * tau * mu / num_loci]
 dtt[, fixation_prob:=   fixation_prob(s,pop_size,mu,tau,pi)]
 dtt[, fixation_time:=   fixation_time(s,pop_size,1/pop_size,0.5)]
 dtt[, adaptation_time:= envch_str*(fixation_time+1/(1-(1-appearance_prob*fixation_prob)^pop_size))]
       
-g=ggplot(data=dtt[r==0], mapping=aes(x=pop_size*tau*mu, color=pi)) + 
+g=ggplot(data=dtt[r==0], mapping=aes(x=pop_size*beta*tau*mu*envch_str/num_loci, color=pi)) + 
   geom_point(aes(y=y), size=2) + 
   geom_errorbar(aes(y=y,ymax=ymax, ymin=ymin), width=0.3) +   
   facet_grid(envch_str~pi, labeller=tau_label, scales="free"  ) +
   geom_line(aes(y=adaptation_time, linetype=pi)) + 
+  geom_vline(x=c(0.1,1), linetype='dotted') + 
   scale_color_brewer("Mutator", palette="Set1", guide='none') +
   scale_y_log10() + scale_x_log10() + scale_linetype(guide="none") +
-  labs(x="Mutational supply", y="Adaptation time") 
+  labs(x="Beneficial mutational supply", y="Adaptation time") 
 g
 
 qplot(x=adaptation_time, y=y, data=dtt, color=factor(pi), size=I(3)) + 
@@ -84,7 +85,7 @@ dtt[,pop_size:=as.factor(pop_size)]
 dtt[,envch_str:=as.factor(envch_str)]
 
 # Overview
-data = dtt[pop_size!=1e8 & rho==1 & tau==5]# & pi!="NM"]
+data = dtt[pop_size!=1e8 & rho==1 & tau==10]
 g = ggplot(data=data,
            mapping=aes(x=r, y=y, color=pi, group=interaction(pi,envch_str,tau))) +
   theme_bw() + 
@@ -97,8 +98,8 @@ g = ggplot(data=data,
 g = g + scale_color_brewer("Mutator", palette="Set1") +
   stat_smooth(method="lm", se=FALSE) + 
   scale_shape(guide="none") + 
-  scale_linetype(guide="none") +
-  geom_line(aes(y=adaptation_time), size=0.2, linetype='dashed')
+  scale_linetype(guide="none") #+
+  #geom_line(aes(y=adaptation_time), size=0.2, linetype='dashed')
 g
 
 ggsave(filename=paste0("adaptation_NR_",today,".png"), plot=g, width=7, height=6)
@@ -124,7 +125,7 @@ ggsave(filename=paste0("adaptation_NR_mut_supp_",today,".png"), plot=g, width=7,
 
 # normalize by NM
 data = dtt[pop_size!=1e8 & rho==1]
-data = dcast(data[tau==5 | tau==1], r+envch_str+pop_size~pi, value.var="y")
+data = dcast(data[tau==5 | tau==1], r+envch_str+pop_size~pi, value.var="ymin")
 data = ddply(data, .(r,envch_str,pop_size), summarize,
              CM=CM/NM,
              SIM=SIM/NM
@@ -140,3 +141,5 @@ g = ggplot(data=data, mapping=aes(x=r, y=value, group=variable, color=variable))
   theme_bw() +
   theme(text = element_text(size=16), axis.text = element_text(size=11), axis.text.x = element_text(angle = 45, hjust = 1))
 g
+
+ggsave(filename=paste0("adaptation_NR_normalized_",today,".png"), plot=g, width=7, height=6)
