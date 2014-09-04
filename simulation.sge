@@ -26,6 +26,7 @@
 #$ -v in_rho=1
 #$ -v beta=0.01
 
+source /share/apps/nodes-global.csh
 module load gcc/gcc461
 module load python/python-2.7.7
 

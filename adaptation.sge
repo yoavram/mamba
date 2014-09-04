@@ -1,6 +1,6 @@
 #!/bin/tcsh
 #$ -cwd
-#$ -o /dev/null
+##$ -o /dev/null
 #$ -j y
 #$ -N adaptation
 #$ -l lilach,h_rt=48:00:00,mem_free=1G
@@ -21,6 +21,7 @@
 #$ -v in_tick=500
 #$ -v beta=0.01
 
+source /share/apps/nodes-global.csh
 module load gcc/gcc461
 module load python/python-2.7.7
 

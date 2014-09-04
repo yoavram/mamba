@@ -28,10 +28,7 @@ def make_path(filename):
 	path = dirname(filename)
 	if not exists(path):
 		print("Creating path: %s" % path)
-		try:
-			makedirs(path)
-		except OSError as e:
-			print("Failed creating path: %s" % e)
+		makedirs(path)
 	return exists(path)
 
 
@@ -151,7 +148,7 @@ def run(ticks=10, tick_interval=1):
 	rename(output_tmp_filename, output_filename)
 	logger.info("Saved output to %s", output_filename)
 	
-	return population, genomes, target_genome, filename
+	return population, genomes, target_genome, ''#filename
 
 
 def step(population, genomes, target_genome, fitness, mutation_rates, recombination_rates, num_loci, nums, genomes_dict, beta, rb):	
