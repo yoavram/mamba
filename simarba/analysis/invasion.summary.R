@@ -217,4 +217,4 @@ g = ggplot(mapping=aes(x=eff_r, y=y, ymin=ymin, ymax=ymax, group=in_pi), data=da
 g = g + scale_color_brewer("", palette="Set1")+#, guide = FALSE) +
   scale_linetype_manual("", values=c("dashed","solid","dotted"), guide = FALSE)
 g
-ggsave(filename=paste0("invasion_SIMvsCMvsNM_asexuals_", today, ".png"), plot=g, width=5, height=6)
+ggsave(filename=paste0("invasion_SIMvsCMvsNM_asexuals_", today, ".png"), plot=g, width=7, height=6)
