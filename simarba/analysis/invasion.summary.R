@@ -35,7 +35,7 @@ tau_label = function(variable,value) {
 today = Sys.Date()
 setwd("simarba/analysis/")
 
-dt = fread("../invasion_summary_2014-07-28.csv")
+dt = fread("../invasion_summary_2014-08-25.csv")
 #qplot(x=factor(in_pi),y=factor(in_tau),data=dt)
 
 dtt = dt[pop_size<1e8 & s==0.1, mean_se(in_final_rate), by="pi,tau,rho,phi,r,pop_size,envch_str,in_pi,in_tau,in_rho,in_phi,in_rate,beta,rb,mu,s,envch_start"]
@@ -203,7 +203,7 @@ g
 gsave(filename=paste0("invasion_combined_heatmap_N_1e6_", today, ".png"), plot=g, width=7, height=6)
 
 # Figure 5 - asexuals vs recombinators
-data=dtt[rb==F & r==1e-16 & envch_str==4 & beta<1]
+data=dtt[rb==F & r==3e-14 & envch_str==4 & beta<1]
 data[,eff_r:=factor(as.numeric(as.character(data$in_rho))*as.numeric(as.character(data$r)))]
 g = ggplot(mapping=aes(x=eff_r, y=y, ymin=ymin, ymax=ymax, group=in_pi), data=data) +
   theme_bw() +
@@ -214,7 +214,7 @@ g = ggplot(mapping=aes(x=eff_r, y=y, ymin=ymin, ymax=ymax, group=in_pi), data=da
   geom_line(aes(color=in_pi, linetype=in_pi), size=1) + 
   geom_hline(y=0.5, color="black", linestyle="dashed") + 
   scale_y_continuous(limits=c(0.1,0.9), breaks=c(0.25,0.5,0.75))
-g = g + scale_color_brewer("", palette="Set1", guide = FALSE) +
+g = g + scale_color_brewer("", palette="Set1")+#, guide = FALSE) +
   scale_linetype_manual("", values=c("dashed","solid","dotted"), guide = FALSE)
 g
 ggsave(filename=paste0("invasion_SIMvsCMvsNM_asexuals_", today, ".png"), plot=g, width=5, height=6)
