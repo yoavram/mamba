@@ -1,6 +1,6 @@
 #!/bin/bash
 REP=100
-for pop_size in 100000 1000000 10000000
+for pop_size in 10000 100000 1000000
 do
 	for r in 0 0.00003 0.0003 0.003
 	do

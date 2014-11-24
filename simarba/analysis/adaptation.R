@@ -45,7 +45,7 @@ fixation_prob <- function(s,pop_size,mu,tau,pi) {
   return(res)
 }
 
-dt = fread("../adaptation_summary_2014-07-17.csv")
+dt = fread("../adaptation_summary_2014-08-25.csv")
 
 dtt = dt[phi==0 & rho==1, mean_se(final_tick), by="s,beta,pi,r,phi,rho,pop_size,envch_str,mu,num_loci,tau"]
 
@@ -143,3 +143,4 @@ g = ggplot(data=data, mapping=aes(x=r, y=value, group=variable, color=variable))
 g
 
 ggsave(filename=paste0("adaptation_NR_normalized_",today,".png"), plot=g, width=7, height=6)
+
