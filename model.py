@@ -63,7 +63,7 @@ def hamming_fitness_genome(genome, target_genome, s):
 	return (1 - s) ** load
 
 
-def hamming_fitness_genomes(genomes, target_genome, s, num_loci):
+def hamming_fitness_genomes(genomes, target_genome, s):
 	num_loci = target_genome.shape[0]
 	load = cdist(genomes[:, :num_loci], target_genome.reshape(1, num_loci), 'hamming') * num_loci
 	return ((1 - s) ** load).reshape(genomes.shape[0])
@@ -128,7 +128,7 @@ def choose(n, k):
 
 def invasion(population, genomes, modifiers, rate, num_loci):
 	invading_population = population.copy()
-	invading_population *= rate
+	invading_population = (invading_population * rate).astype(int)
 	population -= invading_population
 	invading_genomes = genomes.copy()
 	invading_genomes[:, num_loci:] = np.array(modifiers)

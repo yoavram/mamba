@@ -102,7 +102,11 @@ def create_parser():
 	parser.add_argument( "--rb",
 		action='store_true',
 		default=False,
-		help="NOT IMPLEMENTED use recombination barriers")
+		help="NOT IMPLEMENTED use recombination barriers") # TODO remove NOT IMPLEMENTED?
+	parser.add_argument( "--neutral",
+		action='store_true',
+		default=False,
+		help="one neutral site") # TODO remove NOT IMPLEMENTED?
 	parser.add_argument( "--debug",
 		action='store_false',
 		default=True,
@@ -152,6 +156,7 @@ def args_and_params():
 	string_to_boolean(parameters,'console')
 	string_to_boolean(parameters,'debug')
 	string_to_boolean(parameters,'rb')
+	string_to_boolean(parameters,'neutral')
 	string_to_boolean(parameters,'envch_start')
 	return parameters
 

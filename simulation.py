@@ -80,6 +80,7 @@ def run(ticks=10, tick_interval=1):
 	
 	population = create_population(pop_size, genomes.shape[0])
 
+	now_neutral = neutral
 	changes = draw_environmental_changes(ticks + 1, envch_rate, envch_start)
 	if in_tick >= 0 and in_rate == 0 and adapt:
 		changes[in_tick] = 1
@@ -91,10 +92,13 @@ def run(ticks=10, tick_interval=1):
 	for tick in range(ticks + 1):
 		if changes[tick]:
 			logger.debug("Environmental change at tick %d" % tick)
+			if neutral: 
+				now_neutral = not now_neutral
 			tg_hash = hash(target_genome.tostring())
-			target_genome = environmental_change(target_genome, num_loci, envch_str)
+			_envch_str = envch_str - neutral * (not now_neutral)
+			target_genome = environmental_change(target_genome, num_loci, _envch_str)
 			assert tg_hash != hash(target_genome.tostring())
-		fitness, mutation_rates, recombination_rates, nums = update(genomes, target_genome, s, mu ,r)
+		fitness, mutation_rates, recombination_rates, nums = update(genomes, target_genome, s, mu, r, now_neutral)
 
 		if adapt and in_tick < tick:
 			adapted = population[fitness == 1].sum() / float(population.sum())
@@ -106,7 +110,7 @@ def run(ticks=10, tick_interval=1):
 			header = False if tick > 0 else True
 			df.to_csv(output_file, header=header, mode='a', index_label='index')
 		
-		population, genomes = step(population, genomes, target_genome, fitness, mutation_rates, recombination_rates, num_loci, nums, genomes_dict, beta, rb)
+		population, genomes = step(population, genomes, target_genome, fitness, mutation_rates, recombination_rates, num_loci, nums, genomes_dict, beta, rb, now_neutral)
 
 		if tick_interval != 0 and tick % tick_interval == 0:
 			logger.debug("Tick %d", tick)
@@ -151,16 +155,20 @@ def run(ticks=10, tick_interval=1):
 	return population, genomes, target_genome, ''#filename
 
 
-def step(population, genomes, target_genome, fitness, mutation_rates, recombination_rates, num_loci, nums, genomes_dict, beta, rb):	
+def step(population, genomes, target_genome, fitness, mutation_rates, recombination_rates, num_loci, nums, genomes_dict, beta, rb, now_neutral):	
 	population = selection(population, fitness) # selection includes drift
 	population, genomes, genomes_dict = clear(population, genomes, genomes_dict)
-	fitness, mutation_rates, recombination_rates, nums = update(genomes, target_genome, s, mu ,r)
+	fitness, mutation_rates, recombination_rates, nums = update(genomes, target_genome, s, mu, r, now_neutral)
 	population, genomes, genomes_dict = mutation_recombination(population, genomes, mutation_rates, recombination_rates, num_loci, target_genome, genomes_dict, beta, rb)
 	return population, genomes
 
 
-def update(genomes, target_genome, s, mu ,r):
-	fitness = create_fitness(genomes, target_genome, s, num_loci)
+def update(genomes, target_genome, s, mu, r, now_neutral):
+	# remove last locus if it is neutral
+	_genomes = genomes[:, :num_loci - now_neutral]
+	_target_genome = target_genome[:num_loci - now_neutral]
+	
+	fitness = create_fitness(_genomes, _target_genome, s)
 	mutation_rates = create_muation_rates(mu, genomes, fitness, s, num_loci)
 	recombination_rates = create_recombination_rates(r, genomes, fitness, s, num_loci)
 	nums = genomes_to_nums(genomes, num_loci)
