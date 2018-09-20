@@ -2,7 +2,7 @@
 #$ -cwd
 ##$ -o /dev/null
 #$ -j y
-#$ -N invasion
+#$ -N neutral_invasion
 #$ -l lilach,mem_free=1G
 #$ -q comp4.lilach.q
 
@@ -28,7 +28,8 @@
 #$ -v beta=0.01
 
 #source /share/apps/nodes-global.csh
-module load gcc/gcc480
-module load python/python-2.7.6
+#module load gcc/gcc480
+#module load python/python-2.7.6
 
-python simulation.py --beta=${beta} --envch_rate=${envch_rate} --envch_str=${envch_str} --r=${r} --s=${s} --mu=${mu} --tau=${tau} --pi=${pi} --phi=${phi} --rho=${rho} --ticks=${ticks} --pop_size=${pop_size} --tick_interval=${tick_interval} --stats_interval=${stats_interval} --in_rate=${in_rate} --in_tick=${in_tick} --in_pi=${in_pi} --in_tau=${in_tau} --in_phi=${in_phi} --in_rho=${in_rho} --console --debug --job_name=$JOB_NAME
+/groups/lilach_hadany/yoavram/miniconda3/envs/mamba/bin/python --version
+/groups/lilach_hadany/yoavram/miniconda3/envs/mamba/bin/python simulation.py --beta=${beta} --envch_rate=${envch_rate} --envch_str=${envch_str} --r=${r} --s=${s} --mu=${mu} --tau=${tau} --pi=${pi} --phi=${phi} --rho=${rho} --ticks=${ticks} --pop_size=${pop_size} --tick_interval=${tick_interval} --stats_interval=${stats_interval} --in_rate=${in_rate} --in_tick=${in_tick} --in_pi=${in_pi} --in_tau=${in_tau} --in_phi=${in_phi} --in_rho=${in_rho} --console --debug --job_name=$JOB_NAME
