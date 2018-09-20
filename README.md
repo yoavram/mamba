@@ -6,6 +6,7 @@
 
 This project runs density-based evolutionary simulations used by 
 [Yoav Ram] at the [Hadany Evolutionary Theory Lab in Tel-Aviv].
+The project is hosted on [GitHub](https://github.com/yoavram/mamba).
 
 In density-based models the population is composed of types or classes, and instead of explicitly accounting for every individual (as it is done in individual-based simulations, such as [proevolutionsimulation]), the model explicitly accounts for the classes and counts how many individuals are in each class.
 
@@ -44,7 +45,7 @@ Selection is similar to drift, only the sampling procedure is now biased in favo
 
 #### Mutation
 Mutation changes one genome to another. We need to take an individual from a class and change it to another class.
-The mutation rate sets the average number of mutations per genome per generation. The actual number is drawn from a Poisson distribution with the rate as the parameter. The mutations are uniformly distributed across the genome. A mutation changes the current allele to another one without bias - if there are only two alleles (diallelic model) than it changes 0 to 1 and 1 to 0, always. If there are three alleles (triallelic model) than 0 will change to 1 with probability 1/2 and to 2 with probability 1/2, and so on.
+The mutation rate sets the average number of mutations per genome per generation. The actual number is drawn from a Poisson distribution with the rate as the parameter. The mutations are uniformly distributed across the genome. A mutation changes the current allele to another one without bias - if there are only two alleles (bi-allelic model) than it changes 0 to 1 and 1 to 0, always. If there are three alleles (tri-allelic model) than 0 will change to 1 with probability 1/2 and to 2 with probability 1/2, and so on.
 
 #### Recombination
 Recombination changes one genome to another. In bacteria recombination is rare and acts on small fragments of the genome, so we can treat it just like mutation, only that the choice of the new allele is biased on the frequency of each allele in the population, as the alleles doesn't mutate to a new form but rather the allele at that locus (position) is drawn from the population.
@@ -66,9 +67,9 @@ The simulation stops when:
   
 ### Implementation
 
-The simulation is implemented in Python (after an attempt at implementing it in R which resulted in a slow simulation). It is highly dependent on NumPy, and all `model.py` funcitons were thouroughly tested for efficiency using IPython notebook `%timeit` magic against different implementations, including using *cython* and *numba*.
+The simulation is implemented in Python (after an attempt at implementing it in R which resulted in a slow simulation). It is highly dependent on NumPy, and all `model.py` functions were thoroughly tested for efficiency using IPython notebook `%timeit` magic against different implementations, including using *cython* and *numba* (albeit a very early version of numba).
 
-The simulation is written  on Windows 7 with `Python 2.7.3 |EPD 7.3-2 (64-bit)| (default, Apr 12 2012, 15:20:16) [MSC v.1500 64 bit (AMD64)] on win32` and runs on either an Ubuntu PC with `Python 2.7.3 (default, Aug  1 2012, 05:14:39) [GCC 4.6.3] on linux2` or on a Linux cluster with `Python 2.7.2 (default, Feb 29 2012, 14:04:58) [GCC 4.1.2 20080704 (Red Hat 4.1.2-51)] on linux2`.
+The simulation was written on Windows 7 with `Python 2.7.3 |EPD 7.3-2 (64-bit)| (default, Apr 12 2012, 15:20:16) [MSC v.1500 64 bit (AMD64)] on win32` and runs on either an Ubuntu PC with `Python 2.7.3 (default, Aug  1 2012, 05:14:39) [GCC 4.6.3] on linux2` or on a Linux cluster with `Python 2.7.2 (default, Feb 29 2012, 14:04:58) [GCC 4.1.2 20080704 (Red Hat 4.1.2-51)] on linux2`.
 
 Selected modules and packages:
 - logging 0.5.1.2
@@ -80,31 +81,7 @@ Selected modules and packages:
 
 I tried managing the simulation managed with *Sumatra* 0.4.0 but it has some problems running on a cluster.
 
-The results are saved using GZiped CSV files.
-
-Analysis is performed with R 2.15.2 with *ggplot2* 0.9.2.1 and *plyr*. 
-
-### Other tools
-
-The code is hosted on [github]. 
-
-Simulations can run using [Sumatra](http://pypi.python.org/pypi/Sumatra). 
-To set it up, run the following from the `mamba` folder (the same one to which you cloned the repository):
-
-```
-smt init mamba
-smt configure --executable=python --main=simulation.py --datapath=output
-```
-And to run simulations use:
-``` 
-smt run params.json <param=value>
-```
-where `params.json` can be changed to another parameter file in JSON format, and you can override the parameters in it by giving additional `param=value` pairs (make sure there are no spaces around the `=` sign).
-For example:
-```
-smt run msb.json ticks=5
-```
-will run a simulation with parameters from `msb.json` but the `ticks` parameter will be set to `5`, no matter what `msb.json` says.
+The results are saved using GZiped CSV files and JSON files.
 
 [Yoav Ram]: http://www.yoavram.com/
 [Hadany Evolutionary Theory Lab in Tel-Aviv]: http://sites.google.com/site/hadanylab/
