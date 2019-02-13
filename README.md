@@ -5,7 +5,9 @@
 ### Overview
 
 This project runs density-based evolutionary simulations used by 
-[Yoav Ram] at the [Hadany Evolutionary Theory Lab in Tel-Aviv].
+[Yoav Ram](http://www.yoavram.com) and Lilach Hadany at the [Hadany Lab](http://hadanylab.com) at Tel Aviv University.
+Yoav is now at IDC Herzliya.
+
 The project is hosted on [GitHub](https://github.com/yoavram/mamba).
 
 In density-based models the population is composed of types or classes, and instead of explicitly accounting for every individual (as it is done in individual-based simulations, such as [proevolutionsimulation]), the model explicitly accounts for the classes and counts how many individuals are in each class.
