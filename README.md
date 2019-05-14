@@ -4,9 +4,14 @@
 
 ### Overview
 
-This project runs density-based evolutionary simulations used by 
+This project runs density-based evolutionary simulations.
+It was developed by 
 [Yoav Ram](http://www.yoavram.com) and Lilach Hadany at the [Hadany Lab](http://hadanylab.com) at Tel Aviv University.
 Yoav is now at IDC Herzliya.
+
+The project was used for the paper:
+
+> Ram and Hadany, 2019. Evolution of stress-induced mutagenesis in the presence of horizontal gene transfer. The American Naturalist, 194:1. DOI: 10.1086/703457.
 
 The project is hosted on [GitHub](https://github.com/yoavram/mamba).
 
@@ -38,8 +43,7 @@ An example of rates: a basal mutation rate for *E. coli* bacteria is 0.003 mutat
 ### Processes
 
 #### Drift
-Drift is the simplest force of evolution.
-It randomly chooses individuals for the next generation from the individuals at the current generation. There is no bias and every individual has the same chance of being choosen - it's a random sampling procedure.
+Drift randomly chooses individuals for the next generation from the individuals at the current generation. There is no bias and every individual has the same chance of being choosen - it's a random sampling procedure.
 Because we keep counts of number of individuals at each class we can simply use these counts with a multinomial random function to do the sampling.
 
 #### Selection
@@ -49,7 +53,7 @@ Selection is similar to drift, only the sampling procedure is now biased in favo
 Mutation changes one genome to another. We need to take an individual from a class and change it to another class.
 The mutation rate sets the average number of mutations per genome per generation. The actual number is drawn from a Poisson distribution with the rate as the parameter. The mutations are uniformly distributed across the genome. A mutation changes the current allele to another one without bias - if there are only two alleles (bi-allelic model) than it changes 0 to 1 and 1 to 0, always. If there are three alleles (tri-allelic model) than 0 will change to 1 with probability 1/2 and to 2 with probability 1/2, and so on.
 
-#### Recombination
+#### Recombination/HGT
 Recombination changes one genome to another. In bacteria recombination is rare and acts on small fragments of the genome, so we can treat it just like mutation, only that the choice of the new allele is biased on the frequency of each allele in the population, as the alleles doesn't mutate to a new form but rather the allele at that locus (position) is drawn from the population.
 
 #### Environmental changes
@@ -79,9 +83,6 @@ Selected modules and packages:
 - scipy 0.11.0
 - pandas 0.10.1
 - numpy 1.6.2
-- Cython 0.18
-
-I tried managing the simulation managed with *Sumatra* 0.4.0 but it has some problems running on a cluster.
 
 The results are saved using GZiped CSV files and JSON files.
 
